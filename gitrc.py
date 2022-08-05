@@ -27,6 +27,9 @@ NETRC_FILENAME = "~/.netrc"
 
 import netrc
 
+def _target(url: str) -> str:
+    return netrc._target(url)
+
 def get_username_password(url: str = "") -> Tuple[str, str]:
     return netrc.get_username_password(url)
 def get_username(url: str = "") -> str:
@@ -136,7 +139,7 @@ if __name__ == "__main__":
         if value:
             print(value)
         else:
-            logg.error("# not found")
+            gitrc_logg.error("# not found")
     else:
         uselogin = get_username_password(args[0])
         if not uselogin: sys.exit(1)

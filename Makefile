@@ -137,7 +137,9 @@ AUTOPEP8=autopep8
 AUTOPEP8_INPLACE= --in-place
 
 type: 
-	$(MAKE) $(PARALLEL) $(SCRIPT).type $(TESTSUITE).type
+	$(MAKE) $(PARALLEL) $(SCRIPT).type $(TESTSUITE).type \
+	    $(TAB_UTILS).type $(TAB_TESTS).type $(NET_UTILS).type $(NET_TESTS).type:
+	
 
 $(SCRIPT).type $(TESTSUITE).type $(GENSCRIPT).type $(GEN_TESTS).type:
 	$(MYPY) $(MYPY_STRICT) $(MYPY_OPTIONS) $(@:.type=)

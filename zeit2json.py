@@ -49,7 +49,7 @@ mapping = """
 >> odoo "Odoo Automation",
 """
 
-def get_user_name() -> str:
+def get_user_name() -> Optional[str]:
     if ZEIT_USER_NAME:
         return ZEIT_USER_NAME
     import gitrc
@@ -78,7 +78,7 @@ def get_zeit_before() -> Day:
         return get_date(ZEIT_BEFORE)
     if ZEIT_AFTER:
         after = get_date(ZEIT_AFTER)
-        return Date(after.year, 12, 31)
+        return Day(after.year, 12, 31)
     today = datetime.date.today()
     return Day(today.year, 12, 31)
 
@@ -437,25 +437,25 @@ def scan_data(lines_from_file: Union[Sequence[str], TextIO]) -> JSONList:
                     for check in ZEIT_PROJFILTER.split(","):
                         if check and check.lower() in itemProj.lower():
                             ok = True
-                    logg.info("odoo filter '%s' on project '%s' => %s", PROJFILTER, itemProj, ok)
+                    logg.info("odoo filter '%s' on project '%s' => %s", ZEIT_PROJFILTER, itemProj, ok)
                 if ZEIT_TASKFILTER and ok:
                     ok = False
                     for check in ZEIT_TASKFILTER.split(","):
                         if check and check.lower() in itemTask.lower():
                             ok = True
-                    logg.info("odoo filter '%s' on task '%s' => %s", TASKFILTER, itemTask, ok)
+                    logg.info("odoo filter '%s' on task '%s' => %s", ZEIT_TASKFILTER, itemTask, ok)
                 if ZEIT_TEXTFILTER and ok:
                     ok = False
                     for check in ZEIT_TEXTFILTER.split(","):
                         if check and check.lower() in proj.lower():
                             ok = True
-                    logg.info("text filter '%s' on project %s => %s", TEXTFILTER, proj, ok)
+                    logg.info("text filter '%s' on project %s => %s", ZEIT_TEXTFILTER, proj, ok)
                 if ZEIT_DESCFILTER and ok:
                     ok = False
                     for check in ZEIT_DESCFILTER.split(","):
                         if check and check.lower() in itemDesc.lower():
                             ok = True
-                    logg.info("text filter '%s' on description %s => %s", DESCFILTER, itemDesc, ok)
+                    logg.info("text filter '%s' on description %s => %s", ZEIT_DESCFILTER, itemDesc, ok)
                 if not ZEIT_EXTRATIME:
                     if "extra " in itemTask:
                         ok = False
