@@ -25,10 +25,10 @@ DONE = (logging.WARNING + logging.ERROR) // 2
 logging.addLevelName(DONE, "DONE")
 
 # [for zeit2json]
-ZEIT_USER_NAME = "" # get_user_name() in zeit
-ZEIT_FILENAME = "" # get_zeit_filename()
-ZEIT_AFTER = "" # get_zeit_after()
-ZEIT_BEFORE = "" # get_zeit_before()
+ZEIT_USER_NAME = ""  # get_user_name() in zeit
+ZEIT_FILENAME = ""  # get_zeit_filename()
+ZEIT_AFTER = ""  # get_zeit_after()
+ZEIT_BEFORE = ""  # get_zeit_before()
 ZEIT_SUMMARY = "stundenzettel"
 ZEIT_PROJFILTER = ""
 ZEIT_TASKFILTER = ""
@@ -400,7 +400,7 @@ def run(arg: str) -> None:
         with open(csv_file, "w") as f:
             f.write(csv_text)
         logg.log(DONE, "written %s (%s entries)", csv_file, len(data))
-    summary =  []
+    summary = []
     results: JSONList = []
     if arg in ["cc", "check"]:
         results = check_in_sync(data)
@@ -416,13 +416,13 @@ def run(arg: str) -> None:
         results = summary_per_project(data)
         sum_zeit = sum([float(cast(JSONBase, item["zeit"])) for item in results if item["zeit"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
-        summary = [ f"{sum_zeit} hours zeit", f"{sum_odoo} hours odoo" ]
+        summary = [f"{sum_zeit} hours zeit", f"{sum_odoo} hours odoo"]
     if arg in ["ss", "topics"]:
         results = summary_per_topic(data)
     if results:
         print(tabtotext.tabToGFM(results, formats={"zeit": " %4.2f", "odoo": " %4.2f"}))
         for line in summary:
-           print(f"# {line}")
+            print(f"# {line}")
         if SCSVFILE:
             with open(SCSVFILE, "w") as f:
                 f.write(tabtotext.tabToCSV(results))
