@@ -71,16 +71,16 @@ def get_zeit_after() -> Day:
     if ZEIT_AFTER:
         return get_date(ZEIT_AFTER)
     today = datetime.date.today()
-    return Day(today.year,1,1)
+    return Day(today.year, 1, 1)
 def get_zeit_before() -> Day:
     global ZEIT_BEFORE, ZEIT_AFTER
     if ZEIT_BEFORE:
         return get_date(ZEIT_BEFORE)
     if ZEIT_AFTER:
         after = get_date(ZEIT_AFTER)
-        return Date(after.year,12,31)
+        return Date(after.year, 12, 31)
     today = datetime.date.today()
-    return Day(today.year,12,31)
+    return Day(today.year, 12, 31)
 
 def time2float(time: str) -> float:
     time = time.replace(",", ".")
@@ -151,20 +151,20 @@ def last_of_month(diff: int) -> str:
 def last_sunday(diff: int) -> Day:
     today = datetime.date.today()
     for attempt in range(7):
-        diffs = datetime.timedelta(days = diff - attempt)
+        diffs = datetime.timedelta(days=diff - attempt)
         day = today + diffs
-        if day.weekday() in [0,7]:
+        if day.weekday() in [0, 7]:
             return day
-    return today + datetime.timedelta(days = -7)
+    return today + datetime.timedelta(days=-7)
 
 def next_sunday(diff: int) -> Day:
     today = datetime.date.today()
     for attempt in range(7):
-        diffs = datetime.timedelta(days = diff + attempt)
+        diffs = datetime.timedelta(days=diff + attempt)
         day = today + diffs
-        if day.weekday() in [0,7]:
+        if day.weekday() in [0, 7]:
             return day
-    return today + datetime.timedelta(days = +7)
+    return today + datetime.timedelta(days=+7)
 
 def get_date(text: str, on_or_before: Optional[Day] = None) -> Day:
     if isinstance(text, Day):
