@@ -311,7 +311,7 @@ def store_username_password(url: str, username: str, password: str) -> str:
         with open(filename) as f:
             for line in f:
                 if _fnmatch(line, matching0) or _fnmatch(line, matching1):
-                    continue # delete
+                    continue  # delete
                 lines.append(line.rstrip())
     with open(filename, "w") as f:
         password46 = _encode46(password)
@@ -332,7 +332,7 @@ def erase_username_password(url: str) -> str:
         with open(filename) as f:
             for line in f:
                 if _fnmatch(line, matching0) or _fnmatch(line, matching1):
-                    continue # delete
+                    continue  # delete
                 lines.append(line.rstrip())
     with open(filename, "w") as f:
         for line in lines:
