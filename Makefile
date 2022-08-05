@@ -138,8 +138,9 @@ AUTOPEP8_INPLACE= --in-place
 
 type: 
 	$(MAKE) $(PARALLEL) $(SCRIPT).type $(TESTSUITE).type \
-	    $(TAB_UTILS).type $(TAB_TESTS).type $(NET_UTILS).type $(NET_TESTS).type:
-	
+	                 $(GENSCRIPT).type $(GEN_TESTS).type \
+	                 $(TAB_UTILS).type $(TAB_TESTS).type \
+	                 $(NET_UTILS).type $(NET_TESTS).type
 
 $(SCRIPT).type $(TESTSUITE).type $(GENSCRIPT).type $(GEN_TESTS).type:
 	$(MYPY) $(MYPY_STRICT) $(MYPY_OPTIONS) $(@:.type=)
@@ -156,5 +157,7 @@ $(TAB_UTILS).pep $(TAB_TESTS).pep $(NET_UTILS).pep $(NET_TESTS).pep:
 	git --no-pager diff $(@:.pep=)
 
 pep:
-	$(MAKE) $(PARALLEL) $(SCRIPT).pep $(TESTSUITE).pep $(GENSCRIPT).pep $(GEN_TESTS).pep \
-	    $(TAB_UTILS).pep $(TAB_TESTS).pep $(NET_UTILS).pep $(NET_TESTS).pep
+	$(MAKE) $(PARALLEL) $(SCRIPT).pep $(TESTSUITE).pep \
+	                 $(GENSCRIPT).pep $(GEN_TESTS).pep \
+	                 $(TAB_UTILS).pep $(TAB_TESTS).pep \
+	                 $(NET_UTILS).pep $(NET_TESTS).pep

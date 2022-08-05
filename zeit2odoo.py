@@ -25,10 +25,10 @@ DONE = (logging.WARNING + logging.ERROR) // 2
 logging.addLevelName(DONE, "DONE")
 
 # [for zeit2json]
-ZEIT_USER_NAME = ""  # get_user_name() in zeit
+AFTER = ""  # get_zeit_after()
+BEFORE = ""  # get_zeit_before()
 ZEIT_FILENAME = ""  # get_zeit_filename()
-ZEIT_AFTER = ""  # get_zeit_after()
-ZEIT_BEFORE = ""  # get_zeit_before()
+ZEIT_USER_NAME = ""  # get_user_name() in zeit
 ZEIT_SUMMARY = "stundenzettel"
 ZEIT_PROJFILTER = ""
 ZEIT_TASKFILTER = ""
@@ -345,39 +345,39 @@ def _summary_per_topic(data: JSONList, odoodata: JSONList) -> JSONList:
     return list(sumdata.values())
 
 def run(arg: str) -> None:
-    global ZEIT_AFTER, ZEIT_BEFORE
+    global AFTER, BEFORE
     if arg in ["latest", "week"]:
-        ZEIT_AFTER = last_sunday(-1).isoformat()
-        ZEIT_BEFORE = next_sunday(-1).isoformat()
-        logg.log(DONE, "%s -> %s %s", arg, ZEIT_AFTER, ZEIT_BEFORE)
+        AFTER = last_sunday(-1).isoformat()
+        BEFORE = next_sunday(-1).isoformat()
+        logg.log(DONE, "%s -> %s %s", arg, AFTER, BEFORE)
         return
     if arg in ["late", "lastweek"]:
-        ZEIT_AFTER = last_sunday(-6).isoformat()
-        ZEIT_BEFORE = next_sunday(-6).isoformat()
-        logg.log(DONE, "%s -> %s %s", arg, ZEIT_AFTER, ZEIT_BEFORE)
+        AFTER = last_sunday(-6).isoformat()
+        BEFORE = next_sunday(-6).isoformat()
+        logg.log(DONE, "%s -> %s %s", arg, AFTER, BEFORE)
         return
     if arg in ["next", "nextmonth", "next-month"]:
-        ZEIT_AFTER = first_of_month(-1)
-        ZEIT_BEFORE = last_of_month(-1)
-        logg.log(DONE, "%s -> %s %s", arg, ZEIT_AFTER, ZEIT_BEFORE)
+        AFTER = first_of_month(-1)
+        BEFORE = last_of_month(-1)
+        logg.log(DONE, "%s -> %s %s", arg, AFTER, BEFORE)
         return
     if arg in ["this", "thismonth", "this-month"]:
-        ZEIT_AFTER = first_of_month(+0)
-        ZEIT_BEFORE = last_of_month(+0)
-        logg.log(DONE, "%s -> %s %s", arg, ZEIT_AFTER, ZEIT_BEFORE)
+        AFTER = first_of_month(+0)
+        BEFORE = last_of_month(+0)
+        logg.log(DONE, "%s -> %s %s", arg, AFTER, BEFORE)
         return
     if arg in ["last", "lastmonth", "last-month"]:
-        ZEIT_AFTER = first_of_month(-1)
-        ZEIT_BEFORE = last_of_month(-1)
-        logg.log(DONE, "%s -> %s %s", arg, ZEIT_AFTER, ZEIT_BEFORE)
+        AFTER = first_of_month(-1)
+        BEFORE = last_of_month(-1)
+        logg.log(DONE, "%s -> %s %s", arg, AFTER, BEFORE)
         return
     if arg in ["beforelast", "beforelastmonth", "before-last-month", "blast", "b4last"]:
-        ZEIT_AFTER = first_of_month(-2)
-        ZEIT_BEFORE = last_of_month(-2)
-        logg.log(DONE, "%s -> %s %s", arg, ZEIT_AFTER, ZEIT_BEFORE)
+        AFTER = first_of_month(-2)
+        BEFORE = last_of_month(-2)
+        logg.log(DONE, "%s -> %s %s", arg, AFTER, BEFORE)
         return
-    zeit2json.ZEIT_AFTER = ZEIT_AFTER
-    zeit2json.ZEIT_BEFORE = ZEIT_BEFORE
+    zeit2json.ZEIT_AFTER = AFTER
+    zeit2json.ZEIT_BEFORE = BEFORE
     zeit2json.ZEIT_USER_NAME = ZEIT_USER_NAME
     zeit2json.ZEIT_SUMMARY = ZEIT_SUMMARY
     zeit2json.ZEIT_PROJFILTER = ZEIT_PROJFILTER
@@ -449,9 +449,9 @@ if __name__ == "__main__":
     cmdline = OptionParser("%prog [check|valid|update|compare|summarize|summary|topics] files...")
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
-    cmdline.add_option("-a", "--after", metavar="DATE", default=ZEIT_AFTER,
+    cmdline.add_option("-a", "--after", metavar="DATE", default=AFTER,
                        help="only evaluate entrys on and after [first of year]")
-    cmdline.add_option("-b", "--before", metavar="DATE", default=ZEIT_BEFORE,
+    cmdline.add_option("-b", "--before", metavar="DATE", default=BEFORE,
                        help="only evaluate entrys on and before [last of year]")
     cmdline.add_option("-f", "--filename", metavar="TEXT", default=ZEIT_FILENAME,
                        help="choose input filename [%default]")
@@ -509,8 +509,8 @@ if __name__ == "__main__":
     ZEIT_DESCFILTER = opt.descfilter
     ZEIT_FILENAME = opt.filename
     ZEIT_SUMMARY = opt.summary
-    ZEIT_AFTER = opt.after
-    ZEIT_BEFORE = opt.before
+    AFTER = opt.after
+    BEFORE = opt.before
     if not args:
         args = ["make"]
     for arg in args:
