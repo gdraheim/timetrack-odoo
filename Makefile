@@ -132,7 +132,7 @@ mypy:
 	zypper install -y python3-click python3-pathspec
 
 MYPY = mypy
-MYPY_STRICT = --strict --show-error-codes --show-error-context --no-warn-unused-ignores
+MYPY_STRICT = --strict --show-error-codes --show-error-context --no-warn-unused-ignores --python-version 3.6
 AUTOPEP8=autopep8
 AUTOPEP8_INPLACE= --in-place
 
