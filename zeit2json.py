@@ -169,35 +169,27 @@ def next_sunday(diff: int) -> Day:
 def get_date(text: str, on_or_before: Optional[Day] = None) -> Day:
     if isinstance(text, Day):
         return text
+    refday = on_or_before or datetime.date.today()
+    baseyear = str(refday.year)
     if re.match(r"\d+-\d+-\d+", text):
         return date_isoformat(text)
     if re.match(r"\d+-\d+", text):
-        today = datetime.date.today()
-        baseyear = str(today.year)
         text2 = baseyear + "-" + text
         return date_isoformat(text2)
     if re.match(r"\d+[.]\d+[.]\d+", text):
         return date_dotformat(text)
     if re.match(r"\d+[.]\d+[.]", text):
-        today = datetime.date.today()
-        baseyear = str(today.year)
         text2 = text + baseyear
         return date_dotformat(text2)
     if re.match(r"\d+[.]", text):
-        today = datetime.date.today()
-        baseyear = str(today.year)
-        basemonth = str(today.month)
-        fromday = int(text[:-1])
-        if fromday > today.day:
-            basemonth = str(today.month - 1)
-        elif on_or_before:
-            basemonth = str(on_or_before.month)
+        basemonth = str(refday.month)
         text2 = text + basemonth + "." + baseyear
         return date_dotformat(text2)
     logg.error("'%s' does not match YYYY-mm-dd", text)
     return date_isoformat(text)
 
 def read_data(filename: str) -> JSONList:
+    logg.info("reading %s", filename)
     return scan_data(open(filename))
 def scan_data(lines_from_file: Union[Sequence[str], TextIO]) -> JSONList:
     prefixed = {}
@@ -209,6 +201,7 @@ def scan_data(lines_from_file: Union[Sequence[str], TextIO]) -> JSONList:
     #
     on_or_before = get_zeit_before()
     on_or_after = get_zeit_after()
+    logg.info("reading %s - %s", on_or_after, on_or_before)
     idvalues: Dict[str, str] = {}
     cols0 = re.compile(r"^(\S+)\s+(\S+)+\s+(\S+)(\s*)$")
     cols1 = re.compile(r"^(\S+)\s+(\S+)+\s+(\S+)\s+(.*)")
