@@ -312,6 +312,56 @@ def _summary_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
         sumproj[proj_name]["zeit"] += item["zeit"]  # type: ignore
     return list(sumproj.values())
 
+def monthly_per_project(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
+    if not odoodata:
+        odoo = odoo_api.Odoo()
+        return _monthly_per_project(data, odoo.timesheet(get_zeit_after(), get_zeit_before()))
+    return _monthly_per_project(data, odoodata)
+def _monthly_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
+    sumdata = _monthly_per_project_task(data, odoodata)
+    sumproj: Dict[Tuple[str, str], JSONDict] = {}
+    for item in sumdata:
+        new_month = cast(str, item["am"])
+        proj_name = cast(str, item["at proj"])
+        task_name = cast(str, item["at task"])
+        new_key = (new_month, proj_name)
+        if new_key not in sumproj:
+            sumproj[new_key] = {"am": new_month, "at proj": proj_name, "odoo": 0, "zeit": 0}
+        sumproj[new_key]["odoo"] += item["odoo"]  # type: ignore
+        sumproj[new_key]["zeit"] += item["zeit"]  # type: ignore
+    return list(sumproj.values())
+
+def monthly_per_project_task(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
+    if not odoodata:
+        odoo = odoo_api.Odoo()
+        return _monthly_per_project_task(data, odoo.timesheet(get_zeit_after(), get_zeit_before()))
+    return _monthly_per_project_task(data, odoodata)
+def _monthly_per_project_task(data: JSONList, odoodata: JSONList) -> JSONList:
+    sumdata: Dict[Tuple[str, str, str], JSONDict] = {}
+    for item in data:
+        proj_id: str = cast(str, item["Project"])
+        task_id: str = cast(str, item["Task"])
+        new_date: Day = cast(Day, item["Date"])
+        new_size: Num = cast(Num, item["Quantity"])
+        new_month = "M%02i" % new_date.month
+        new_key = (new_month, proj_id, task_id)
+        if new_key not in sumdata:
+            sumdata[new_key] = {"am": new_month, "at proj": proj_id, "at task": task_id, "odoo": 0, "zeit": 0}
+        sumdata[new_key]["zeit"] += new_size  # type: ignore
+    dayodoo: Dict[Day, JSONList] = {}
+    for item in odoodata:
+        proj_name: str = cast(str, item["proj_name"])
+        task_name: str = cast(str, item["task_name"])
+        old_date: Day = get_date(cast(str, item["entry_date"]))
+        old_size: Num = cast(Num, item["entry_size"])
+        old_month = "M%02i" % old_date.month
+        old_key = (old_month, proj_name, task_name)
+        if old_key not in sumdata:
+            sumdata[old_key] = {"am": old_month, "at proj": proj_name, "at task": task_name, "odoo": 0, "zeit": 0}
+        sumdata[old_key]["odoo"] += old_size  # type: ignore
+    return list(sumdata.values())
+
+
 def pref_desc(desc: str) -> str:
     if " " not in desc:
         return desc.strip()
@@ -410,6 +460,13 @@ def run(arg: str) -> None:
         results = update_per_days(data)
     if arg in ["cc", "compare"]:
         results = summary_per_day(data)
+    if arg in ["ssx", "msummarize", "mtasks", "monthlys"]:
+        results = monthly_per_project_task(data)
+    if arg in ["sx", "msummary", "monthly"]:
+        results = monthly_per_project(data)
+        sum_zeit = sum([float(cast(JSONBase, item["zeit"])) for item in results if item["zeit"]])
+        sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
+        summary = [f"{sum_zeit} hours zeit", f"{sum_odoo} hours odoo"]
     if arg in ["sss", "summarize", "tasks"]:
         results = summary_per_project_task(data)
     if arg in ["ss", "summary"]:
@@ -417,7 +474,7 @@ def run(arg: str) -> None:
         sum_zeit = sum([float(cast(JSONBase, item["zeit"])) for item in results if item["zeit"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_zeit} hours zeit", f"{sum_odoo} hours odoo"]
-    if arg in ["ss", "topics"]:
+    if arg in ["tt", "topics"]:
         results = summary_per_topic(data)
     if results:
         print(tabtotext.tabToGFM(results, formats={"zeit": " %4.2f", "odoo": " %4.2f"}))
