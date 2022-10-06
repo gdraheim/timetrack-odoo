@@ -14,6 +14,7 @@ import odoo_rest as odoo_api
 import netrc
 import gitrc
 
+from fnmatch import fnmatchcase as fnmatch
 from tabtotext import JSONList, JSONDict, JSONBase
 from odoo_rest import EntryID, ProjID, TaskID
 
@@ -30,6 +31,8 @@ BEFORE = ""  # get_zeit_before()
 ZEIT_FILENAME = ""  # get_zeit_filename()
 ZEIT_USER_NAME = ""  # get_user_name() in zeit
 ZEIT_SUMMARY = "stundenzettel"
+ZEIT_PROJSKIP = ""
+ZEIT_PROJONLY = ""
 ZEIT_PROJFILTER = ""
 ZEIT_TASKFILTER = ""
 ZEIT_TEXTFILTER = ""
@@ -280,6 +283,10 @@ def _summary_per_project_task(data: JSONList, odoodata: JSONList) -> JSONList:
         new_date: Day = cast(Day, item["Date"])
         new_size: Num = cast(Num, item["Quantity"])
         new_key = (proj_id, task_id)
+        if ZEIT_PROJONLY:
+            if not fnmatches(proj_id, ZEIT_PROJONLY): continue
+        if ZEIT_PROJSKIP:
+            if fnmatches(proj_id, ZEIT_PROJSKIP): continue
         if new_key not in sumdata:
             sumdata[new_key] = {"at proj": proj_id, "at task": task_id, "odoo": 0, "zeit": 0}
         sumdata[new_key]["zeit"] += new_size  # type: ignore
@@ -290,6 +297,10 @@ def _summary_per_project_task(data: JSONList, odoodata: JSONList) -> JSONList:
         old_date: Day = get_date(cast(str, item["entry_date"]))
         old_size: Num = cast(Num, item["entry_size"])
         old_key = (proj_name, task_name)
+        if ZEIT_PROJONLY:
+            if not fnmatches(proj_name, ZEIT_PROJONLY): continue
+        if ZEIT_PROJSKIP:
+            if fnmatches(proj_name, ZEIT_PROJSKIP): continue
         if old_key not in sumdata:
             sumdata[old_key] = {"at proj": proj_name, "at task": task_name, "odoo": 0, "zeit": 0}
         sumdata[old_key]["odoo"] += old_size  # type: ignore
@@ -345,6 +356,10 @@ def _monthly_per_project_task(data: JSONList, odoodata: JSONList) -> JSONList:
         new_size: Num = cast(Num, item["Quantity"])
         new_month = "M%02i" % new_date.month
         new_key = (new_month, proj_id, task_id)
+        if ZEIT_PROJONLY:
+            if not fnmatches(proj_id, ZEIT_PROJONLY): continue
+        if ZEIT_PROJSKIP:
+            if fnmatches(proj_id, ZEIT_PROJSKIP): continue
         if new_key not in sumdata:
             sumdata[new_key] = {"am": new_month, "at proj": proj_id, "at task": task_id, "odoo": 0, "zeit": 0}
         sumdata[new_key]["zeit"] += new_size  # type: ignore
@@ -356,11 +371,20 @@ def _monthly_per_project_task(data: JSONList, odoodata: JSONList) -> JSONList:
         old_size: Num = cast(Num, item["entry_size"])
         old_month = "M%02i" % old_date.month
         old_key = (old_month, proj_name, task_name)
+        if ZEIT_PROJONLY:
+            if not fnmatches(proj_name, ZEIT_PROJONLY): continue
+        if ZEIT_PROJSKIP:
+            if fnmatches(proj_name, ZEIT_PROJSKIP): continue
         if old_key not in sumdata:
             sumdata[old_key] = {"am": old_month, "at proj": proj_name, "at task": task_name, "odoo": 0, "zeit": 0}
         sumdata[old_key]["odoo"] += old_size  # type: ignore
     return list(sumdata.values())
 
+def fnmatches(text: str, pattern: str) -> bool:
+    for pat in pattern.split("|"):
+        if fnmatch(text, pat + "*"):
+            return True
+    return False
 
 def pref_desc(desc: str) -> str:
     if " " not in desc:
@@ -514,6 +538,10 @@ if __name__ == "__main__":
                        help="choose input filename [%default]")
     cmdline.add_option("-s", "--summary", metavar="TEXT", default=ZEIT_SUMMARY,
                        help="suffix for summary report [%default]")
+    cmdline.add_option("--projskip", metavar="TEXT", default=ZEIT_PROJSKIP,
+                       help="filter for odoo project [%default]")
+    cmdline.add_option("--projonly", metavar="TEXT", default=ZEIT_PROJONLY,
+                       help="filter for odoo project [%default]")
     cmdline.add_option("-P", "--projfilter", metavar="TEXT", default=ZEIT_PROJFILTER,
                        help="filter for odoo project [%default]")
     cmdline.add_option("-T", "--taskfilter", metavar="TEXT", default=ZEIT_TASKFILTER,
@@ -560,7 +588,8 @@ if __name__ == "__main__":
     ZEIT_USER_NAME = opt.user_name
     ZEIT_SHORT = opt.short
     ZEIT_EXTRATIME = opt.extra
-    ZEIT_PROJFILTER = opt.projfilter
+    ZEIT_PROJONLY = opt.projonly
+    ZEIT_PROJSKIP = opt.projskip
     ZEIT_TASKFILTER = opt.taskfilter
     ZEIT_TEXTFILTER = opt.textfilter
     ZEIT_DESCFILTER = opt.descfilter
