@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/python3p
 
 from typing import Optional, Union, Dict, List, Tuple, cast
 
@@ -41,6 +41,8 @@ ZEIT_EXTRATIME = False
 ZEIT_SHORT = False
 # [end zeit2json]
 
+PRICES: List[str] = []
+
 UPDATE = False
 SHORTDESC = False
 
@@ -49,6 +51,7 @@ TEXTFILE = ""
 JSONFILE = ""
 HTMLFILE = ""
 XLSXFILE = ""
+XLSXPROG = "oocalc"
 
 norm_frac_1_4 = 0x00BC
 norm_frac_1_2 = 0x00BD
@@ -323,6 +326,32 @@ def _summary_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
         sumproj[proj_name]["zeit"] += item["zeit"]  # type: ignore
     return list(sumproj.values())
 
+def report_per_project(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
+    if not odoodata:
+        odoo = odoo_api.Odoo()
+        return _report_per_project(data, odoo.timesheet(get_zeit_after(), get_zeit_before()))
+    return _report_per_project(data, odoodata)
+def _report_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
+    sumdata = _monthly_per_project(data, odoodata)
+    sumvals: JSONLIST = []
+    for item in sumdata:
+        new_month = cast(str, item["am"])
+        proj_name = cast(str, item["at proj"])
+        odoo_size = cast(float, item["odoo"])
+        focus = 1
+        rate = "10"
+        for price in PRICES:
+            if ":" in price:
+                proj, proj_rate = price.split(":", 1)
+                if fnmatches(proj_name, proj + "*"):
+                    rate = proj_rate
+            else:
+                rate = price
+        elem : JSONDict = { "am": new_month, "at proj": proj_name, "odoo": odoo_size, "m": focus,
+                            "satz": int(rate), "summe": int(rate) * odoo_size }
+        sumvals.append(elem)
+    return sumvals
+
 def monthly_per_project(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
         odoo = odoo_api.Odoo()
@@ -484,6 +513,11 @@ def run(arg: str) -> None:
         results = update_per_days(data)
     if arg in ["cc", "compare"]:
         results = summary_per_day(data)
+    if arg in ["xx", "rsummary", "report"]:
+        results = report_per_project(data)
+        sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
+        sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
+        summary = [f"{sum_euro} euro", f"{sum_odoo} hours odoo"]
     if arg in ["ssx", "msummarize", "mtasks", "monthlys"]:
         results = monthly_per_project_task(data)
     if arg in ["sx", "msummary", "monthly"]:
@@ -523,7 +557,7 @@ def run(arg: str) -> None:
         if XLSXFILE:
             import tabtoxlsx
             tabtoxlsx.saveToXLSX(XLSXFILE, results)
-            logg.log(DONE, " xlsx written '%s'", XLSXFILE)
+            logg.log(DONE, " xlsx written %s '%s'", XLSXPROG, XLSXFILE)
 
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -538,6 +572,8 @@ if __name__ == "__main__":
                        help="choose input filename [%default]")
     cmdline.add_option("-s", "--summary", metavar="TEXT", default=ZEIT_SUMMARY,
                        help="suffix for summary report [%default]")
+    cmdline.add_option("-p", "--price", metavar="TEXT", action="append", default=PRICES,
+                       help="pattern:price per hour [%default]")
     cmdline.add_option("--projskip", metavar="TEXT", default=ZEIT_PROJSKIP,
                        help="filter for odoo project [%default]")
     cmdline.add_option("--projonly", metavar="TEXT", default=ZEIT_PROJONLY,
@@ -595,6 +631,7 @@ if __name__ == "__main__":
     ZEIT_DESCFILTER = opt.descfilter
     ZEIT_FILENAME = opt.filename
     ZEIT_SUMMARY = opt.summary
+    PRICES = opt.price
     AFTER = opt.after
     BEFORE = opt.before
     if not args:
