@@ -54,16 +54,17 @@ def get_user_name() -> Optional[str]:
         return ZEIT_USER_NAME
     import gitrc
     return gitrc.git_config_value("user.name")
-def get_zeit_filename() -> str:
+def get_zeit_filename(on_or_after: Optional[Day] = None) -> str:
     if ZEIT_FILENAME:
-        return expand_zeit_filename(ZEIT_FILENAME)
+        return expand_zeit_filename(ZEIT_FILENAME, on_or_after)
     import gitrc
     found = gitrc.git_config_value("zeit.filename")
     if found:
-        return expand_zeit_filename(found)
-    return expand_zeit_filename("~/zeit{YEAR}.txt")
-def expand_zeit_filename(filename: str) -> str:
-    YEAR = get_zeit_after().year
+        return expand_zeit_filename(found, on_or_after)
+    return expand_zeit_filename("~/zeit{YEAR}.txt", on_or_after)
+def expand_zeit_filename(filename: str, on_or_after: Optional[Day] = None) -> str:
+    after: Day = on_or_after or get_zeit_after()
+    YEAR = after.year
     return path.expanduser(filename.format(**locals()))
 
 def get_zeit_after() -> Day:
@@ -188,10 +189,14 @@ def get_date(text: str, on_or_before: Optional[Day] = None) -> Day:
     logg.error("'%s' does not match YYYY-mm-dd", text)
     return date_isoformat(text)
 
-def read_data(filename: str, on_or_after: Day, on_or_before: Day) -> JSONList:
+def read_zeit(on_or_after: Day, on_or_before: Day) -> JSONList:
+    return read_data(get_zeit_filename(on_or_after), on_or_after, on_or_before)
+def read_data(filename: str, on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None) -> JSONList:
     logg.info("reading %s", filename)
     return scan_data(open(filename), on_or_after, on_or_before)
-def scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day) -> JSONList:
+def scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None) -> JSONList:
+    return _scan_data(lines_from_file, on_or_after or get_zeit_after(), on_or_before or get_zeit_before())
+def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day) -> JSONList:
     prefixed = {}
     customer = {}
     projects = {}
@@ -305,10 +310,8 @@ def scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, o
                     continue
                 # sync weekdays to dates
                 today = datetime.date.today()
-                baseyear = on_or_before.year
-                date1 = get_date(match1.group(1), on_or_before)
+                date1 = get_date(match1.group(1), on_or_before or today)
                 if date1 > today:
-                    # date1 = datetime.date(baseyear-1, m1, d1)
                     ignore = True
                 else:
                     ignore = False
@@ -389,10 +392,10 @@ def scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, o
             if daydate is None:
                 logg.error("no daydate for day '%s'", day)
                 continue
-            if daydate < on_or_after:
+            if on_or_after and daydate < on_or_after:
                 logg.debug("daydate %s is before %s", daydate, on_or_after)
                 continue
-            if daydate > on_or_before:
+            if on_or_before and daydate > on_or_before:
                 logg.debug("daydate %s is after %s", daydate, on_or_before)
                 continue
             if True:

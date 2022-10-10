@@ -333,7 +333,7 @@ def report_per_project(data: JSONList, odoodata: Optional[JSONList] = None) -> J
     return _report_per_project(data, odoodata)
 def _report_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
     sumdata = _monthly_per_project(data, odoodata)
-    sumvals: JSONLIST = []
+    sumvals: JSONList = []
     for item in sumdata:
         new_month = cast(str, item["am"])
         proj_name = cast(str, item["at proj"])
@@ -489,17 +489,16 @@ def run(arg: str) -> None:
     zeit2json.ZEIT_DESCFILTER = ZEIT_DESCFILTER
     zeit2json.ZEIT_EXTRATIME = ZEIT_EXTRATIME
     zeit2json.ZEIT_SHORT = ZEIT_SHORT
-    filename = get_zeit_filename()
-    data = zeit2json.read_data(filename, get_zeit_after(), get_zeit_before())
+    data = zeit2json.read_zeit(get_zeit_after(), get_zeit_before())
     if arg in ["json", "make"]:
         json_text = tabtotext.tabToJSON(data)
-        json_file = filename + ".json"
+        json_file = get_zeit_filename() + ".json"
         with open(json_file, "w") as f:
             f.write(json_text)
         logg.log(DONE, "written %s (%s entries)", json_file, len(data))
     if arg in ["csv", "make"]:
         csv_text = tabtotext.tabToJSON(data)
-        csv_file = filename + ".csv"
+        csv_file = get_zeit_filename() + ".csv"
         with open(csv_file, "w") as f:
             f.write(csv_text)
         logg.log(DONE, "written %s (%s entries)", csv_file, len(data))
@@ -568,8 +567,6 @@ if __name__ == "__main__":
                        help="only evaluate entrys on and after [first of year]")
     cmdline.add_option("-b", "--before", metavar="DATE", default=BEFORE,
                        help="only evaluate entrys on and before [last of year]")
-    cmdline.add_option("-f", "--filename", metavar="TEXT", default=ZEIT_FILENAME,
-                       help="choose input filename [%default]")
     cmdline.add_option("-s", "--summary", metavar="TEXT", default=ZEIT_SUMMARY,
                        help="suffix for summary report [%default]")
     cmdline.add_option("-p", "--price", metavar="TEXT", action="append", default=PRICES,
@@ -629,7 +626,6 @@ if __name__ == "__main__":
     ZEIT_TASKFILTER = opt.taskfilter
     ZEIT_TEXTFILTER = opt.textfilter
     ZEIT_DESCFILTER = opt.descfilter
-    ZEIT_FILENAME = opt.filename
     ZEIT_SUMMARY = opt.summary
     PRICES = opt.price
     AFTER = opt.after
