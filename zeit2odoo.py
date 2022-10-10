@@ -15,7 +15,7 @@ import netrc
 import gitrc
 
 from fnmatch import fnmatchcase as fnmatch
-from tabtotext import JSONList, JSONDict, JSONBase
+from tabtotext import JSONList, JSONDict, JSONBase, JSONItem
 from odoo_rest import EntryID, ProjID, TaskID
 
 Day = datetime.date
@@ -33,13 +33,14 @@ ZEIT_USER_NAME = ""  # get_user_name() in zeit
 ZEIT_SUMMARY = "stundenzettel"
 ZEIT_PROJSKIP = ""
 ZEIT_PROJONLY = ""
-ZEIT_SHORT = False
 # [end zeit2json]
 
 PRICES: List[str] = []
 
 UPDATE = False
-SHORTDESC = False
+SHORTNAME = 0
+SHORTDESC = 0
+ONLYZEIT = 0
 
 SCSVFILE = ""
 TEXTFILE = ""
@@ -56,6 +57,14 @@ def strDesc(val: str) -> str:
     if SHORTDESC:
         if len(val) > 40:
             return val[:37] + "..."
+    return val
+def strName(value: JSONItem) -> str:
+    if value is None:
+       return "~"
+    val = str(value)
+    if SHORTNAME:
+        if len(val) > 27:
+            return val[:17] + "..." + val[-7:]
     return val
 
 def strHours(val: Union[int, float, str]) -> str:
@@ -248,8 +257,11 @@ def __update_per_days(data: JSONList, daydata: Dict[Day, JSONList]) -> JSONList:
 
 def summary_per_day(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo()
-        return _summary_per_day(data, odoo.timesheet(get_zeit_after(), get_zeit_before()))
+        if ONLYZEIT:
+            odoodata = []
+        else:
+            odoo = odoo_api.Odoo()
+            odoodata = odoo.timesheet(get_zeit_after(), get_zeit_before())
     return _summary_per_day(data, odoodata)
 def _summary_per_day(data: JSONList, odoodata: JSONList) -> JSONList:
     daydata: Dict[Day, JSONDict] = {}
@@ -270,8 +282,11 @@ def _summary_per_day(data: JSONList, odoodata: JSONList) -> JSONList:
 
 def summary_per_project_task(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo()
-        return _summary_per_project_task(data, odoo.timesheet(get_zeit_after(), get_zeit_before()))
+        if ONLYZEIT:
+            odoodata = []
+        else:
+            odoo = odoo_api.Odoo()
+            odoodata = odoo.timesheet(get_zeit_after(), get_zeit_before())
     return _summary_per_project_task(data, odoodata)
 def _summary_per_project_task(data: JSONList, odoodata: JSONList) -> JSONList:
     sumdata: Dict[Tuple[str, str], JSONDict] = {}
@@ -306,8 +321,11 @@ def _summary_per_project_task(data: JSONList, odoodata: JSONList) -> JSONList:
 
 def summary_per_project(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo()
-        return _summary_per_project(data, odoo.timesheet(get_zeit_after(), get_zeit_before()))
+        if ONLYZEIT:
+            odoodata = []
+        else:
+            odoo = odoo_api.Odoo()
+            odoodata = odoo.timesheet(get_zeit_after(), get_zeit_before())
     return _summary_per_project(data, odoodata)
 def _summary_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
     sumdata = _summary_per_project_task(data, odoodata)
@@ -323,8 +341,11 @@ def _summary_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
 
 def report_per_project(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo()
-        return _report_per_project(data, odoo.timesheet(get_zeit_after(), get_zeit_before()))
+        if ONLYZEIT:
+            odoodata = []
+        else:
+            odoo = odoo_api.Odoo()
+            odoodata = odoo.timesheet(get_zeit_after(), get_zeit_before())
     return _report_per_project(data, odoodata)
 def _report_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
     sumdata = _monthly_per_project(data, odoodata)
@@ -333,6 +354,8 @@ def _report_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
         new_month = cast(str, item["am"])
         proj_name = cast(str, item["at proj"])
         odoo_size = cast(float, item["odoo"])
+        if ONLYZEIT:
+            odoo_size = cast(float, item["zeit"])
         focus = 1
         rate = "10"
         for price in PRICES:
@@ -349,8 +372,11 @@ def _report_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
 
 def monthly_per_project(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo()
-        return _monthly_per_project(data, odoo.timesheet(get_zeit_after(), get_zeit_before()))
+        if ONLYZEIT:
+            odoodata = []
+        else:
+            odoo = odoo_api.Odoo()
+            odoodata = odoo.timesheet(get_zeit_after(), get_zeit_before())
     return _monthly_per_project(data, odoodata)
 def _monthly_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
     sumdata = _monthly_per_project_task(data, odoodata)
@@ -368,8 +394,11 @@ def _monthly_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
 
 def monthly_per_project_task(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo()
-        return _monthly_per_project_task(data, odoo.timesheet(get_zeit_after(), get_zeit_before()))
+        if ONLYZEIT:
+            odoodata = []
+        else:
+            odoo = odoo_api.Odoo()
+            odoodata = odoo.timesheet(get_zeit_after(), get_zeit_before())
     return _monthly_per_project_task(data, odoodata)
 def _monthly_per_project_task(data: JSONList, odoodata: JSONList) -> JSONList:
     sumdata: Dict[Tuple[str, str, str], JSONDict] = {}
@@ -478,7 +507,6 @@ def run(arg: str) -> None:
     zeit2json.ZEIT_BEFORE = BEFORE
     zeit2json.ZEIT_USER_NAME = ZEIT_USER_NAME
     zeit2json.ZEIT_SUMMARY = ZEIT_SUMMARY
-    zeit2json.ZEIT_SHORT = ZEIT_SHORT
     data = zeit2json.read_zeit(get_zeit_after(), get_zeit_before())
     if arg in ["json", "make"]:
         json_text = tabtotext.tabToJSON(data)
@@ -524,6 +552,12 @@ def run(arg: str) -> None:
     if arg in ["tt", "topics"]:
         results = summary_per_topic(data)
     if results:
+        if SHORTNAME:
+            for item in results:
+                if "at proj" in item:
+                    item["at proj"] = strName(item["at proj"])
+                if "at task" in item:
+                    item["at task"] = strName(item["at task"])
         print(tabtotext.tabToGFM(results, formats={"zeit": " %4.2f", "odoo": " %4.2f"}))
         for line in summary:
             print(f"# {line}")
@@ -563,15 +597,17 @@ if __name__ == "__main__":
                        help="pattern:price per hour [%default]")
     cmdline.add_option("--projskip", metavar="TEXT", default=ZEIT_PROJSKIP,
                        help="filter for odoo project [%default]")
-    cmdline.add_option("--projonly", metavar="TEXT", default=ZEIT_PROJONLY,
+    cmdline.add_option("-P", "--projonly", metavar="TEXT", default=ZEIT_PROJONLY,
                        help="filter for odoo project [%default]")
-    cmdline.add_option("-z", "--short", action="store_true", default=ZEIT_SHORT,
-                       help="present the shorthand names for projects and tasks [%default]")
     cmdline.add_option("-U", "--user-name", metavar="TEXT", default=ZEIT_USER_NAME,
                        help="user name for the output report (not for login)")
     # ..............
-    cmdline.add_option("-Z", "--shortdesc", action="store_true", default=SHORTDESC,
-                       help="present the shorthand names for description [%default]")
+    cmdline.add_option("-z", "--shortname", action="count", default=SHORTNAME,
+                       help="present short names for proj+task [%default]")
+    cmdline.add_option("-Z", "--shortdesc", action="count", default=SHORTDESC,
+                       help="present short lines for description [%default]")
+    cmdline.add_option("-q", "--onlyzeit", action="count", default=ONLYZEIT,
+                       help="present only local zeit data [%default]")
     cmdline.add_option("--SCSVfile", metavar="FILE", default=SCSVFILE)
     cmdline.add_option("--textfile", metavar="FILE", default=TEXTFILE)
     cmdline.add_option("--jsonfile", metavar="FILE", default=JSONFILE)
@@ -597,9 +633,14 @@ if __name__ == "__main__":
     JSONFILE = opt.jsonfile
     HTMLFILE = opt.htmlfile
     XLSXFILE = opt.xlsxfile
+    SHORTDESC = opt.shortdesc
+    SHORTNAME = opt.shortname
+    if opt.shortname > 1:
+        SHORTDESC = opt.shortname
+    if opt.shortname > 2:
+        ONLYZEIT = opt.shortname
     # zeit2json
     ZEIT_USER_NAME = opt.user_name
-    ZEIT_SHORT = opt.short
     ZEIT_PROJONLY = opt.projonly
     ZEIT_PROJSKIP = opt.projskip
     ZEIT_SUMMARY = opt.summary
