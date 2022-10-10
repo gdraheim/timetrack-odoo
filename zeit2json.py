@@ -188,10 +188,10 @@ def get_date(text: str, on_or_before: Optional[Day] = None) -> Day:
     logg.error("'%s' does not match YYYY-mm-dd", text)
     return date_isoformat(text)
 
-def read_data(filename: str) -> JSONList:
+def read_data(filename: str, on_or_after: Day, on_or_before: Day) -> JSONList:
     logg.info("reading %s", filename)
-    return scan_data(open(filename))
-def scan_data(lines_from_file: Union[Sequence[str], TextIO]) -> JSONList:
+    return scan_data(open(filename), on_or_after, on_or_before)
+def scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day) -> JSONList:
     prefixed = {}
     customer = {}
     projects = {}
@@ -199,9 +199,6 @@ def scan_data(lines_from_file: Union[Sequence[str], TextIO]) -> JSONList:
     custname = {}
     projname = {}
     #
-    on_or_before = get_zeit_before()
-    on_or_after = get_zeit_after()
-    logg.info("reading %s - %s", on_or_after, on_or_before)
     idvalues: Dict[str, str] = {}
     cols0 = re.compile(r"^(\S+)\s+(\S+)+\s+(\S+)(\s*)$")
     cols1 = re.compile(r"^(\S+)\s+(\S+)+\s+(\S+)\s+(.*)")
@@ -478,12 +475,12 @@ def scan_data(lines_from_file: Union[Sequence[str], TextIO]) -> JSONList:
     return data
 
 def run(filename: str) -> None:
-    before = get_zeit_before()
-    after = get_zeit_after()
-    if after.year != before.year:
+    on_or_before = get_zeit_before()
+    on_or_after = get_zeit_after()
+    if on_or_after.year != on_or_before.year:
         logg.error("--after / --before must be the same year (-a ... to -b ...)")
     logg.error("read %s", filename)
-    data = read_data(filename)
+    data = read_data(filename, on_or_after, on_or_before)
     if WRITEJSON:
         json_text = tabtotext.tabToJSON(data)
         json_file = filename + ".json"

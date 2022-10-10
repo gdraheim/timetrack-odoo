@@ -490,7 +490,7 @@ def run(arg: str) -> None:
     zeit2json.ZEIT_EXTRATIME = ZEIT_EXTRATIME
     zeit2json.ZEIT_SHORT = ZEIT_SHORT
     filename = get_zeit_filename()
-    data = zeit2json.read_data(filename)
+    data = zeit2json.read_data(filename, get_zeit_after(), get_zeit_before())
     if arg in ["json", "make"]:
         json_text = tabtotext.tabToJSON(data)
         json_file = filename + ".json"
