@@ -33,11 +33,6 @@ ZEIT_USER_NAME = ""  # get_user_name() in zeit
 ZEIT_SUMMARY = "stundenzettel"
 ZEIT_PROJSKIP = ""
 ZEIT_PROJONLY = ""
-ZEIT_PROJFILTER = ""
-ZEIT_TASKFILTER = ""
-ZEIT_TEXTFILTER = ""
-ZEIT_DESCFILTER = ""
-ZEIT_EXTRATIME = False
 ZEIT_SHORT = False
 # [end zeit2json]
 
@@ -483,11 +478,6 @@ def run(arg: str) -> None:
     zeit2json.ZEIT_BEFORE = BEFORE
     zeit2json.ZEIT_USER_NAME = ZEIT_USER_NAME
     zeit2json.ZEIT_SUMMARY = ZEIT_SUMMARY
-    zeit2json.ZEIT_PROJFILTER = ZEIT_PROJFILTER
-    zeit2json.ZEIT_TASKFILTER = ZEIT_TASKFILTER
-    zeit2json.ZEIT_TEXTFILTER = ZEIT_TEXTFILTER
-    zeit2json.ZEIT_DESCFILTER = ZEIT_DESCFILTER
-    zeit2json.ZEIT_EXTRATIME = ZEIT_EXTRATIME
     zeit2json.ZEIT_SHORT = ZEIT_SHORT
     data = zeit2json.read_zeit(get_zeit_after(), get_zeit_before())
     if arg in ["json", "make"]:
@@ -575,16 +565,6 @@ if __name__ == "__main__":
                        help="filter for odoo project [%default]")
     cmdline.add_option("--projonly", metavar="TEXT", default=ZEIT_PROJONLY,
                        help="filter for odoo project [%default]")
-    cmdline.add_option("-P", "--projfilter", metavar="TEXT", default=ZEIT_PROJFILTER,
-                       help="filter for odoo project [%default]")
-    cmdline.add_option("-T", "--taskfilter", metavar="TEXT", default=ZEIT_TASKFILTER,
-                       help="filter for odoo task [%default]")
-    cmdline.add_option("-D", "--descfilter", metavar="TEXT", default=ZEIT_DESCFILTER,
-                       help="filter for some description [%default]")
-    cmdline.add_option("-F", "--textfilter", metavar="TEXT", default=ZEIT_TEXTFILTER,
-                       help="filter for text project [%default]")
-    cmdline.add_option("-x", "--extra", action="store_true", default=ZEIT_EXTRATIME,
-                       help="allow for the extra times [%default]")
     cmdline.add_option("-z", "--short", action="store_true", default=ZEIT_SHORT,
                        help="present the shorthand names for projects and tasks [%default]")
     cmdline.add_option("-U", "--user-name", metavar="TEXT", default=ZEIT_USER_NAME,
@@ -620,12 +600,8 @@ if __name__ == "__main__":
     # zeit2json
     ZEIT_USER_NAME = opt.user_name
     ZEIT_SHORT = opt.short
-    ZEIT_EXTRATIME = opt.extra
     ZEIT_PROJONLY = opt.projonly
     ZEIT_PROJSKIP = opt.projskip
-    ZEIT_TASKFILTER = opt.taskfilter
-    ZEIT_TEXTFILTER = opt.textfilter
-    ZEIT_DESCFILTER = opt.descfilter
     ZEIT_SUMMARY = opt.summary
     PRICES = opt.price
     AFTER = opt.after

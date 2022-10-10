@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from typing import List, Dict, Union, Optional, Sequence, TextIO
+from typing import List, Dict, Union, Optional, Sequence, TextIO, Generator, cast
 
 import logging
 import re
@@ -15,7 +15,11 @@ Day = datetime.date
 
 logg = logging.getLogger("zeit2json")
 DONE = (logging.WARNING + logging.ERROR) // 2
+NOTE = (logging.INFO + logging.WARNING) // 2
+HINT = (logging.INFO + logging.DEBUG) // 2
 logging.addLevelName(DONE, "DONE")
+logging.addLevelName(NOTE, "NOTE")
+logging.addLevelName(HINT, "HINT")
 
 
 ZEIT_AFTER = ""
@@ -424,36 +428,6 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
                 datex = int(daydate.strftime("%y%m%d"))
                 # year = daydate.strftime("%y")
                 itemID = "%s%s" % (datex, proj)
-                ok = True
-                if ZEIT_PROJFILTER and ok:
-                    ok = False
-                    for check in ZEIT_PROJFILTER.split(","):
-                        if check and check.lower() in itemProj.lower():
-                            ok = True
-                    logg.info("odoo filter '%s' on project '%s' => %s", ZEIT_PROJFILTER, itemProj, ok)
-                if ZEIT_TASKFILTER and ok:
-                    ok = False
-                    for check in ZEIT_TASKFILTER.split(","):
-                        if check and check.lower() in itemTask.lower():
-                            ok = True
-                    logg.info("odoo filter '%s' on task '%s' => %s", ZEIT_TASKFILTER, itemTask, ok)
-                if ZEIT_TEXTFILTER and ok:
-                    ok = False
-                    for check in ZEIT_TEXTFILTER.split(","):
-                        if check and check.lower() in proj.lower():
-                            ok = True
-                    logg.info("text filter '%s' on project %s => %s", ZEIT_TEXTFILTER, proj, ok)
-                if ZEIT_DESCFILTER and ok:
-                    ok = False
-                    for check in ZEIT_DESCFILTER.split(","):
-                        if check and check.lower() in itemDesc.lower():
-                            ok = True
-                    logg.info("text filter '%s' on description %s => %s", ZEIT_DESCFILTER, itemDesc, ok)
-                if not ZEIT_EXTRATIME:
-                    if "extra " in itemTask:
-                        ok = False
-                    if "check " in itemTask:
-                        ok = False
                 item: JSONDict = {}
                 item[TitleID] = itemID
                 item[TitleDate] = itemDate
@@ -463,9 +437,7 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
                 item[TitleProj] = itemProj
                 item[TitleTask] = itemTask
                 item[TitleUser] = itemUser
-                if ok:
-                    data.append(item)
-                    logg.debug(" append %s", item)
+                data.append(item)
                 #
                 if itemID in idvalues:
                     logg.error("duplicate idvalue %s", itemID)
@@ -476,6 +448,48 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
             logg.error("FOR:    %s", line.strip())
             raise
     return data
+def filter_data(data: JSONList = []) -> JSONList:
+    return list(each_filter_data(data))
+def each_filter_data(data: JSONList = []) -> Generator[JSONDict, None, None]:
+    r: JSONList = []
+    for item in data:
+        # itemDate = cast(str, item[TitleDate])
+        itemDesc = cast(str, item[TitleDesc])
+        itemPref = cast(str, item[TitlePref])
+        itemProj = cast(str, item[TitleProj])
+        itemTask = cast(str, item[TitleTask])
+        ok = True
+        if ZEIT_PROJFILTER and ok:
+            ok = False
+            for check in ZEIT_PROJFILTER.split(","):
+                if check and check.lower() in itemProj.lower():
+                    ok = True
+            logg.log(HINT, "odoo filter '%s' on project '%s' => %s", ZEIT_PROJFILTER, itemProj, ok)
+        if ZEIT_TASKFILTER and ok:
+            ok = False
+            for check in ZEIT_TASKFILTER.split(","):
+                if check and check.lower() in itemTask.lower():
+                    ok = True
+            logg.log(HINT, "odoo filter '%s' on task '%s' => %s", ZEIT_TASKFILTER, itemTask, ok)
+        if ZEIT_TEXTFILTER and ok:
+            ok = False
+            for check in ZEIT_TEXTFILTER.split(","):
+                if check and check.lower() in itemPref.lower():
+                    ok = True
+            logg.log(HINT, "text filter '%s' on project %s => %s", ZEIT_TEXTFILTER, itemPref, ok)
+        if ZEIT_DESCFILTER and ok:
+            ok = False
+            for check in ZEIT_DESCFILTER.split(","):
+                if check and check.lower() in itemDesc.lower():
+                    ok = True
+            logg.log(HINT, "text filter '%s' on description %s => %s", ZEIT_DESCFILTER, itemDesc, ok)
+        if not ZEIT_EXTRATIME:
+            if "extra " in itemTask:
+                ok = False
+            if "check " in itemTask:
+                ok = False
+        if ok:
+            yield item
 
 def run(filename: str) -> None:
     on_or_before = get_zeit_before()
@@ -483,7 +497,8 @@ def run(filename: str) -> None:
     if on_or_after.year != on_or_before.year:
         logg.error("--after / --before must be the same year (-a ... to -b ...)")
     logg.error("read %s", filename)
-    data = read_data(filename, on_or_after, on_or_before)
+    zeitdata = read_data(filename, on_or_after, on_or_before)
+    data = filter_data(zeitdata)
     if WRITEJSON:
         json_text = tabtotext.tabToJSON(data)
         json_file = filename + ".json"
