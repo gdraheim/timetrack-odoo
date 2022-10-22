@@ -30,7 +30,7 @@ DAYS = dayrange()
 
 PRICES: List[str] = []
 PRICE10 = 10
-VAT = 0.19
+PRICEVAT = 0.19
 
 SHORTNAME = 0
 ONLYZEIT = 0
@@ -104,6 +104,13 @@ def get_proj_price_rate(proj: str) -> int:
     if not rate:
         rate = PRICE10  # ensure that price is not a copy of hours
     return rate
+
+def get_price_vat() -> float:
+    gitrc_vat = gitrc.git_config_value("zeit.vat")
+    if gitrc_vat:
+        return float(gitrc_vat)
+    else:
+        return PRICEVAT
 
 def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
@@ -189,9 +196,9 @@ def _report_per_project(odoodata: JSONList) -> JSONList:
         proj_name = cast(str, item["at proj"])
         odoo_size = cast(float, item["odoo"])
         focus = 1
-        rate = get_proj_price_rate(proj_name)
+        price_rate = get_proj_price_rate(proj_name)
         elem: JSONDict = {"am": new_month, "at proj": proj_name, "odoo": odoo_size, "m": focus,
-                          "satz": int(rate), "summe": round(rate * odoo_size, 2)}
+                          "satz": int(price_rate), "summe": round(price_rate * odoo_size, 2)}
         sumvals.append(elem)
     return sumvals
 
@@ -350,8 +357,9 @@ def run(arg: str) -> None:
                 results.append({})
                 results.append({"odoo": odoo, "summe": summe})
             if summe:
-                results.append({"satz": VAT, "summe": round(summe * VAT, 2)})
-                results.append({"summe": summe + round(summe * VAT, 2)})
+                price_vat = get_price_vat()
+                results.append({"satz": price_vat, "summe": round(summe * price_vat, 2)})
+                results.append({"summe": summe + round(summe * price_vat, 2)})
         formats = {"odoo": " %4.2f", "summe": " %4.2f"}
         print(tabtotext.tabToGFM(results, formats=formats))
         for line in summary:
