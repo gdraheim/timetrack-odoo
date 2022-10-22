@@ -145,7 +145,7 @@ class odoo2dataTest(unittest.TestCase):
         self.assertEqual(results[0]["date"], sunday)
         self.assertEqual(results[0]["odoo"], 1.25)
         self.assertEqual(len(results), 1)
-        self.assertEqual(len(results[0]), 2)
+        self.assertEqual(len(results[0]), 3)
     def test_108(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
@@ -160,7 +160,7 @@ class odoo2dataTest(unittest.TestCase):
         self.assertEqual(results[0]["date"], sunday)
         self.assertEqual(results[0]["odoo"], 1.5)
         self.assertEqual(len(results), 1)
-        self.assertEqual(len(results[0]), 2)
+        self.assertEqual(len(results[0]), 3)
 
 
 if __name__ == "__main__":
