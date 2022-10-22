@@ -15,6 +15,7 @@ import odoo_rest as odoo_api
 import netrc
 import gitrc
 
+# from math import round
 from fnmatch import fnmatchcase as fnmatch
 from tabtotext import JSONList, JSONDict, JSONBase, JSONItem
 from odoo_rest import EntryID, ProjID, TaskID
@@ -369,7 +370,7 @@ def _report_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
             else:
                 rate = price
         elem : JSONDict = { "am": new_month, "at proj": proj_name, "odoo": odoo_size, "m": focus,
-                            "satz": int(rate), "summe": int(rate) * odoo_size }
+                            "satz": int(rate), "summe": round(int(rate) * odoo_size, 2) }
         sumvals.append(elem)
     return sumvals
 
@@ -576,9 +577,10 @@ def run(arg: str) -> None:
                 results.append({})
                 results.append({ "odoo": odoo, "zeit": zeit, "summe": summe})
             if summe:
-                results.append({"satz": VAT, "summe": summe * VAT})
-                results.append({"summe": summe + summe * VAT})
-        print(tabtotext.tabToGFM(results, formats={"zeit": " %4.2f", "odoo": " %4.2f"}))
+                results.append({"satz": VAT, "summe": round(summe * VAT, 2)})
+                results.append({"summe": summe + round(summe * VAT, 2)})
+        formats={"zeit": " %4.2f", "odoo": " %4.2f", "summe": " %4.2f"}
+        print(tabtotext.tabToGFM(results, formats=formats))
         for line in summary:
             print(f"# {line}")
         if SCSVFILE:
@@ -595,7 +597,7 @@ def run(arg: str) -> None:
             logg.log(DONE, " html written '%s'", HTMLFILE)
         if TEXTFILE:
             with open(TEXTFILE, "w") as f:
-                f.write(tabtotext.tabToGFM(results))
+                f.write(tabtotext.tabToGFM(results, formats=formats))
             logg.log(DONE, " text written '%s'", TEXTFILE)
         if XLSXFILE:
             import tabtoxlsx
