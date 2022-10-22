@@ -273,13 +273,26 @@ def run(arg: str) -> None:
         DAYS = dayrange(arg)
         logg.log(DONE, "%s -> %s", arg, DAYS)
         return
+    if arg in ["help"]:
+        report_name = None
+        for line in open(__file__):
+            if line.strip().startswith("if arg in"):
+                report_name = line.split("if arg in", 1)[1].strip()
+                continue
+            elif line.strip().startswith("results = "):
+                report_call = line.split("results = ", 1)[1].strip()
+                if report_name:
+                    print(f"{report_name} {report_call}")
+            report_name = None
+        return
+    ###########################################################
+    data: Optional[JSONList] = None
     summary = []
     results: JSONList = []
-    data: Optional[JSONList] = None
     if ONLYZEIT:
         import zeit2json
         data = json2odoo(zeit2json.read_zeit(DAYS.after, DAYS.before))
-    if arg in ["data", "worked"]:
+    if arg in ["ww", "data", "worked"]:
         results = work_data(data)
         if results and not SHORTNAME:
             print("# use -z or -zz to shorten the names for proj and task !!")
@@ -291,13 +304,13 @@ def run(arg: str) -> None:
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
-    if arg in ["ssx", "msummarize", "mtasks", "monthlys"]:
+    if arg in ["mm", "msummarize", "mtasks", "monthlys"]:
         results = monthly_per_project_task(data)
     if arg in ["sx", "msummary", "monthly"]:
         results = monthly_per_project(data)
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_odoo:11.2f} hours odoo"]
-    if arg in ["sss", "summarize", "tasks"]:
+    if arg in ["ee", "summarize", "tasks"]:
         results = summary_per_project_task(data)
     if arg in ["ss", "summary"]:
         results = summary_per_project(data)

@@ -385,6 +385,19 @@ def run(arg: str) -> None:
         DAYS = dayrange(arg)
         logg.log(DONE, "%s -> %s %s", arg, DAYS.after, DAYS.before)
         return
+    if arg in ["help"]:
+        report_name = None
+        for line in open(__file__):
+            if line.strip().startswith("if arg in"):
+                report_name = line.split("if arg in", 1)[1].strip()
+                continue
+            elif line.strip().startswith("results = "):
+                report_call = line.split("results = ", 1)[1].strip()
+                if report_name:
+                    print(f"{report_name} {report_call}")
+            report_name = None
+        return
+    ###########################################################
     zeit2json.ZEIT_AFTER = DAYS.after.isoformat()
     zeit2json.ZEIT_BEFORE = DAYS.before.isoformat()
     zeit2json.ZEIT_USER_NAME = ZEIT_USER_NAME
@@ -412,7 +425,7 @@ def run(arg: str) -> None:
         results = update_per_days(data)
     if arg in ["cc", "compare", "days"]:
         results = summary_per_day(data)
-    if arg in ["sss", "summarize", "tasks"]:
+    if arg in ["ee", "summarize", "tasks"]:
         results = summary_per_project_task(data)
     if arg in ["ss", "summary"]:
         results = summary_per_project(data)
