@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from typing import Union, Optional
+from typing import Union, Optional, Tuple
 
 import logging
 import re
@@ -10,6 +10,60 @@ Day = datetime.date
 
 logg = logging.getLogger("dayrange")
 
+class DayrangeException(Exception):
+    pass
+
+symbolic_dayrange = [
+"week", "thisweek", "this-week", "nextweek", "next-week", "lastweek", "last-week",
+"weeks", "lastweeks", "last-weeks", "blastweek", "blast-week", "before-last-week",
+"month", "thismonth", "this-month", "nextmonth", "next-month", "lastmonth", "last-month",
+"months", "lastmonths", "last-months", "blastmonth", "blast-month", "before-last-month",
+"this", "last", "late", "latest", "blast", "beforelast", "before-last", "b4last"]
+
+def is_dayrange(arg: str):
+    return arg in symbolic_dayrange
+def get_symbolic_dayrange(arg: str) -> Tuple[str, str]:
+    after, before = days_for_symbolic_dayrange(arg)
+    return (after.isoformat(), before.isoformat())
+def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
+    if arg in ["thisweek", "this-week", "week"]:  # e.g. run week sync"
+        after = last_sunday(-1)
+        before = next_sunday(-1)
+        return (after, before)
+    if arg in ["lastweek", "last-week", "latest"]:  # e.g. "run latest sync"
+        after = last_sunday(-6)
+        before = next_sunday(-6)
+        return (after, before)
+    if arg in ["lastweeks", "last-weeks", "late"]:  # e.g. "run late sync"
+        after = last_sunday(-6)
+        before = next_sunday(-1)
+        return (after, before)
+    if arg in ["nextweek", "next-week", "next"]:  # e.g. "run next sync"
+        after = last_sunday(+7)
+        before = next_sunday(+7)
+        return (after, before)
+    if arg in ["nextmonth", "next-month"]:
+        after = firstday_of_month(+1)
+        before = lastday_of_month(+1)
+        return (after, before)
+    if arg in ["thismonth", "this-month", "this", "month"]:
+        after = firstday_of_month(+0)
+        before = lastday_of_month(+0)
+        return (after, before)
+    if arg in ["lastmonth", "last-month", "last"]: # e.g. "run last summary"
+        after = firstday_of_month(-1)
+        before = lastday_of_month(-1)
+        return (after, before)
+    if arg in ["lastmonths", "last-months", "months"]:
+        after = firstday_of_month(-1)
+        before = lastday_of_month(+0)
+        return (after, before)
+    if arg in ["beforelastmonth", "before-last-month", "beforelast", "blast", "b4last"]:
+        after = firstday_of_month(-2)
+        before = lastday_of_month(-2)
+        return (after, before)
+    raise DayrangeException("unknown symbolic dayrange '%s'" % arg)
+
 class dayrange:
     after: Day
     before: Day
@@ -17,6 +71,10 @@ class dayrange:
         if not after:
             self.after = firstday_of_month(0)
         elif isinstance(after, str):
+            if after in symbolic_dayrange:
+                after, before = get_symbolic_dayrange(after)
+            elif ".." in after and not before:
+                after, before = after.split("..", 1)
             self.after = get_date(after)
         else:
             self.after = after
