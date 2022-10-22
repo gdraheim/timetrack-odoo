@@ -13,7 +13,7 @@ logg = logging.getLogger("dayrange")
 class dayrange:
     after: Day
     before: Day
-    def __init__(self, after: Union[None,str,Day] = None, before: Union[None,str,Day] = None):
+    def __init__(self, after: Union[None, str, Day] = None, before: Union[None, str, Day] = None):
         if not after:
             self.after = firstday_of_month(0)
         elif isinstance(after, str):
@@ -27,7 +27,7 @@ class dayrange:
         else:
             self.before = before
     def __len__(self) -> int:
-        return( self.before - self.after).days +1
+        return(self.before - self.after).days + 1
     def __str__(self) -> str:
         after = self.after
         before = self.before
@@ -144,7 +144,7 @@ if __name__ == "__main__":
     # logg.addHandler(logging.StreamHandler())
     days = dayrange(opt.after, opt.before)
     if not args:
-        args = [ "check" ]
+        args = ["check"]
     for arg in args:
-        if arg in [ "check" ]:
+        if arg in ["check"]:
             check_days(days)
