@@ -517,7 +517,6 @@ if __name__ == "__main__":
     HTMLFILE = opt.htmlfile
     XLSXFILE = opt.xlsxfile
     ONLYZEIT = opt.onlyzeit
-    ADDFOOTER = opt.addfooter
     SHORTDESC = opt.shortdesc
     SHORTNAME = opt.shortname
     ONLYZEIT = opt.onlyzeit
