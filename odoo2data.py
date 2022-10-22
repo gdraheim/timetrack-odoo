@@ -100,8 +100,8 @@ def _work_data(odoodata: JSONList) -> JSONList:
         odoo_date: Day = get_date(cast(str, item["entry_date"])) # in case we use raw zeit
         odoo_size: Num = cast(Num, item["entry_size"])
         odoo_desc: str = cast(str, item["entry_desc"])
-        yield { "at date": odoo_date, "at proj": proj_name, "at task": task_name, 
-                "odoo": odoo_size, "worked on": odoo_desc}
+        yield { "at proj": proj_name, "at task": task_name, 
+                "at date": odoo_date, "odoo": odoo_size, "worked on": odoo_desc}
 
 def summary_per_day(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
@@ -113,8 +113,10 @@ def _summary_per_day(odoodata: JSONList) -> JSONList:
     for item in odoodata:
         odoo_date: Day = get_date(cast(str, item["entry_date"]))
         odoo_size: Num = cast(Num, item["entry_size"])
+        weekday = odoo_date.weekday()
+        weekday_name = ["so","mo","di","mi","do","fr","sa","so"][weekday]
         if odoo_date not in daydata:
-            daydata[odoo_date] = {"date": odoo_date, "odoo": 0}
+            daydata[odoo_date] = {"at date": odoo_date, "d.": weekday_name, "odoo": 0}
         daydata[odoo_date]["odoo"] += odoo_size  # type: ignore
     return list(daydata.values())
 
@@ -282,7 +284,7 @@ def run(arg: str) -> None:
         if results and not SHORTNAME:
             print("# use -z or -zz to shorten the names for proj and task !!")
             print("")
-    if arg in ["dd", "dsummary"]:
+    if arg in ["dd", "dsummary", "days"]:
         results = summary_per_day(data)
     if arg in ["xx", "rsummary", "report"]:
         results = report_per_project(data)
