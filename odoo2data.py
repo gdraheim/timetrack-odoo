@@ -9,7 +9,7 @@ import datetime
 
 import tabtotext
 import zeit2json
-from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange
+from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
 import odoo_rest as odoo_api
 import netrc
 import gitrc
@@ -251,40 +251,8 @@ def _json2odoo(data: JSONList) -> Generator[JSONDict, None, None]:
 
 def run(arg: str) -> None:
     global DAYS
-    if arg in ["latest", "week"]:
-        after = last_sunday(-1).isoformat()
-        before = next_sunday(-1).isoformat()
-        DAYS = dayrange(after, before)
-        logg.log(DONE, "%s -> %s", arg, DAYS)
-        return
-    if arg in ["late", "lastweek"]:
-        after = last_sunday(-6).isoformat()
-        before = next_sunday(-6).isoformat()
-        DAYS = dayrange(after, before)
-        logg.log(DONE, "%s -> %s", arg, DAYS)
-        return
-    if arg in ["next", "nextmonth", "next-month"]:
-        after = first_of_month(-1)
-        before = last_of_month(-1)
-        DAYS = dayrange(after, before)
-        logg.log(DONE, "%s -> %s", arg, DAYS)
-        return
-    if arg in ["this", "thismonth", "this-month"]:
-        after = first_of_month(+0)
-        before = last_of_month(+0)
-        DAYS = dayrange(after, before)
-        logg.log(DONE, "%s -> %s", arg, DAYS)
-        return
-    if arg in ["last", "lastmonth", "last-month"]:
-        after = first_of_month(-1)
-        before = last_of_month(-1)
-        DAYS = dayrange(after, before)
-        logg.log(DONE, "%s -> %s", arg, DAYS)
-        return
-    if arg in ["beforelast", "beforelastmonth", "before-last-month", "blast", "b4last"]:
-        after = first_of_month(-2)
-        before = last_of_month(-2)
-        DAYS = dayrange(after, before)
+    if is_dayrange(arg):  # "week", "month", "last", "latest"
+        DAYS = dayrange(arg)
         logg.log(DONE, "%s -> %s", arg, DAYS)
         return
     summary = []
