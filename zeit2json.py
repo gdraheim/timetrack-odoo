@@ -10,6 +10,7 @@ import os.path as path
 
 import tabtotext
 from tabtotext import JSONList, JSONDict, JSONItem
+from dayrange import get_date
 
 Day = datetime.date
 
@@ -101,97 +102,6 @@ def cleandesc(desc: str) -> str:
     if m:
         return m.group(1)
     return d
-
-def date_isoformat(text: str) -> Day:
-    if "-99" in text:
-        for end in ["-31", "-30", "-29", "-28"]:
-            try:
-                text31 = text.replace("-99", end, 1)
-                return datetime.datetime.strptime(text31, "%Y-%m-%d").date()
-            except ValueError as e:
-                logg.debug("[%s] %s", text31, e)
-    return datetime.datetime.strptime(text, "%Y-%m-%d").date()
-
-def date_dotformat(text: str) -> Day:
-    if "99." in text:
-        for end in ["31.", "30.", "29.", "28."]:
-            try:
-                text31 = text.replace("99.", end, 1)
-                return datetime.datetime.strptime(text31, "%d.%m.%Y").date()
-            except ValueError as e:
-                logg.debug("[%s] %s", text31, e)
-    return datetime.datetime.strptime(text, "%d.%m.%Y").date()
-
-def firstday_of_month(diff: int) -> Day:
-    return date_dotformat(first_of_month(diff))
-def first_of_month(diff: int) -> str:
-    assert -11 <= diff and diff <= +11
-    today = datetime.date.today()
-    year = today.year
-    month = today.month + diff
-    if month <= 0:
-        month += 12
-        year -= 1
-    if month > 12:
-        month -= 12
-        year += 1
-    return f"01.{month}.{year}"
-
-
-def lastday_of_month(diff: int) -> Day:
-    return date_dotformat(last_of_month(diff))
-def last_of_month(diff: int) -> str:
-    assert -11 <= diff and diff <= +11
-    today = datetime.date.today()
-    year = today.year
-    month = today.month + diff
-    if month <= 0:
-        month += 12
-        year -= 1
-    if month > 12:
-        month -= 12
-        year += 1
-    return f"99.{month}.{year}"
-
-def last_sunday(diff: int) -> Day:
-    today = datetime.date.today()
-    for attempt in range(7):
-        diffs = datetime.timedelta(days=diff - attempt)
-        day = today + diffs
-        if day.weekday() in [0, 7]:
-            return day
-    return today + datetime.timedelta(days=-7)
-
-def next_sunday(diff: int) -> Day:
-    today = datetime.date.today()
-    for attempt in range(7):
-        diffs = datetime.timedelta(days=diff + attempt)
-        day = today + diffs
-        if day.weekday() in [0, 7]:
-            return day
-    return today + datetime.timedelta(days=+7)
-
-def get_date(text: str, on_or_before: Optional[Day] = None) -> Day:
-    if isinstance(text, Day):
-        return text
-    refday = on_or_before or datetime.date.today()
-    baseyear = str(refday.year)
-    if re.match(r"\d+-\d+-\d+", text):
-        return date_isoformat(text)
-    if re.match(r"\d+-\d+", text):
-        text2 = baseyear + "-" + text
-        return date_isoformat(text2)
-    if re.match(r"\d+[.]\d+[.]\d+", text):
-        return date_dotformat(text)
-    if re.match(r"\d+[.]\d+[.]", text):
-        text2 = text + baseyear
-        return date_dotformat(text2)
-    if re.match(r"\d+[.]", text):
-        basemonth = str(refday.month)
-        text2 = text + basemonth + "." + baseyear
-        return date_dotformat(text2)
-    logg.error("'%s' does not match YYYY-mm-dd", text)
-    return date_isoformat(text)
 
 def read_zeit(on_or_after: Day, on_or_before: Day) -> JSONList:
     return read_data(get_zeit_filename(on_or_after), on_or_after, on_or_before)
