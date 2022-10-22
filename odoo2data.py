@@ -388,7 +388,7 @@ def run(arg: str) -> None:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    cmdline = OptionParser("%prog [check|valid|update|compare|summarize|summary|topics] files...")
+    cmdline = OptionParser("%prog [help|work|days|summarize|summary|topics] files...")
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
     cmdline.add_option("-a", "--after", metavar="DATE", default=None,
