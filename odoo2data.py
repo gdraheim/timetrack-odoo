@@ -55,7 +55,7 @@ norm_frac_3_4 = 0x00BE
 
 def strName(value: JSONItem) -> str:
     if value is None:
-       return "~"
+        return "~"
     val = str(value)
     if SHORTNAME:
         if len(val) > 27:
@@ -161,8 +161,8 @@ def _report_per_project(odoodata: JSONList) -> JSONList:
                     rate = int(proj_rate)
             else:
                 rate = int(price)
-        elem : JSONDict = { "am": new_month, "at proj": proj_name, "odoo": odoo_size, "m": focus,
-                            "satz": int(rate), "summe": round(rate * odoo_size, 2) }
+        elem: JSONDict = {"am": new_month, "at proj": proj_name, "odoo": odoo_size, "m": focus,
+                          "satz": int(rate), "summe": round(rate * odoo_size, 2)}
         sumvals.append(elem)
     return sumvals
 
@@ -243,7 +243,7 @@ def _json2odoo(data: JSONList) -> Generator[JSONDict, None, None]:
         info: JSONDict = {}
         info["proj_name"] = item["Project"]
         info["task_name"] = item["Task"]
-        info["task_topic"] = item["Topic"] # does not exist in odoo
+        info["task_topic"] = item["Topic"]  # does not exist in odoo
         info["entry_desc"] = item["Description"]
         info["entry_date"] = item["Date"]
         info["entry_size"] = item["Quantity"]
@@ -331,11 +331,11 @@ def run(arg: str) -> None:
                     summe = (summe or 0.0) + cast(float, item["summe"])
             if odoo or summe:
                 results.append({})
-                results.append({ "odoo": odoo, "summe": summe})
+                results.append({"odoo": odoo, "summe": summe})
             if summe:
                 results.append({"satz": VAT, "summe": round(summe * VAT, 2)})
                 results.append({"summe": summe + round(summe * VAT, 2)})
-        formats={"odoo": " %4.2f", "summe": " %4.2f"}
+        formats = {"odoo": " %4.2f", "summe": " %4.2f"}
         print(tabtotext.tabToGFM(results, formats=formats))
         for line in summary:
             print(f"# {line}")
