@@ -15,4 +15,4 @@ Edit your ~/.gitconfig
 
 ### credentials
 
-    ./netrc.py set https://mycompany.odoo.com john.doe@example.com whatever
+    ./netrc.py set https://erp.example.com me@example.com Example.2022
