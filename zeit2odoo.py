@@ -343,100 +343,6 @@ def _summary_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
         sumproj[proj_name]["zeit"] += item["zeit"]  # type: ignore
     return list(sumproj.values())
 
-def report_per_project(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
-    if not odoodata:
-        if ONLYZEIT:
-            odoodata = []
-        else:
-            odoo = odoo_api.Odoo()
-            odoodata = odoo.timesheet(get_zeit_after(), get_zeit_before())
-    return _report_per_project(data, odoodata)
-def _report_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
-    sumdata = _monthly_per_project(data, odoodata)
-    sumvals: JSONList = []
-    for item in sumdata:
-        new_month = cast(str, item["am"])
-        proj_name = cast(str, item["at proj"])
-        odoo_size = cast(float, item["odoo"])
-        if ONLYZEIT:
-            odoo_size = cast(float, item["zeit"])
-        focus = 1
-        rate = "10"
-        for price in PRICES:
-            if ":" in price:
-                proj, proj_rate = price.split(":", 1)
-                if fnmatches(proj_name, proj + "*"):
-                    rate = proj_rate
-            else:
-                rate = price
-        elem: JSONDict = {"am": new_month, "at proj": proj_name, "odoo": odoo_size, "m": focus,
-                          "satz": int(rate), "summe": round(int(rate) * odoo_size, 2)}
-        sumvals.append(elem)
-    return sumvals
-
-def monthly_per_project(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
-    if not odoodata:
-        if ONLYZEIT:
-            odoodata = []
-        else:
-            odoo = odoo_api.Odoo()
-            odoodata = odoo.timesheet(get_zeit_after(), get_zeit_before())
-    return _monthly_per_project(data, odoodata)
-def _monthly_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
-    sumdata = _monthly_per_project_task(data, odoodata)
-    sumproj: Dict[Tuple[str, str], JSONDict] = {}
-    for item in sumdata:
-        new_month = cast(str, item["am"])
-        proj_name = cast(str, item["at proj"])
-        task_name = cast(str, item["at task"])
-        new_key = (new_month, proj_name)
-        if new_key not in sumproj:
-            sumproj[new_key] = {"am": new_month, "at proj": proj_name, "odoo": 0, "zeit": 0}
-        sumproj[new_key]["odoo"] += item["odoo"]  # type: ignore
-        sumproj[new_key]["zeit"] += item["zeit"]  # type: ignore
-    return list(sumproj.values())
-
-def monthly_per_project_task(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
-    if not odoodata:
-        if ONLYZEIT:
-            odoodata = []
-        else:
-            odoo = odoo_api.Odoo()
-            odoodata = odoo.timesheet(get_zeit_after(), get_zeit_before())
-    return _monthly_per_project_task(data, odoodata)
-def _monthly_per_project_task(data: JSONList, odoodata: JSONList) -> JSONList:
-    sumdata: Dict[Tuple[str, str, str], JSONDict] = {}
-    for item in data:
-        proj_id: str = cast(str, item["Project"])
-        task_id: str = cast(str, item["Task"])
-        new_date: Day = cast(Day, item["Date"])
-        new_size: Num = cast(Num, item["Quantity"])
-        new_month = "M%02i" % new_date.month
-        new_key = (new_month, proj_id, task_id)
-        if ZEIT_PROJONLY:
-            if not fnmatches(proj_id, ZEIT_PROJONLY): continue
-        if ZEIT_PROJSKIP:
-            if fnmatches(proj_id, ZEIT_PROJSKIP): continue
-        if new_key not in sumdata:
-            sumdata[new_key] = {"am": new_month, "at proj": proj_id, "at task": task_id, "odoo": 0, "zeit": 0}
-        sumdata[new_key]["zeit"] += new_size  # type: ignore
-    dayodoo: Dict[Day, JSONList] = {}
-    for item in odoodata:
-        proj_name: str = cast(str, item["proj_name"])
-        task_name: str = cast(str, item["task_name"])
-        old_date: Day = get_date(cast(str, item["entry_date"]))
-        old_size: Num = cast(Num, item["entry_size"])
-        old_month = "M%02i" % old_date.month
-        old_key = (old_month, proj_name, task_name)
-        if ZEIT_PROJONLY:
-            if not fnmatches(proj_name, ZEIT_PROJONLY): continue
-        if ZEIT_PROJSKIP:
-            if fnmatches(proj_name, ZEIT_PROJSKIP): continue
-        if old_key not in sumdata:
-            sumdata[old_key] = {"am": old_month, "at proj": proj_name, "at task": task_name, "odoo": 0, "zeit": 0}
-        sumdata[old_key]["odoo"] += old_size  # type: ignore
-    return list(sumdata.values())
-
 def fnmatches(text: str, pattern: str) -> bool:
     for pat in pattern.split("|"):
         if fnmatch(text, pat + "*"):
@@ -534,18 +440,6 @@ def run(arg: str) -> None:
         results = update_per_days(data)
     if arg in ["cc", "compare"]:
         results = summary_per_day(data)
-    if arg in ["xx", "rsummary", "report"]:
-        results = report_per_project(data)
-        sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
-        sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
-        summary = [f"{sum_euro} euro", f"{sum_odoo} hours odoo"]
-    if arg in ["ssx", "msummarize", "mtasks", "monthlys"]:
-        results = monthly_per_project_task(data)
-    if arg in ["sx", "msummary", "monthly"]:
-        results = monthly_per_project(data)
-        sum_zeit = sum([float(cast(JSONBase, item["zeit"])) for item in results if item["zeit"]])
-        sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
-        summary = [f"{sum_zeit} hours zeit", f"{sum_odoo} hours odoo"]
     if arg in ["sss", "summarize", "tasks"]:
         results = summary_per_project_task(data)
     if arg in ["ss", "summary"]:
