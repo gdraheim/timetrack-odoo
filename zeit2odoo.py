@@ -410,7 +410,7 @@ def run(arg: str) -> None:
         results = valid_per_days(data)
     if arg in ["uu", "update"]:
         results = update_per_days(data)
-    if arg in ["cc", "compare"]:
+    if arg in ["cc", "compare", "days"]:
         results = summary_per_day(data)
     if arg in ["sss", "summarize", "tasks"]:
         results = summary_per_project_task(data)
