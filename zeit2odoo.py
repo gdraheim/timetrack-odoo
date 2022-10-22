@@ -64,7 +64,7 @@ def strDesc(val: str) -> str:
     return val
 def strName(value: JSONItem) -> str:
     if value is None:
-       return "~"
+        return "~"
     val = str(value)
     if SHORTNAME:
         if len(val) > 27:
@@ -369,8 +369,8 @@ def _report_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
                     rate = proj_rate
             else:
                 rate = price
-        elem : JSONDict = { "am": new_month, "at proj": proj_name, "odoo": odoo_size, "m": focus,
-                            "satz": int(rate), "summe": round(int(rate) * odoo_size, 2) }
+        elem: JSONDict = {"am": new_month, "at proj": proj_name, "odoo": odoo_size, "m": focus,
+                          "satz": int(rate), "summe": round(int(rate) * odoo_size, 2)}
         sumvals.append(elem)
     return sumvals
 
@@ -575,11 +575,11 @@ def run(arg: str) -> None:
                     summe = (summe or 0.0) + cast(float, item["summe"])
             if odoo or zeit or summe:
                 results.append({})
-                results.append({ "odoo": odoo, "zeit": zeit, "summe": summe})
+                results.append({"odoo": odoo, "zeit": zeit, "summe": summe})
             if summe:
                 results.append({"satz": VAT, "summe": round(summe * VAT, 2)})
                 results.append({"summe": summe + round(summe * VAT, 2)})
-        formats={"zeit": " %4.2f", "odoo": " %4.2f", "summe": " %4.2f"}
+        formats = {"zeit": " %4.2f", "odoo": " %4.2f", "summe": " %4.2f"}
         print(tabtotext.tabToGFM(results, formats=formats))
         for line in summary:
             print(f"# {line}")
