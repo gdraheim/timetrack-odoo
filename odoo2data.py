@@ -87,6 +87,22 @@ def strHours(val: Union[int, float, str]) -> str:
         return "%s%i%c" % (indent, base, norm_frac_3_4)
     return "%s%f" % (indent, numm)
 
+def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
+    if not odoodata:
+        odoo = odoo_api.Odoo()
+        odoodata = odoo.timesheet(DAYS.after, DAYS.before)
+    # return list(odoodata)
+    return list(_work_data(odoodata))
+def _work_data(odoodata: JSONList) -> JSONList:
+    for item in odoodata:
+        proj_name: str = cast(str, item["proj_name"])
+        task_name: str = cast(str, item["task_name"])
+        odoo_date: Day = get_date(cast(str, item["entry_date"])) # in case we use raw zeit
+        odoo_size: Num = cast(Num, item["entry_size"])
+        odoo_desc: str = cast(str, item["entry_desc"])
+        yield { "at date": odoo_date, "at proj": proj_name, "at task": task_name, 
+                "odoo": odoo_size, "worked on": odoo_desc}
+
 def summary_per_day(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
         odoo = odoo_api.Odoo()
@@ -261,6 +277,11 @@ def run(arg: str) -> None:
     if ONLYZEIT:
         import zeit2json
         data = json2odoo(zeit2json.read_zeit(DAYS.after, DAYS.before))
+    if arg in ["data", "worked"]:
+        results = work_data(data)
+        if results and not SHORTNAME:
+            print("# use -z or -zz to shorten the names for proj and task !!")
+            print("")
     if arg in ["dd", "dsummary"]:
         results = summary_per_day(data)
     if arg in ["xx", "rsummary", "report"]:
@@ -289,6 +310,8 @@ def run(arg: str) -> None:
                     item["at proj"] = strName(item["at proj"])
                 if "at task" in item:
                     item["at task"] = strName(item["at task"])
+                if "worked on" in item and SHORTNAME > 1:
+                    item["worked on"] = strName(item["worked on"])
         if ADDFOOTER:
             odoo: Optional[float] = None
             summe: Optional[float] = None
@@ -383,8 +406,10 @@ if __name__ == "__main__":
     ODOO_PROJONLY = opt.projonly
     ODOO_PROJSKIP = opt.projskip
     PRICES = opt.price
-    DAYRANGE = dayrange(opt.after, opt.before)
+    DAYS = dayrange(opt.after, opt.before)
+    if len(args) == 1 and is_dayrange(args[0]):
+        args += ["data"]
     if not args:
-        args = ["report"]
+        args = ["data"]
     for arg in args:
         run(arg)
