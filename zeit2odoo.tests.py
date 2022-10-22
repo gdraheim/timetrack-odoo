@@ -25,7 +25,7 @@ SCRIPT = "./zeit2odoo.py"
 
 sync.odoo_api = odoo_rest_mockup
 
-class odooTest(unittest.TestCase):
+class zeit2odooTest(unittest.TestCase):
     def last_sunday(self) -> datetime.date:
         today = datetime.date.today()
         for earlier in range(8):
@@ -50,7 +50,7 @@ class odooTest(unittest.TestCase):
         cmd = f"{SCRIPT} -a 01.01. -b 10.01. -v update"
         subprocess.call(cmd, shell=True)
         logg.info("you need to add -y to update Odoo")
-    def test_101(self) -> None:
+    def test_131(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -73,7 +73,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.25)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 4)
-    def test_102(self) -> None:
+    def test_132(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -103,7 +103,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[1]["zeit"], 0.25)
         self.assertEqual(len(results), 2)
         self.assertEqual(len(results[0]), 4)
-    def test_103(self) -> None:
+    def test_133(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -126,7 +126,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.25)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_104(self) -> None:
+    def test_134(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -152,7 +152,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.50)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_105(self) -> None:
+    def test_135(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -174,7 +174,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.25)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_106(self) -> None:
+    def test_136(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -202,7 +202,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[1]["zeit"], 0.25)
         self.assertEqual(len(results), 2)
         self.assertEqual(len(results[0]), 3)
-    def test_107(self) -> None:
+    def test_137(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -224,7 +224,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.25)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_108(self) -> None:
+    def test_138(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -249,7 +249,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.5)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_110(self) -> None:
+    def test_210(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -271,7 +271,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.25)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_111(self) -> None:
+    def test_211(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -294,7 +294,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.25)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 6)
-    def test_112(self) -> None:
+    def test_212(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -317,7 +317,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.25)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 6)
-    def test_121(self) -> None:
+    def test_221(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -350,7 +350,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.25)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_122(self) -> None:
+    def test_222(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
@@ -383,7 +383,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.25)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_131(self) -> None:
+    def test_231(self) -> None:
         """ split an existing value making an UPD + NEW #"""
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
@@ -450,7 +450,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.25)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_132(self) -> None:
+    def test_232(self) -> None:
         """ split an existing value making an UPD + NEW #"""
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
@@ -517,7 +517,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.25)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_141(self) -> None:
+    def test_241(self) -> None:
         """ add a NEW entry #"""
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
@@ -580,7 +580,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.50)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_142(self) -> None:
+    def test_242(self) -> None:
         """ add a NEW entry #"""
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
@@ -643,7 +643,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.50)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_151(self) -> None:
+    def test_251(self) -> None:
         """ add a NEW entry #"""
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
@@ -706,7 +706,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.50)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_152(self) -> None:
+    def test_252(self) -> None:
         """ add a NEW entry #"""
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
@@ -769,7 +769,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.50)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 3)
-    def test_201(self) -> None:
+    def test_301(self) -> None:
         """ add a NEW entry and UPD its time #"""
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
@@ -891,7 +891,7 @@ class odooTest(unittest.TestCase):
         self.assertEqual(results[0]["zeit"], 1.75)
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 4)
-    def test_211(self) -> None:
+    def test_311(self) -> None:
         """ add a NEW entry and UPD its task #"""
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
