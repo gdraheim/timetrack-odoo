@@ -313,8 +313,7 @@ def run(arg: str) -> None:
     if arg in ["ww", "data", "worked"]:
         results = work_data(data)
         if results and not SHORTNAME:
-            print("# use -z or -zz to shorten the names for proj and task !!")
-            print("")
+            logg.log(DONE, " ### use -z or -zz to shorten the names for proj and task !!")
     if arg in ["dd", "dsummary", "days"]:
         results = summary_per_day(data)
     if arg in ["xx", "rsummary", "report"]:
@@ -322,6 +321,8 @@ def run(arg: str) -> None:
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
+        if results and not ADDFOOTER:
+            logg.log(DONE, " ### use -O to add a VAT footer !!")
     if arg in ["mm", "msummarize", "mtasks", "monthlys"]:
         results = monthly_per_project_task(data)
     if arg in ["sx", "msummary", "monthly"]:
