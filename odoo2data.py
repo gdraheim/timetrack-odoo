@@ -93,15 +93,15 @@ def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     # return list(odoodata)
     return list(_work_data(odoodata))
-def _work_data(odoodata: JSONList) -> Generator[JSONDict,None,None]:
+def _work_data(odoodata: JSONList) -> Generator[JSONDict, None, None]:
     for item in odoodata:
         proj_name: str = cast(str, item["proj_name"])
         task_name: str = cast(str, item["task_name"])
-        odoo_date: Day = get_date(cast(str, item["entry_date"])) # in case we use raw zeit
+        odoo_date: Day = get_date(cast(str, item["entry_date"]))  # in case we use raw zeit
         odoo_size: Num = cast(Num, item["entry_size"])
         odoo_desc: str = cast(str, item["entry_desc"])
-        yield { "at proj": proj_name, "at task": task_name, 
-                "at date": odoo_date, "odoo": odoo_size, "worked on": odoo_desc}
+        yield {"at proj": proj_name, "at task": task_name,
+               "at date": odoo_date, "odoo": odoo_size, "worked on": odoo_desc}
 
 def summary_per_day(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
@@ -114,7 +114,7 @@ def _summary_per_day(odoodata: JSONList) -> JSONList:
         odoo_date: Day = get_date(cast(str, item["entry_date"]))
         odoo_size: Num = cast(Num, item["entry_size"])
         weekday = odoo_date.weekday()
-        weekday_name = ["so","mo","di","mi","do","fr","sa","so"][weekday]
+        weekday_name = ["so", "mo", "di", "mi", "do", "fr", "sa", "so"][weekday]
         if odoo_date not in daydata:
             daydata[odoo_date] = {"date": odoo_date, "day": weekday_name, "odoo": 0}
         daydata[odoo_date]["odoo"] += odoo_size  # type: ignore
