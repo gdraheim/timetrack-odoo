@@ -12,10 +12,14 @@ SCRIPT = zeit2odoo.py
 TESTSUITE = zeit2odoo.tests.py
 GENSCRIPT = zeit2json.py
 GEN_TESTS = zeit2json.tests.py
+DATSCRIPT = odoo2data.py
+DAT_TESTS = odoo2data.tests.py
 APISCRIPT = odoo_rest.py
 # API_TESTS = odoo_tests.tests.py
 API_TESTS = odoo_rest_mockup.py
 
+DAY_UTILS = dayrange.py
+DAY_TESTS = dayrange.tests.py
 NET_UTILS = netrc.py
 NET_TESTS = netrc.tests.py
 TAB_UTILS = tabtotext.py
@@ -29,6 +33,8 @@ default: help
 check:
 	$(MAKE) tabt
 	$(MAKE) nett
+	$(MAKE) dayt
+	$(MAKE) odoo
 	$(MAKE) zeit
 	$(MAKE) test
 
@@ -41,6 +47,16 @@ n nett:
 	$(PYTHON3) $(NET_TESTS)
 n_%:
 	$(PYTHON3) $(NET_TESTS) $@ -v $V
+
+d dayt:
+	$(PYTHON3) $(DAY_TESTS)
+d_%:
+	$(PYTHON3) $(DAY_TESTS) $@ -v $V
+
+o odoo:
+	$(PYTHON3) $(DAT_TESTS)
+o_%:
+	$(PYTHON3) $(DAT_TESTS) $@ -v $V
 
 z zeit:
 	$(PYTHON3) $(GEN_TESTS)
