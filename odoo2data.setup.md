@@ -17,9 +17,11 @@ You have probably configured that to push git commits.
 
 ### FIRST STEPS
 
-./odoo2data week
-./odoo2data week work
-./odoo2data last days
-./odoo2data this summary
-./odoo2data -a 01.01. -b 31.03. report --xlsxfile report.Q1.xlsx
+./odoo2data.py week
+./odoo2data.py week work
+./odoo2data.py last days
+./odoo2data.py this summary -z
+./odoo2data.py help
+./odoo2data.py -a 01.01. -b 31.03. report --xlsxfile report.Q1.xlsx
+
 
