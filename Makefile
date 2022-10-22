@@ -158,17 +158,10 @@ type:
 	                 $(TAB_UTILS).type $(TAB_TESTS).type \
 	                 $(NET_UTILS).type $(NET_TESTS).type
 
-$(SCRIPT).type $(TESTSUITE).type $(GENSCRIPT).type $(GEN_TESTS).type:
+%.type:
 	$(MYPY) $(MYPY_STRICT) $(MYPY_OPTIONS) $(@:.type=)
 
-$(TAB_UTILS).type $(TAB_TESTS).type $(NET_UTILS).type $(NET_TESTS).type:
-	$(MYPY) $(MYPY_STRICT) $(MYPY_OPTIONS) $(@:.type=)
-
-$(SCRIPT).pep $(TESTSUITE).pep $(GENSCRIPT).pep $(GEN_TESTS).pep:
-	$(AUTOPEP8) $(AUTOPEP8_INPLACE) $(AUTOPEP8_OPTIONS) $(@:.pep=)
-	git --no-pager diff $(@:.pep=)
-
-$(TAB_UTILS).pep $(TAB_TESTS).pep $(NET_UTILS).pep $(NET_TESTS).pep:
+%.pep:
 	$(AUTOPEP8) $(AUTOPEP8_INPLACE) $(AUTOPEP8_OPTIONS) $(@:.pep=)
 	git --no-pager diff $(@:.pep=)
 
