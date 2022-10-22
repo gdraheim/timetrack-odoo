@@ -20,7 +20,7 @@ symbolic_dayrange = [
 "months", "lastmonths", "last-months", "blastmonth", "blast-month", "before-last-month",
 "this", "last", "late", "latest", "blast", "beforelast", "before-last", "b4last"]
 
-def is_dayrange(arg: str):
+def is_dayrange(arg: str) -> bool:
     return arg in symbolic_dayrange
 def get_symbolic_dayrange(arg: str) -> Tuple[str, str]:
     after, before = days_for_symbolic_dayrange(arg)

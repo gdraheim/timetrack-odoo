@@ -60,15 +60,17 @@ def get_user_name() -> Optional[str]:
     import gitrc
     return gitrc.git_config_value("user.name")
 def get_zeit_filename(on_or_after: Optional[Day] = None) -> str:
+    after = on_or_after or get_zeit_after()
+    return zeit_filename(after)
+def zeit_filename(after: Day) -> str:
     if ZEIT_FILENAME:
-        return expand_zeit_filename(ZEIT_FILENAME, on_or_after)
+        return expand_zeit_filename(ZEIT_FILENAME, after)
     import gitrc
     found = gitrc.git_config_value("zeit.filename")
     if found:
-        return expand_zeit_filename(found, on_or_after)
-    return expand_zeit_filename("~/zeit{YEAR}.txt", on_or_after)
-def expand_zeit_filename(filename: str, on_or_after: Optional[Day] = None) -> str:
-    after: Day = on_or_after or get_zeit_after()
+        return expand_zeit_filename(found, after)
+    return expand_zeit_filename("~/zeit{YEAR}.txt", after)
+def expand_zeit_filename(filename: str, after: Day) -> str:
     YEAR = after.year
     return path.expanduser(filename.format(**locals()))
 
