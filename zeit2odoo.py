@@ -42,7 +42,6 @@ UPDATE = False
 SHORTNAME = 0
 SHORTDESC = 0
 ONLYZEIT = 0
-ADDFOOTER = 0
 
 SCSVFILE = ""
 TEXTFILE = ""
@@ -441,23 +440,6 @@ def run(arg: str) -> None:
                     item["at proj"] = strName(item["at proj"])
                 if "at task" in item:
                     item["at task"] = strName(item["at task"])
-        if ADDFOOTER:
-            odoo: Optional[float] = None
-            zeit: Optional[float] = None
-            summe: Optional[float] = None
-            for item in results:
-                if "odoo" in item:
-                    odoo = (odoo or 0.0) + cast(float, item["odoo"])
-                if "zeit" in item:
-                    zeit = (zeit or 0.0) + cast(float, item["zeit"])
-                if "summe" in item:
-                    summe = (summe or 0.0) + cast(float, item["summe"])
-            if odoo or zeit or summe:
-                results.append({})
-                results.append({"odoo": odoo, "zeit": zeit, "summe": summe})
-            if summe:
-                results.append({"satz": VAT, "summe": round(summe * VAT, 2)})
-                results.append({"summe": summe + round(summe * VAT, 2)})
         formats = {"zeit": " %4.2f", "odoo": " %4.2f", "summe": " %4.2f"}
         print(tabtotext.tabToGFM(results, formats=formats))
         for line in summary:
@@ -509,8 +491,6 @@ if __name__ == "__main__":
                        help="present short lines for description [%default]")
     cmdline.add_option("-q", "--onlyzeit", action="count", default=ONLYZEIT,
                        help="present only local zeit data [%default]")
-    cmdline.add_option("-O", "--addfooter", action="count", default=ADDFOOTER,
-                       help="present sum as lines in data [%default]")
     cmdline.add_option("--SCSVfile", metavar="FILE", default=SCSVFILE)
     cmdline.add_option("--textfile", metavar="FILE", default=TEXTFILE)
     cmdline.add_option("--jsonfile", metavar="FILE", default=JSONFILE)
@@ -544,8 +524,6 @@ if __name__ == "__main__":
         SHORTDESC = opt.shortname
     if opt.shortname > 2:
         ONLYZEIT = opt.shortname
-    if opt.shortname > 3:
-        ADDFOOTER = opt.shortname
     # zeit2json
     ZEIT_USER_NAME = opt.user_name
     ZEIT_PROJONLY = opt.projonly
