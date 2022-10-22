@@ -39,32 +39,32 @@ check:
 	$(MAKE) test
 
 x tabt:
-	$(PYTHON3) $(TAB_TESTS)
+	$(PYTHON3) $(TAB_TESTS) -v $V
 x_%:
 	$(PYTHON3) $(TAB_TESTS) $@ -v $V
 
 n nett:
-	$(PYTHON3) $(NET_TESTS)
+	$(PYTHON3) $(NET_TESTS) -v $V
 n_%:
 	$(PYTHON3) $(NET_TESTS) $@ -v $V
 
 d dayt:
-	$(PYTHON3) $(DAY_TESTS)
+	$(PYTHON3) $(DAY_TESTS) -v $V
 d_%:
 	$(PYTHON3) $(DAY_TESTS) $@ -v $V
 
 o odoo:
-	$(PYTHON3) $(DAT_TESTS)
+	$(PYTHON3) $(DAT_TESTS) -v $V
 o_%:
 	$(PYTHON3) $(DAT_TESTS) $@ -v $V
 
 z zeit:
-	$(PYTHON3) $(GEN_TESTS)
+	$(PYTHON3) $(GEN_TESTS) -v $V
 z_%:
 	$(PYTHON3) $(GEN_TESTS) $@ -v $V
 
 t test:
-	$(PYTHON3) $(TESTSUITE)
+	$(PYTHON3) $(TESTSUITE) -v $V
 t_%:
 	$(PYTHON3) $(TESTSUITE) $@ -v $V
 

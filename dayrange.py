@@ -64,9 +64,44 @@ def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
         return (after, before)
     raise DayrangeException("unknown symbolic dayrange '%s'" % arg)
 
-class dayrange:
+class Dayrange:
     after: Day
     before: Day
+    def __init__(self, after: Day, before: Day):
+        self.after = after
+        self.before = before
+    def __len__(self) -> int:
+        return(self.before - self.after).days + 1
+    def __str__(self) -> str:
+        after = self.after
+        before = self.before
+        return f"{after} .. {before}"
+    def __iter__(self) -> "Dayrange":  # Self in Python 3.11
+        return Dayrange(self.after, self.before)
+    def __next__(self) -> Day:
+        value = self.after
+        if value > self.before:
+            raise StopIteration()
+        self.after += datetime.timedelta(days=1)
+        return value
+    def __eq__(self, days: object) -> bool:
+        if not isinstance(days, Dayrange):
+            return NotImplemented
+        return self.before == days.before and self.after == days.after
+    def __le__(self, days: object) -> bool:
+        if not isinstance(days, Dayrange):
+            return NotImplemented
+        return self.before <= days.before and self.after >= days.after
+    def __ge__(self, days: object) -> bool:
+        if not isinstance(days, Dayrange):
+            return NotImplemented
+        return self.before >= days.before and self.after <= days.after
+    def __lt__(self, days: object) -> bool:
+        return self.__le__(days) and not self.__eq__(days)
+    def __gt__(self, days: object) -> bool:
+        return self.__ge__(days) and not self.__eq__(days)
+
+class dayrange(Dayrange):
     def __init__(self, after: Union[None, str, Day] = None, before: Union[None, str, Day] = None):
         if not after:
             self.after = firstday_of_month(0)
@@ -84,12 +119,6 @@ class dayrange:
             self.before = get_date(before)
         else:
             self.before = before
-    def __len__(self) -> int:
-        return(self.before - self.after).days + 1
-    def __str__(self) -> str:
-        after = self.after
-        before = self.before
-        return f"{after} .. {before}"
 
 def date_isoformat(text: str) -> Day:
     if "-99" in text:

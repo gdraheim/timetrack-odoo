@@ -10,7 +10,7 @@ import tempfile
 import os.path as path
 from fnmatch import fnmatchcase as fnmatch
 import subprocess
-from datetime import date as Date
+from datetime import date as Day
 from datetime import timedelta as Delta
 
 import netrc
@@ -20,8 +20,8 @@ logg = logging.getLogger("TEST")
 
 
 class dayrangeTest(unittest.TestCase):
-    def last_sunday(self) -> Date:
-        today = Date.today()
+    def last_sunday(self) -> Day:
+        today = Day.today()
         for earlier in range(8):
             day = today - Delta(days=earlier)
             logg.debug("weekday %s earlier %s", day.isoweekday(), earlier)
@@ -32,83 +32,114 @@ class dayrangeTest(unittest.TestCase):
     def test_011(self) -> None:
         day = zeit.date_isoformat("2019-12-11")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 12, 11))
+        self.assertEqual(day, Day(2019, 12, 11))
     def test_012(self) -> None:
         day = zeit.date_isoformat("2019-12-99")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 12, 31))
+        self.assertEqual(day, Day(2019, 12, 31))
     def test_013(self) -> None:
         day = zeit.date_isoformat("2019-11-99")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 11, 30))
+        self.assertEqual(day, Day(2019, 11, 30))
     def test_014(self) -> None:
         day = zeit.date_isoformat("2019-02-99")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 2, 28))
+        self.assertEqual(day, Day(2019, 2, 28))
     def test_015(self) -> None:
         day = zeit.date_isoformat("2020-02-99")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2020, 2, 29))
+        self.assertEqual(day, Day(2020, 2, 29))
     def test_021(self) -> None:
         day = zeit.date_dotformat("11.12.2019")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 12, 11))
+        self.assertEqual(day, Day(2019, 12, 11))
     def test_022(self) -> None:
         day = zeit.date_dotformat("99.12.2019")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 12, 31))
+        self.assertEqual(day, Day(2019, 12, 31))
     def test_023(self) -> None:
         day = zeit.date_dotformat("99.11.2019")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 11, 30))
+        self.assertEqual(day, Day(2019, 11, 30))
     def test_024(self) -> None:
         day = zeit.date_dotformat("99.02.2019")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 2, 28))
+        self.assertEqual(day, Day(2019, 2, 28))
     def test_025(self) -> None:
         day = zeit.date_dotformat("99.02.2020")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2020, 2, 29))
+        self.assertEqual(day, Day(2020, 2, 29))
     def test_041(self) -> None:
         day = zeit.get_date("2019-12-11")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 12, 11))
+        self.assertEqual(day, Day(2019, 12, 11))
     def test_042(self) -> None:
         day = zeit.get_date("2019-12-99")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 12, 31))
+        self.assertEqual(day, Day(2019, 12, 31))
     def test_043(self) -> None:
         day = zeit.get_date("2019-11-99")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 11, 30))
+        self.assertEqual(day, Day(2019, 11, 30))
     def test_044(self) -> None:
         day = zeit.get_date("2019-02-99")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 2, 28))
+        self.assertEqual(day, Day(2019, 2, 28))
     def test_045(self) -> None:
         day = zeit.get_date("2020-02-99")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2020, 2, 29))
+        self.assertEqual(day, Day(2020, 2, 29))
     def test_051(self) -> None:
         day = zeit.get_date("11.12.2019")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 12, 11))
+        self.assertEqual(day, Day(2019, 12, 11))
     def test_052(self) -> None:
         day = zeit.get_date("99.12.2019")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 12, 31))
+        self.assertEqual(day, Day(2019, 12, 31))
     def test_053(self) -> None:
         day = zeit.get_date("99.11.2019")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 11, 30))
+        self.assertEqual(day, Day(2019, 11, 30))
     def test_054(self) -> None:
         day = zeit.get_date("99.02.2019")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2019, 2, 28))
+        self.assertEqual(day, Day(2019, 2, 28))
     def test_055(self) -> None:
         day = zeit.get_date("99.02.2020")
         logg.info("day = %s", day)
-        self.assertEqual(day, Date(2020, 2, 29))
+        self.assertEqual(day, Day(2020, 2, 29))
+    def test_501(self) -> None:
+        days = zeit.dayrange("2020-02-01", "2020-02-29")
+        self.assertEqual(days.after, Day(2020, 2, 1))
+        self.assertEqual(days.before, Day(2020, 2, 29))
+        self.assertEqual(len(days), 29)
+    def test_502(self) -> None:
+        days = zeit.dayrange("2020-02-01", "2020-02-02")
+        self.assertEqual(days.after, Day(2020, 2, 1))
+        self.assertEqual(days.before, Day(2020, 2, 2))
+        self.assertEqual(len(days), 2)
+        logg.info("days = %s", days)
+        values = [day for day in days]
+        logg.info("values %s", values)
+        self.assertEqual(len(values), 2)
+        daynum = [val.day for val in values]
+        self.assertEqual(daynum, [1, 2])
+        months = [val.month for val in values]
+        self.assertEqual(months, [2, 2])
+    def test_503(self) -> None:
+        days = zeit.dayrange("2020-02-01", "2020-02-29")
+        self.assertEqual(days.after, Day(2020, 2, 1))
+        self.assertEqual(days.before, Day(2020, 2, 29))
+        self.assertEqual(len(days), 29)
+        day2 = zeit.dayrange("2020-02-01", "2020-02-02")
+        self.assertEqual(day2.after, Day(2020, 2, 1))
+        self.assertEqual(day2.before, Day(2020, 2, 2))
+        self.assertEqual(len(day2), 2)
+        self.assertLessEqual(day2, days)
+        self.assertGreaterEqual(days, day2)
+        self.assertLess(day2, days)
+        self.assertGreater(days, day2)
 
 if __name__ == "__main__":
     # unittest.main()
