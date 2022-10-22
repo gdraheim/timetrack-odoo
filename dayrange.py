@@ -14,11 +14,11 @@ class DayrangeException(Exception):
     pass
 
 symbolic_dayrange = [
-"week", "thisweek", "this-week", "nextweek", "next-week", "lastweek", "last-week",
-"weeks", "lastweeks", "last-weeks", "blastweek", "blast-week", "before-last-week",
-"month", "thismonth", "this-month", "nextmonth", "next-month", "lastmonth", "last-month",
-"months", "lastmonths", "last-months", "blastmonth", "blast-month", "before-last-month",
-"this", "last", "late", "latest", "blast", "beforelast", "before-last", "b4last"]
+    "week", "thisweek", "this-week", "nextweek", "next-week", "lastweek", "last-week",
+    "weeks", "lastweeks", "last-weeks", "blastweek", "blast-week", "before-last-week",
+    "month", "thismonth", "this-month", "nextmonth", "next-month", "lastmonth", "last-month",
+    "months", "lastmonths", "last-months", "blastmonth", "blast-month", "before-last-month",
+    "this", "last", "late", "latest", "blast", "beforelast", "before-last", "b4last"]
 
 def is_dayrange(arg: str) -> bool:
     return arg in symbolic_dayrange
@@ -50,7 +50,7 @@ def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
         after = firstday_of_month(+0)
         before = lastday_of_month(+0)
         return (after, before)
-    if arg in ["lastmonth", "last-month", "last"]: # e.g. "run last summary"
+    if arg in ["lastmonth", "last-month", "last"]:  # e.g. "run last summary"
         after = firstday_of_month(-1)
         before = lastday_of_month(-1)
         return (after, before)
