@@ -124,7 +124,7 @@ def get_date(text: str, on_or_before: Optional[Day] = None) -> Day:
     logg.error("'%s' does not match YYYY-mm-dd", text)
     return date_isoformat(text)
 
-def check_days(days):
+def check_days(days: dayrange) -> None:
     print(f"days = after {days.after} ... {days.before} before")
     amount = len(days)
     print(f"these are {amount} days")
