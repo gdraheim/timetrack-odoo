@@ -29,7 +29,7 @@ logging.addLevelName(DONE, "DONE")
 DAYS = dayrange()
 
 PRICES: List[str] = []
-PRICE = 10
+PRICE10 = 10
 VAT = 0.19
 
 SHORTNAME = 0
@@ -86,6 +86,24 @@ def strHours(val: Union[int, float, str]) -> str:
             return "%s%s%c" % (indent, " ", norm_frac_3_4)
         return "%s%i%c" % (indent, base, norm_frac_3_4)
     return "%s%f" % (indent, numm)
+
+def get_proj_price_rate(proj: str) -> int:
+    rate = 0
+    for price in PRICES:
+        if ":" in price:
+            proj_name, proj_rate = price.split(":", 1)
+            proj_pattern = (proj_name if "*" in proj_name else proj_name + "*")
+            if fnmatches(proj, proj_pattern):
+                rate = int(proj_rate)
+        else:
+            rate = int(price)
+    if not rate:
+        gitrc_price = gitrc.git_config_value("zeit.price")
+        if gitrc_price:
+            rate = int(gitrc_price)
+    if not rate:
+        rate = PRICE10  # ensure that price is not a copy of hours
+    return rate
 
 def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
@@ -171,14 +189,7 @@ def _report_per_project(odoodata: JSONList) -> JSONList:
         proj_name = cast(str, item["at proj"])
         odoo_size = cast(float, item["odoo"])
         focus = 1
-        rate = PRICE
-        for price in PRICES:
-            if ":" in price:
-                proj, proj_rate = price.split(":", 1)
-                if fnmatches(proj_name, proj + "*"):
-                    rate = int(proj_rate)
-            else:
-                rate = int(price)
+        rate = get_proj_price_rate(proj_name)
         elem: JSONDict = {"am": new_month, "at proj": proj_name, "odoo": odoo_size, "m": focus,
                           "satz": int(rate), "summe": round(rate * odoo_size, 2)}
         sumvals.append(elem)
