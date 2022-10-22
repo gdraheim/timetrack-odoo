@@ -93,7 +93,7 @@ def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     # return list(odoodata)
     return list(_work_data(odoodata))
-def _work_data(odoodata: JSONList) -> JSONList:
+def _work_data(odoodata: JSONList) -> Generator[JSONDict,None,None]:
     for item in odoodata:
         proj_name: str = cast(str, item["proj_name"])
         task_name: str = cast(str, item["task_name"])
