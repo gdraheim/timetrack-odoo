@@ -10,7 +10,7 @@ import datetime
 import tabtotext
 import zeit2json
 from zeit2json import get_zeit_after, get_zeit_before, get_zeit_filename
-from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday
+from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
 import odoo_rest as odoo_api
 import netrc
 import gitrc
@@ -27,9 +27,8 @@ logg = logging.getLogger("zeit2odoo")
 DONE = (logging.WARNING + logging.ERROR) // 2
 logging.addLevelName(DONE, "DONE")
 
+DAYS = dayrange()
 # [for zeit2json]
-AFTER = ""  # get_zeit_after()
-BEFORE = ""  # get_zeit_before()
 ZEIT_FILENAME = ""  # get_zeit_filename()
 ZEIT_USER_NAME = ""  # get_user_name() in zeit
 ZEIT_SUMMARY = "stundenzettel"
@@ -265,7 +264,7 @@ def summary_per_day(data: JSONList, odoodata: Optional[JSONList] = None) -> JSON
             odoodata = []
         else:
             odoo = odoo_api.Odoo()
-            odoodata = odoo.timesheet(get_zeit_after(), get_zeit_before())
+            odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _summary_per_day(data, odoodata)
 def _summary_per_day(data: JSONList, odoodata: JSONList) -> JSONList:
     daydata: Dict[Day, JSONDict] = {}
@@ -290,7 +289,7 @@ def summary_per_project_task(data: JSONList, odoodata: Optional[JSONList] = None
             odoodata = []
         else:
             odoo = odoo_api.Odoo()
-            odoodata = odoo.timesheet(get_zeit_after(), get_zeit_before())
+            odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _summary_per_project_task(data, odoodata)
 def _summary_per_project_task(data: JSONList, odoodata: JSONList) -> JSONList:
     sumdata: Dict[Tuple[str, str], JSONDict] = {}
@@ -329,7 +328,7 @@ def summary_per_project(data: JSONList, odoodata: Optional[JSONList] = None) -> 
             odoodata = []
         else:
             odoo = odoo_api.Odoo()
-            odoodata = odoo.timesheet(get_zeit_after(), get_zeit_before())
+            odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _summary_per_project(data, odoodata)
 def _summary_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
     sumdata = _summary_per_project_task(data, odoodata)
@@ -358,7 +357,7 @@ def pref_desc(desc: str) -> str:
 def summary_per_topic(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
         odoo = odoo_api.Odoo()
-        return _summary_per_topic(data, odoo.timesheet(get_zeit_after(), get_zeit_before()))
+        return _summary_per_topic(data, odoo.timesheet(DAYS.after, DAYS.before))
     return _summary_per_topic(data, odoodata)
 def _summary_per_topic(data: JSONList, odoodata: JSONList) -> JSONList:
     sumdata: Dict[str, JSONDict] = {}
@@ -382,39 +381,13 @@ def _summary_per_topic(data: JSONList, odoodata: JSONList) -> JSONList:
     return list(sumdata.values())
 
 def run(arg: str) -> None:
-    global AFTER, BEFORE
-    if arg in ["latest", "week"]:
-        AFTER = last_sunday(-1).isoformat()
-        BEFORE = next_sunday(-1).isoformat()
-        logg.log(DONE, "%s -> %s %s", arg, AFTER, BEFORE)
+    global DAYS
+    if is_dayrange(arg):
+        DAYS = dayrange(arg)
+        logg.log(DONE, "%s -> %s %s", arg, DAYS.after, DAYS.before)
         return
-    if arg in ["late", "lastweek"]:
-        AFTER = last_sunday(-6).isoformat()
-        BEFORE = next_sunday(-6).isoformat()
-        logg.log(DONE, "%s -> %s %s", arg, AFTER, BEFORE)
-        return
-    if arg in ["next", "nextmonth", "next-month"]:
-        AFTER = first_of_month(-1)
-        BEFORE = last_of_month(-1)
-        logg.log(DONE, "%s -> %s %s", arg, AFTER, BEFORE)
-        return
-    if arg in ["this", "thismonth", "this-month"]:
-        AFTER = first_of_month(+0)
-        BEFORE = last_of_month(+0)
-        logg.log(DONE, "%s -> %s %s", arg, AFTER, BEFORE)
-        return
-    if arg in ["last", "lastmonth", "last-month"]:
-        AFTER = first_of_month(-1)
-        BEFORE = last_of_month(-1)
-        logg.log(DONE, "%s -> %s %s", arg, AFTER, BEFORE)
-        return
-    if arg in ["beforelast", "beforelastmonth", "before-last-month", "blast", "b4last"]:
-        AFTER = first_of_month(-2)
-        BEFORE = last_of_month(-2)
-        logg.log(DONE, "%s -> %s %s", arg, AFTER, BEFORE)
-        return
-    zeit2json.ZEIT_AFTER = AFTER
-    zeit2json.ZEIT_BEFORE = BEFORE
+    zeit2json.ZEIT_AFTER = DAYS.after.isoformat()
+    zeit2json.ZEIT_BEFORE = DAYS.before.isoformat()
     zeit2json.ZEIT_USER_NAME = ZEIT_USER_NAME
     zeit2json.ZEIT_SUMMARY = ZEIT_SUMMARY
     data = zeit2json.read_zeit(get_zeit_after(), get_zeit_before())
@@ -503,10 +476,10 @@ if __name__ == "__main__":
     cmdline = OptionParser("%prog [check|valid|update|compare|summarize|summary|topics] files...")
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
-    cmdline.add_option("-a", "--after", metavar="DATE", default=AFTER,
-                       help="only evaluate entrys on and after [first of year]")
-    cmdline.add_option("-b", "--before", metavar="DATE", default=BEFORE,
-                       help="only evaluate entrys on and before [last of year]")
+    cmdline.add_option("-a", "--after", metavar="DATE", default=None,
+                       help="only evaluate entrys on and after [first of month]")
+    cmdline.add_option("-b", "--before", metavar="DATE", default=None,
+                       help="only evaluate entrys on and before [last of month]")
     cmdline.add_option("-s", "--summary", metavar="TEXT", default=ZEIT_SUMMARY,
                        help="suffix for summary report [%default]")
     cmdline.add_option("-p", "--price", metavar="TEXT", action="append", default=PRICES,
@@ -567,8 +540,7 @@ if __name__ == "__main__":
     ZEIT_PROJSKIP = opt.projskip
     ZEIT_SUMMARY = opt.summary
     PRICES = opt.price
-    AFTER = opt.after
-    BEFORE = opt.before
+    DAYS = dayrange(opt.after, opt.before)
     if not args:
         args = ["make"]
     for arg in args:
