@@ -485,11 +485,11 @@ if __name__ == "__main__":
     cmdline.add_option("-U", "--user-name", metavar="TEXT", default=ZEIT_USER_NAME,
                        help="user name for the output report (not for login)")
     # ..............
-    cmdline.add_option("-z", "--shortname", action="count", default=SHORTNAME,
+    cmdline.add_option("-q", "--shortname", action="count", default=SHORTNAME,
                        help="present short names for proj+task [%default]")
-    cmdline.add_option("-Z", "--shortdesc", action="count", default=SHORTDESC,
+    cmdline.add_option("-Q", "--shortdesc", action="count", default=SHORTDESC,
                        help="present short lines for description [%default]")
-    cmdline.add_option("-q", "--onlyzeit", action="count", default=ONLYZEIT,
+    cmdline.add_option("-z", "--onlyzeit", action="count", default=ONLYZEIT,
                        help="present only local zeit data [%default]")
     cmdline.add_option("--SCSVfile", metavar="FILE", default=SCSVFILE)
     cmdline.add_option("--textfile", metavar="FILE", default=TEXTFILE)
@@ -520,10 +520,15 @@ if __name__ == "__main__":
     ADDFOOTER = opt.addfooter
     SHORTDESC = opt.shortdesc
     SHORTNAME = opt.shortname
+    ONLYZEIT = opt.onlyzeit
     if opt.shortname > 1:
         SHORTDESC = opt.shortname
     if opt.shortname > 2:
         ONLYZEIT = opt.shortname
+    if opt.onlyzeit > 1:
+        SHORTNAME = opt.onlyzeit
+    if opt.onlyzeit > 2:
+        SHORTDESC = opt.onlyzeit
     # zeit2json
     ZEIT_USER_NAME = opt.user_name
     ZEIT_PROJONLY = opt.projonly

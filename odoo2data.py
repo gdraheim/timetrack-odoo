@@ -313,7 +313,7 @@ def run(arg: str) -> None:
     if arg in ["ww", "data", "worked"]:
         results = work_data(data)
         if results and not SHORTNAME:
-            logg.log(DONE, " ### use -z or -zz to shorten the names for proj and task !!")
+            logg.log(DONE, " ### use -q or -qq to shorten the names for proj and task !!")
     if arg in ["dd", "dsummary", "days"]:
         results = summary_per_day(data)
     if arg in ["xx", "rsummary", "report"]:
@@ -322,7 +322,7 @@ def run(arg: str) -> None:
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
         if results and not ADDFOOTER:
-            logg.log(DONE, " ### use -O to add a VAT footer !!")
+            logg.log(DONE, " ### use -Z to add a VAT footer !!")
     if arg in ["mm", "msummarize", "mtasks", "monthlys"]:
         results = monthly_per_project_task(data)
     if arg in ["sx", "msummary", "monthly"]:
@@ -402,11 +402,11 @@ if __name__ == "__main__":
     cmdline.add_option("-P", "--projonly", metavar="TEXT", default=ODOO_PROJONLY,
                        help="filter for odoo project [%default]")
     # ..............
-    cmdline.add_option("-z", "--shortname", action="count", default=SHORTNAME,
+    cmdline.add_option("-q", "--shortname", action="count", default=SHORTNAME,
                        help="present short names for proj+task [%default]")
-    cmdline.add_option("-q", "--onlyzeit", action="count", default=ONLYZEIT,
+    cmdline.add_option("-z", "--onlyzeit", action="count", default=ONLYZEIT,
                        help="present only local zeit data [%default]")
-    cmdline.add_option("-O", "--addfooter", action="count", default=ADDFOOTER,
+    cmdline.add_option("-Z", "--addfooter", action="count", default=ADDFOOTER,
                        help="present sum as lines in data [%default]")
     cmdline.add_option("--SCSVfile", metavar="FILE", default=SCSVFILE)
     cmdline.add_option("--textfile", metavar="FILE", default=TEXTFILE)
@@ -433,10 +433,14 @@ if __name__ == "__main__":
     ONLYZEIT = opt.onlyzeit
     ADDFOOTER = opt.addfooter
     SHORTNAME = opt.shortname
-    if opt.shortname > 2:
+    if opt.shortname > 1:
         ONLYZEIT = opt.shortname
-    if opt.shortname > 3:
+    if opt.shortname > 2:
         ADDFOOTER = opt.shortname
+    if opt.onlyzeit > 1:
+        SHORTNAME = opt.onlyzeit
+    if opt.onlyzeit > 2:
+        ADDFOOTER = opt.onlyzeit
     # zeit2json
     ODOO_PROJONLY = opt.projonly
     ODOO_PROJSKIP = opt.projskip
