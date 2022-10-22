@@ -93,7 +93,7 @@ def summary_per_day(odoodata: Optional[JSONList] = None) -> JSONList:
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _summary_per_day(odoodata)
 def _summary_per_day(odoodata: JSONList) -> JSONList:
-    daydata: Dict[Day, JSONList] = {}
+    daydata: Dict[Day, JSONDict] = {}
     for item in odoodata:
         odoo_date: Day = get_date(cast(str, item["entry_date"]))
         odoo_size: Num = cast(Num, item["entry_size"])
