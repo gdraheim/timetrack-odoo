@@ -1,4 +1,4 @@
-#! /usr/bin/python3p
+#! /usr/bin/python3
 
 from typing import Optional, Union, Dict, List, Tuple, cast
 
@@ -9,7 +9,8 @@ import datetime
 
 import tabtotext
 import zeit2json
-from zeit2json import get_date, first_of_month, last_of_month, last_sunday, next_sunday, get_zeit_after, get_zeit_before, get_zeit_filename
+from zeit2json import get_zeit_after, get_zeit_before, get_zeit_filename
+from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday
 import odoo_rest as odoo_api
 import netrc
 import gitrc
