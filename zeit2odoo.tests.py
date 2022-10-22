@@ -61,8 +61,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         # sync.run("projects")
         results = sync.summary_per_project_task(data)
         report = tabtotext.tabToGFM(results)
@@ -87,8 +87,8 @@ class zeit2odooTest(unittest.TestCase):
         so 0:15 dev2 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         # sync.run("projects")
         results = sync.summary_per_project_task(data)
         report = tabtotext.tabToGFM(results)
@@ -114,8 +114,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         # sync.run("projects")
         results = sync.summary_per_project(data)
         report = tabtotext.tabToGFM(results)
@@ -140,8 +140,8 @@ class zeit2odooTest(unittest.TestCase):
         so 0:15 dev2 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         # sync.run("projects")
         results = sync.summary_per_project(data)
         report = tabtotext.tabToGFM(results)
@@ -163,8 +163,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         # sync.run("projects")
         results = sync.summary_per_topic(data)
         report = tabtotext.tabToGFM(results)
@@ -188,8 +188,8 @@ class zeit2odooTest(unittest.TestCase):
         so 0:15 dev2 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         # sync.run("projects")
         results = sync.summary_per_topic(data)
         report = tabtotext.tabToGFM(results)
@@ -213,8 +213,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         # sync.run("projects")
         results = sync.summary_per_day(data)
         report = tabtotext.tabToGFM(results)
@@ -238,8 +238,8 @@ class zeit2odooTest(unittest.TestCase):
         so 0:15 dev2 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         # sync.run("projects")
         results = sync.summary_per_day(data)
         report = tabtotext.tabToGFM(results)
@@ -260,8 +260,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         # sync.run("projects")
         results = sync.valid_per_days(data)
         report = tabtotext.tabToGFM(results)
@@ -282,8 +282,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         # sync.run("projects")
         results = sync.update_per_days(data)
         report = tabtotext.tabToGFM(results)
@@ -305,8 +305,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         # sync.run("projects")
         results = sync.check_in_sync(data)
         report = tabtotext.tabToGFM(results)
@@ -328,8 +328,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         sync.UPDATE = True
         # sync.run("projects")
         results = sync.update_per_days(data)
@@ -361,8 +361,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         sync.UPDATE = True
         # sync.run("projects")
         results = sync.check_in_sync(data)
@@ -395,8 +395,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         sync.UPDATE = True
         # sync.run("projects")
         results = sync.update_per_days(data)
@@ -462,8 +462,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         sync.UPDATE = True
         # sync.run("projects")
         results = sync.check_in_sync(data)
@@ -529,8 +529,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         sync.UPDATE = True
         # sync.run("projects")
         results = sync.update_per_days(data)
@@ -592,8 +592,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         sync.UPDATE = True
         # sync.run("projects")
         results = sync.check_in_sync(data)
@@ -655,8 +655,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         sync.UPDATE = True
         # sync.run("projects")
         results = sync.update_per_days(data)
@@ -718,8 +718,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         sync.UPDATE = True
         # sync.run("projects")
         results = sync.check_in_sync(data)
@@ -781,8 +781,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         sync.UPDATE = True
         # sync.run("projects")
         results = sync.update_per_days(data)
@@ -903,8 +903,8 @@ class zeit2odooTest(unittest.TestCase):
         so 1:15 dev1 started
         """.splitlines())
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
+        # sync.AFTER = (weekago).strftime("%Y-%m-%d")
+        # sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
         sync.UPDATE = True
         # sync.run("projects")
         results = sync.update_per_days(data)
