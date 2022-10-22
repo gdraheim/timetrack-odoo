@@ -4,6 +4,7 @@ import tabtotext
 import odoo_rest_mockup
 import odoo2data as sync
 from typing import Optional
+from tabtotext import JSONList
 import datetime
 
 import os
@@ -37,7 +38,8 @@ class odoo2dataTest(unittest.TestCase):
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
-        data = [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
+        data: JSONList = []
+        data += [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
         results = sync.summary_per_project_task(data)
         report = tabtotext.tabToGFM(results)
         logg.info("result:\n%s", report)
@@ -50,7 +52,8 @@ class odoo2dataTest(unittest.TestCase):
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
-        data = [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
+        data: JSONList = []
+        data += [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
         data += [{"proj_name": "Development", "task_name": "project2", "entry_date": sunday, "entry_size": 0.25}]
         logg.debug("data = %s", data)
         results = sync.summary_per_project_task(data)
@@ -68,7 +71,8 @@ class odoo2dataTest(unittest.TestCase):
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
-        data = [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
+        data: JSONList = []
+        data += [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
         logg.debug("data = %s", data)
         results = sync.summary_per_project(data)
         report = tabtotext.tabToGFM(results)
@@ -82,7 +86,8 @@ class odoo2dataTest(unittest.TestCase):
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
-        data = [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
+        data: JSONList = []
+        data += [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
         data += [{"proj_name": "Development", "task_name": "project2", "entry_date": sunday, "entry_size": 0.25}]
         logg.debug("data = %s", data)
         results = sync.summary_per_project(data)
@@ -97,7 +102,8 @@ class odoo2dataTest(unittest.TestCase):
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
-        data = [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
+        data: JSONList = []
+        data += [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
         data[0]["entry_desc"] = "dev1 started"
         logg.debug("data = %s", data)
         results = sync.summary_per_topic(data)
@@ -111,14 +117,12 @@ class odoo2dataTest(unittest.TestCase):
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
-        data = [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
+        data: JSONList = []
+        data += [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
         data += [{"proj_name": "Development", "task_name": "project2", "entry_date": sunday, "entry_size": 0.25}]
         data[0]["entry_desc"] = "dev1 started"
         data[1]["entry_desc"] = "dev2 started"
         logg.debug("data = %s", data)
-        sync.AFTER = (weekago).strftime("%Y-%m-%d")
-        sync.BEFORE = (nextweek).strftime("%Y-%m-%d")
-        # sync.run("projects")
         results = sync.summary_per_topic(data)
         report = tabtotext.tabToGFM(results)
         logg.info("result:\n%s", report)
@@ -132,7 +136,8 @@ class odoo2dataTest(unittest.TestCase):
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
-        data = [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
+        data: JSONList = []
+        data += [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
         logg.debug("data = %s", data)
         results = sync.summary_per_day(data)
         report = tabtotext.tabToGFM(results)
@@ -145,7 +150,8 @@ class odoo2dataTest(unittest.TestCase):
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)
         sunday = self.last_sunday()
-        data = [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
+        data: JSONList = []
+        data += [{"proj_name": "Development", "task_name": "project1", "entry_date": sunday, "entry_size": 1.25}]
         data += [{"proj_name": "Development", "task_name": "project2", "entry_date": sunday, "entry_size": 0.25}]
         logg.debug("data = %s", data)
         results = sync.summary_per_day(data)
