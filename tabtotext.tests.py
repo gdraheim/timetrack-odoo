@@ -199,7 +199,7 @@ class TabToTextTest(unittest.TestCase):
     def test_117(self) -> None:
         text = tabtotext.tabToGFM(test017)
         logg.debug("%s => %s", test018, text)
-        cond = ['| a    ', '| -----', '| 123.4']
+        cond = ['| a     ', '| ------', '| 123.40']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test017)
@@ -262,7 +262,7 @@ class TabToTextTest(unittest.TestCase):
     def test_127(self) -> None:
         text = tabtotext.tabToGFM(test017, legend="a result")
         logg.debug("%s => %s", test018, text)
-        cond = ['| a    ', '| -----', '| 123.4', '', '- a result']
+        cond = ['| a     ', '| ------', '| 123.40', '', '- a result']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test017)
@@ -324,8 +324,8 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test016)
     def test_137(self) -> None:
         text = tabtotext.tabToGFM(test017, legend=["a result", "was found"])
-        logg.debug("%s => %s", test018, text)
-        cond = ['| a    ', '| -----', '| 123.4', '', '- a result', '- was found']
+        logg.debug("%s => %s", test017, text)
+        cond = ['| a     ', '| ------', '| 123.40', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test017)
@@ -439,7 +439,7 @@ class TabToTextTest(unittest.TestCase):
     def test_217(self) -> None:
         text = tabtotext.tabToHTML(test017)
         logg.debug("%s => %s", test017, text)
-        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123.4</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123.40</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_218(self) -> None:
         text = tabtotext.tabToHTML(test018)
@@ -488,7 +488,7 @@ class TabToTextTest(unittest.TestCase):
     def test_227(self) -> None:
         text = tabtotext.tabToHTML(test017, legend="a result")
         logg.debug("%s => %s", test017, text)
-        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123.4</td></tr>',
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123.40</td></tr>',
                 '</table>', '', '<ul>', '<li>a result</li>', '</ul>']
         self.assertEqual(cond, text.splitlines())
     def test_228(self) -> None:
@@ -542,7 +542,7 @@ class TabToTextTest(unittest.TestCase):
     def test_237(self) -> None:
         text = tabtotext.tabToHTML(test017, legend=["a result", "was found"])
         logg.debug("%s => %s", test017, text)
-        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123.4</td></tr>',
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123.40</td></tr>',
                 '</table>', '', '<ul>', '<li>a result</li>', '<li>was found</li>', '</ul>']
         self.assertEqual(cond, text.splitlines())
     def test_238(self) -> None:
@@ -670,10 +670,10 @@ class TabToTextTest(unittest.TestCase):
     def test_317(self) -> None:
         text = tabtotext.tabToCSV(test017)
         logg.debug("%s => %s", test017, text)
-        cond = ['a', '123.4']
+        cond = ['a', '123.40']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        if data[0]['a'] == "123.4":
+        if data[0]['a'] == "123.40":
             data[0]['a'] = 123.4
         self.assertEqual(data, test017)
     def test_318(self) -> None:
@@ -817,7 +817,7 @@ class TabToTextTest(unittest.TestCase):
     def test_417(self) -> None:
         text = tabtotext.tabToJSON(test017)
         logg.debug("%s => %s", test017, text)
-        cond = ['[', ' {"a": 123.4}', ']']
+        cond = ['[', ' {"a": 123.40}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test017)

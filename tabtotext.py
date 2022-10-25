@@ -19,6 +19,7 @@ from io import StringIO
 logg = logging.getLogger("TABTOTEXT")
 
 DATEFMT = "%Y-%m-%d"
+FLOATFMT = "%4.2f"
 NORIGHT = False
 MINWIDTH = 5
 
@@ -124,7 +125,9 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
                     return formats[col] % strNone(val)
                 except Exception as e:
                     logg.debug("format <%s> does not apply: %s", formats[col], e)
-            logg.info("unknown format '%s' for col '%s'", formats[col], col)
+            logg.debug("unknown format '%s' for col '%s'", formats[col], col)
+        if isinstance(val, float):
+           return FLOATFMT % val
         return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
@@ -141,19 +144,16 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
         if col in formats and formats[col].startswith(" ") and not NORIGHT:
             return formatter[:-1] + ":"
         return formatter
-    templates = [rightF(name, "| %%-%is" % cols[name]) for name in sorted(cols.keys(), key=sortkey)]
-    template = " ".join(templates)
-    logg.debug("template [%s] = %s", len(templates), template)
-    logg.debug("colskeys [%s] = %s", len(cols.keys()), sorted(cols.keys(), key=sortkey))
-    lines = [template % tuple(sorted(cols.keys(), key=sortkey))]
-    seperators = [rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key=sortkey)]
-    lines.append(template % tuple(seperators))
+    line = [rightF(name, "| %%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
+    lines = [" ".join(line)]
+    seperators = [("| %%-%is" % cols[name]) % rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key=sortkey)]
+    lines.append(" ".join(seperators))
     for item in sorted(result, key=sortrow):
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
-        line = template % tuple([values.get(name, _None_String) for name in sorted(cols.keys(), key=sortkey)])
-        lines.append(line)
+        line = [rightF(name, "| %%-%is" % cols[name]) % format(name, values.get(name, _None_String)) for name in sorted(cols.keys(), key=sortkey)]
+        lines.append(" ".join(line))
     return "\n".join(lines) + "\n" + legendToGFM(legend, sorts)
 
 def legendToGFM(legend: Union[Dict[str, str], Sequence[str]], sorts: Sequence[str] = []) -> str:
@@ -248,7 +248,9 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                     return formats[col] % strNone(val)
                 except Exception as e:
                     logg.debug("format <%s> does not apply: %s", formats[col], e)
-            logg.info("unknown format '%s' for col '%s'", formats[col], col)
+            logg.debug("unknown format '%s' for col '%s'", formats[col], col)
+        if isinstance(val, float):
+            return FLOATFMT % val
         return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
@@ -320,10 +322,10 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                 sortvalue += "\n-"
         return sortvalue
     def format(col: str, val: JSONItem) -> str:
-        if col in ["NumCount"]:
-            logg.warning("%s (%s) = %s", col, type(val), val)
         if val is None:
             return "null"
+        if isinstance(val, float):
+            return FLOATFMT % val
         if isinstance(val, (Date, Time)):
             return '"%s"' % strDateTime(val, datedelim)
         return json.dumps(val)
@@ -379,9 +381,11 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
                     return formats[col] % strNone(val)
                 except Exception as e:
                     logg.debug("format <%s> does not apply: %s", formats[col], e)
-            logg.info("unknown format '%s' for col '%s'", formats[col], col)
+            logg.debug("unknown format '%s' for col '%s'", formats[col], col)
         if isinstance(val, (Date, Time)):
             return '%s' % strDateTime(val, datedelim)
+        if isinstance(val, float):
+            return FLOATFMT % val
         return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
