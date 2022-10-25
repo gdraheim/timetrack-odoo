@@ -4,6 +4,7 @@ from typing import Optional, Union, Dict, List, Tuple, cast
 
 import logging
 import re
+import os
 import csv
 import datetime
 
@@ -48,11 +49,17 @@ TEXTFILE = ""
 JSONFILE = ""
 HTMLFILE = ""
 XLSXFILE = ""
-XLSXPROG = "oocalc"
 
 norm_frac_1_4 = 0x00BC
 norm_frac_1_2 = 0x00BD
 norm_frac_3_4 = 0x00BE
+
+def editprog() -> str:
+    return os.environ.get("EDIT", "mcedit")
+def htmlprog() -> str:
+    return os.environ.get("BROWSER", "chrome")
+def xlsxprog() -> str:
+    return os.environ.get("XLSVIEW", "oocalc")
 
 def strDesc(val: str) -> str:
     if SHORTDESC:
@@ -447,23 +454,23 @@ def run(arg: str) -> None:
         if SCSVFILE:
             with open(SCSVFILE, "w") as f:
                 f.write(tabtotext.tabToCSV(results))
-            logg.log(DONE, " scsv written '%s'", SCSVFILE)
+            logg.log(DONE, " scsv written   %s '%s'", editprog(), SCSVFILE)
         if JSONFILE:
             with open(JSONFILE, "w") as f:
                 f.write(tabtotext.tabToJSON(results))
-            logg.log(DONE, " json written '%s'", JSONFILE)
+            logg.log(DONE, " json written   %s '%s'", editprog(), JSONFILE)
         if HTMLFILE:
             with open(HTMLFILE, "w") as f:
                 f.write(tabtotext.tabToHTML(results))
-            logg.log(DONE, " html written '%s'", HTMLFILE)
+            logg.log(DONE, " html written   %s '%s'", htmlprog(), HTMLFILE)
         if TEXTFILE:
             with open(TEXTFILE, "w") as f:
                 f.write(tabtotext.tabToGFM(results, formats=formats))
-            logg.log(DONE, " text written '%s'", TEXTFILE)
+            logg.log(DONE, " text written   %s '%s'", editprog(), TEXTFILE)
         if XLSXFILE:
             import tabtoxlsx
             tabtoxlsx.saveToXLSX(XLSXFILE, results)
-            logg.log(DONE, " xlsx written %s '%s'", XLSXPROG, XLSXFILE)
+            logg.log(DONE, " xlsx written   %s '%s'", xlsxprog(), XLSXFILE)
 
 if __name__ == "__main__":
     from optparse import OptionParser
