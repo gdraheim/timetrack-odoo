@@ -391,7 +391,7 @@ def run(arg: str) -> None:
         if XLSXFILE:
             import tabtoxlsx
             tabtoxlsx.saveToXLSX(XLSXFILE, results)
-            logg.log(DONE, " xlsx written %s '%s'", xlsxprog(), XLSXFILE)
+            logg.log(DONE, " xlsx written   %s '%s'", xlsxprog(), XLSXFILE)
 
 if __name__ == "__main__":
     from optparse import OptionParser
