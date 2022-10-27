@@ -395,8 +395,12 @@ class Odoo:
         return self.uid
     def for_user(self, name: str) -> "Odoo":
         if not self.uid:
-            self.login()
-            self.uid = -1
+            self.uid = self.login()
+        if name:
+            self.uid = self.get_user_id(name)
+        return self
+    def get_user_id(self, name: str, default: Optional[UserID] = None) -> UserID:
+        uid = default or -1
         users = self.users()
         if name.endswith("@"):
             emailname = name.lower().strip()[:-1]
@@ -404,22 +408,22 @@ class Odoo:
                 if "user_email" not in user: continue
                 attr = cast(str, user["user_email"])
                 if attr.lower().strip().split("@",1)[0] == emailname:
-                    self.uid = cast(UserID, user["user_id"])
+                    uid = cast(UserID, user["user_id"])
         elif "@" in name:
             email = name.lower().strip()
             for user in users:
                 if "user_email" not in user: continue
                 attr = cast(str, user["user_email"])
                 if attr.lower().strip() == email:
-                    self.uid = cast(UserID, user["user_id"])
+                    uid = cast(UserID, user["user_id"])
         else:
             named = name.lower().strip().replace(" ",".")
             for user in users:
                 if "user_fullname" not in user: continue
                 attr = cast(str, user["user_fullname"])
                 if attr.lower().strip().replace(" ",".") == name:
-                    self.uid = cast(UserID, user["user_id"])
-        return self
+                    uid = cast(UserID, user["user_id"])
+        return uid
     def databases(self) -> List[str]:
         found = odoo_get_databases(self.url)
         logg.info("%s", found)
