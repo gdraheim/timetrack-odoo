@@ -47,6 +47,8 @@ class Odoo:
         return mock_uid
     def from_login(self) -> UserID:
         return mock_uid
+    def for_user(self, name: str) -> "Odoo":
+        return self
     def databases(self) -> List[str]:
         return [mock_db]
     def projects(self) -> JSONList:
