@@ -415,8 +415,8 @@ class Odoo:
         else:
             named = name.lower().strip().replace(" ",".")
             for user in users:
-                if "user_name" not in user: continue
-                attr = cast(str, user["user_name"])
+                if "user_fullname" not in user: continue
+                attr = cast(str, user["user_fullname"])
                 if attr.lower().strip().replace(" ",".") == name:
                     self.uid = cast(UserID, user["user_id"])
         return self
@@ -429,7 +429,7 @@ class Odoo:
         return requests.utils.cookiejar_from_dict({"session_id": self.sid})  # type: ignore
     def users(self) -> JSONList:
         found = odoo_get_users(self.url, self.cookies())
-        return [{"user_id": item["id"], "user_name": item["name"], "user_email": item["email"]} for item in found if item["active"]]
+        return [{"user_id": item["id"], "user_fullname": item["name"], "user_email": item["email"]} for item in found if item["active"]]
     def projects(self) -> JSONList:
         found = odoo_get_projects(self.url, self.cookies())
         return [{"proj_id": item["id"], "proj_name": item["name"]} for item in found if item["active"]]
