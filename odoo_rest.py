@@ -398,7 +398,14 @@ class Odoo:
             self.login()
             self.uid = -1
         users = self.users()
-        if "@" in name:
+        if name.endswith("@"):
+            emailname = name.lower().strip()[:-1]
+            for user in users:
+                if "user_email" not in user: continue
+                attr = cast(str, user["user_email"])
+                if attr.lower().strip().split("@",1)[0] == emailname:
+                    self.uid = cast(UserID, user["user_id"])
+        elif "@" in name:
             email = name.lower().strip()
             for user in users:
                 if "user_email" not in user: continue
