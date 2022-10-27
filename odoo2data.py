@@ -119,6 +119,11 @@ def get_price_vat() -> float:
     else:
         return PRICEVAT
 
+def odoo_users() -> JSONList:
+    odoo = odoo_api.Odoo()
+    users = odoo.users()
+    return users
+
 def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
         odoo = odoo_api.Odoo()
@@ -317,6 +322,8 @@ def run(arg: str) -> None:
     if ONLYZEIT:
         import zeit2json
         data = json2odoo(zeit2json.read_zeit(DAYS.after, DAYS.before))
+    if arg in ["users"]:
+        results = odoo_users()
     if arg in ["ww", "data", "worked"]:
         results = work_data(data)
         if results and not SHORTNAME:

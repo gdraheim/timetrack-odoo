@@ -345,6 +345,30 @@ def odoo_write_timesheet_record(url: str, cookies: Cookies, uid: UserID, entry_i
 
     return response.json()['result']  # type: ignore
 
+def odoo_get_users(url: str, cookies: Cookies) -> JSONList:
+    request_json = {
+        "jsonrpc": "2.0",
+        "method": "call",
+        "params": {
+            "model": "res.users",
+            "fields": [
+                "id",
+                "name",
+                "email",
+                "active",
+            ],
+            "sort": "id ASC"
+        }
+    }
+    response = requests.post(f"{url}/web/dataset/search_read", json=request_json, cookies=cookies)
+    if response.status_code != 200 or 'result' not in response.json():
+        logg.error("ERROR GET USERS")
+        if "error" in response.json():
+            logg.error("  %s", response.json()['error']['data']['message'])
+        return []
+    return response.json()['result']['records']  # type: ignore
+
+
 # https://www.odoo.com/documentation/10.0/api_integration.html
 # search / search_read / search_count
 # fields_get
@@ -376,19 +400,19 @@ class Odoo:
     def cookies(self) -> Cookies:
         uid = self.from_login()
         return requests.utils.cookiejar_from_dict({"session_id": self.sid})  # type: ignore
+    def users(self) -> JSONList:
+        found = odoo_get_users(self.url, self.cookies())
+        return [{"user_id": item["id"], "user_name": item["name"], "user_email": item["email"]} for item in found if item["active"]]
     def projects(self) -> JSONList:
         found = odoo_get_projects(self.url, self.cookies())
-        # logg.info("%s", found)
         return [{"proj_id": item["id"], "proj_name": item["name"]} for item in found if item["active"]]
     def projects_tasks(self) -> JSONList:
         found = odoo_get_projects_tasks(self.url, self.cookies())
-        # logg.info("%s", found)
         return [{"task_id": item["id"], "task_name": item["name"],
                  "proj_id": item["project_id"][0], "proj_name": item["project_id"][1],  # type: ignore
                  } for item in found if item["active"]]
     def project_tasks(self, proj_id: ProjREF = 89) -> JSONList:
         found = odoo_get_project_tasks(self.url, self.cookies(), proj_id)
-        # logg.info("%s", found)
         return [{"task_id": item["id"], "task_name": item["name"],
                  "proj_id": item["project_id"][0], "proj_name": item["project_id"][1],  # type: ignore
                  } for item in found if item["active"]]
