@@ -18,7 +18,10 @@ symbolic_dayrange = [
     "weeks", "lastweeks", "last-weeks", "blastweek", "blast-week", "before-last-week",
     "month", "thismonth", "this-month", "nextmonth", "next-month", "lastmonth", "last-month",
     "months", "lastmonths", "last-months", "blastmonth", "blast-month", "before-last-month",
-    "this", "last", "late", "latest", "blast", "beforelast", "before-last", "b4last"]
+    "this", "last", "late", "latest", "blast", "beforelast", "before-last", "b4last",
+    "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12",
+    "M01-M02", "M02-M03", "M03-M04", "M04-M05", "M05-M06", "M06-M07", "M07-M08", "M08-M09", "M09-M10", "M10-M11", "M11-M12",
+    "M01-M03", "M02-M04", "M03-M05", "M04-M06", "M05-M07", "M06-M08", "M07-M09", "M08-M10", "M09-M11", "M10-M12"]
 
 def is_dayrange(arg: str) -> bool:
     return arg in symbolic_dayrange
@@ -61,6 +64,18 @@ def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
     if arg in ["beforelastmonth", "before-last-month", "beforelast", "blast", "b4last"]:
         after = firstday_of_month(-2)
         before = lastday_of_month(-2)
+        return (after, before)
+    if arg in ["M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12"]:
+        after = firstday_of_month_name(arg)
+        before = lastday_of_month_name(arg)
+        return (after, before)
+    if arg in ["M01-M02", "M02-M03", "M03-M04", "M04-M05", "M05-M06", "M06-M07", "M07-M08", "M08-M09", "M09-M10", "M10-M11", "M11-M12"]:
+        after = firstday_of_month_name(arg.split("-")[0])
+        before = lastday_of_month_name(arg.split("-")[1])
+        return (after, before)
+    if arg in ["M01-M03", "M02-M04", "M03-M05", "M04-M06", "M05-M07", "M06-M08", "M07-M09", "M08-M10", "M09-M11", "M10-M12"]:
+        after = firstday_of_month_name(arg.split("-")[0])
+        before = lastday_of_month_name(arg.split("-")[1])
         return (after, before)
     raise DayrangeException("unknown symbolic dayrange '%s'" % arg)
 
@@ -140,6 +155,7 @@ def date_dotformat(text: str) -> Day:
                 logg.debug("[%s] %s", text31, e)
     return datetime.datetime.strptime(text, "%d.%m.%Y").date()
 
+########################################################
 def firstday_of_month(diff: int) -> Day:
     return date_dotformat(first_of_month(diff))
 def first_of_month(diff: int) -> str:
@@ -154,7 +170,6 @@ def first_of_month(diff: int) -> str:
         month -= 12
         year += 1
     return f"01.{month}.{year}"
-
 
 def lastday_of_month(diff: int) -> Day:
     return date_dotformat(last_of_month(diff))
@@ -171,6 +186,37 @@ def last_of_month(diff: int) -> str:
         year += 1
     return f"99.{month}.{year}"
 
+def firstday_of_month_name(name: str) -> Day:
+    return date_dotformat(first_of_month_name(name))
+def first_of_month_name(name: str) -> str:
+    today = datetime.date.today()
+    year = today.year
+    #
+    monthnames = ["M00", "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12"]
+    if name in monthnames:
+        month = monthnames.index(name)
+    else:
+        month = today.month
+    if month > today.month:
+        year -= 1
+    return f"01.{month}.{year}"
+
+def lastday_of_month_name(name: str) -> Day:
+    return date_dotformat(last_of_month_name(name))
+def last_of_month_name(name: str) -> str:
+    today = datetime.date.today()
+    year = today.year
+    #
+    monthnames = ["M00", "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12"]
+    if name in monthnames:
+        month = monthnames.index(name)
+    else:
+        month = today.month
+    if month > today.month:
+        year -= 1
+    return f"99.{month}.{year}"
+
+#########################################################
 def last_sunday(diff: int) -> Day:
     today = datetime.date.today()
     for attempt in range(7):
