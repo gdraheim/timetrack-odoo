@@ -197,19 +197,33 @@ def _summary_per_project(odoodata: JSONList) -> JSONList:
         sumproj[proj_name]["odoo"] += item["odoo"]  # type: ignore
     return list(sumproj.values())
 
+def reports_per_project(odoodata: Optional[JSONList] = None) -> JSONList:
+    if odoodata:
+        m = 0
+        logg.info("%s: zeit", m)
+        result = _report_per_project(odoodata, focus=m)
+        users = FOR_USER
+    else:
+        result = []
+        users = FOR_USER if FOR_USER else [""]
+    for m, user in enumerate(users):
+        logg.info("%i: %s", m + 1, user)
+        odoo = odoo_api.Odoo().for_user(user)
+        odoodata = odoo.timesheet(DAYS.after, DAYS.before)
+        result += _report_per_project(odoodata, focus=m + 1)
+    return sorted(result, key=lambda r: (r["am"], r["at proj"], r["m"]))
 def report_per_project(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
         odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _report_per_project(odoodata)
-def _report_per_project(odoodata: JSONList) -> JSONList:
+def _report_per_project(odoodata: JSONList, focus: int = 0) -> JSONList:
     sumdata = _monthly_per_project(odoodata)
     sumvals: JSONList = []
     for item in sumdata:
         new_month = cast(str, item["am"])
         proj_name = cast(str, item["at proj"])
         odoo_size = cast(float, item["odoo"])
-        focus = 1
         price_rate = get_proj_price_rate(proj_name)
         elem: JSONDict = {"am": new_month, "at proj": proj_name, "odoo": odoo_size, "m": focus,
                           "satz": int(price_rate), "summe": round(price_rate * odoo_size, 2)}
@@ -332,8 +346,15 @@ def run(arg: str) -> None:
             logg.log(DONE, " ### use -q or -qq to shorten the names for proj and task !!")
     if arg in ["dd", "dsummary", "days"]:
         results = summary_per_day(data)
-    if arg in ["xx", "rsummary", "report"]:
+    if arg in ["xx", "report"]:
         results = report_per_project(data)
+        sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
+        sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
+        summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
+        if results and not ADDFOOTER:
+            logg.log(DONE, " ### use -Z to add a VAT footer !!")
+    if arg in ["xxx", "reports"]:
+        results = reports_per_project(data)
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
@@ -433,7 +454,7 @@ if __name__ == "__main__":
     cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=netrc.NET_CREDENTIALS)
     cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=netrc.NETRC_FILENAME)
     cmdline.add_option("-c", "--config", metavar="NAME=VALUE", action="append", default=[])
-    cmdline.add_option("-u", "--user", metavar="NAME", default=[],
+    cmdline.add_option("-u", "--user", metavar="NAME", action="append", default=[],
                        help="show data for other users than the login user (use full name or email)")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
