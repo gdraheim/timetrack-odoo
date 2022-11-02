@@ -41,7 +41,7 @@ ODOO_PROJSKIP = ""
 ODOO_PROJONLY = ""
 ODOO_SUMMARY = ""
 
-FOR_USER = ""
+FOR_USER: List[str] = []
 
 SCSVFILE = ""
 TEXTFILE = ""
@@ -128,7 +128,7 @@ def odoo_users() -> JSONList:
 
 def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo().for_user(FOR_USER)
+        odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     # return list(odoodata)
     return list(_work_data(odoodata))
@@ -144,7 +144,7 @@ def _work_data(odoodata: JSONList) -> Generator[JSONDict, None, None]:
 
 def summary_per_day(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo().for_user(FOR_USER)
+        odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _summary_per_day(odoodata)
 def _summary_per_day(odoodata: JSONList) -> JSONList:
@@ -161,7 +161,7 @@ def _summary_per_day(odoodata: JSONList) -> JSONList:
 
 def summary_per_project_task(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo().for_user(FOR_USER)
+        odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _summary_per_project_task(odoodata)
 def _summary_per_project_task(odoodata: JSONList) -> JSONList:
@@ -183,7 +183,7 @@ def _summary_per_project_task(odoodata: JSONList) -> JSONList:
 
 def summary_per_project(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo().for_user(FOR_USER)
+        odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _summary_per_project(odoodata)
 def _summary_per_project(odoodata: JSONList) -> JSONList:
@@ -199,7 +199,7 @@ def _summary_per_project(odoodata: JSONList) -> JSONList:
 
 def report_per_project(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo().for_user(FOR_USER)
+        odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _report_per_project(odoodata)
 def _report_per_project(odoodata: JSONList) -> JSONList:
@@ -218,7 +218,7 @@ def _report_per_project(odoodata: JSONList) -> JSONList:
 
 def monthly_per_project(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo().for_user(FOR_USER)
+        odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _monthly_per_project(odoodata)
 def _monthly_per_project(odoodata: JSONList) -> JSONList:
@@ -236,7 +236,7 @@ def _monthly_per_project(odoodata: JSONList) -> JSONList:
 
 def monthly_per_project_task(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo().for_user(FOR_USER)
+        odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _monthly_per_project_task(odoodata)
 def _monthly_per_project_task(odoodata: JSONList) -> JSONList:
@@ -271,7 +271,7 @@ def pref_desc(desc: str) -> str:
 
 def summary_per_topic(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo().for_user(FOR_USER)
+        odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _summary_per_topic(odoodata)
 def _summary_per_topic(odoodata: JSONList) -> JSONList:
@@ -433,8 +433,8 @@ if __name__ == "__main__":
     cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=netrc.NET_CREDENTIALS)
     cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=netrc.NETRC_FILENAME)
     cmdline.add_option("-c", "--config", metavar="NAME=VALUE", action="append", default=[])
-    cmdline.add_option("-u", "--user", metavar="NAME", default="",
-                       help="show data for another user than the login user (use full name or email)")
+    cmdline.add_option("-u", "--user", metavar="NAME", default=[],
+                       help="show data for other users than the login user (use full name or email)")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose))
