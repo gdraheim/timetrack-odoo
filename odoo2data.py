@@ -322,7 +322,7 @@ def run(arg: str) -> None:
     if arg in ["help"]:
         report_name = None
         for line in open(__file__):
-            if line.strip().startswith("if arg in"):
+            if line.strip().replace("elif", "if").startswith("if arg in"):
                 report_name = line.split("if arg in", 1)[1].strip()
                 continue
             elif line.strip().startswith("results = "):
@@ -340,40 +340,44 @@ def run(arg: str) -> None:
         data = json2odoo(zeit2json.read_zeit(DAYS.after, DAYS.before))
     if arg in ["users"]:
         results = odoo_users()
-    if arg in ["ww", "data", "worked"]:
+    elif arg in ["ww", "data", "worked"]:
         results = work_data(data)
         if results and not SHORTNAME:
             logg.log(DONE, " ### use -q or -qq to shorten the names for proj and task !!")
-    if arg in ["dd", "dsummary", "days"]:
+    elif arg in ["dd", "dsummary", "days"]:
         results = summary_per_day(data)
-    if arg in ["xx", "report"]:
+    elif arg in ["xx", "report"]:
         results = report_per_project(data)
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
         if results and not ADDFOOTER:
             logg.log(DONE, " ### use -Z to add a VAT footer !!")
-    if arg in ["xxx", "reports"]:
+    elif arg in ["xxx", "reports"]:
         results = reports_per_project(data)
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
         if results and not ADDFOOTER:
             logg.log(DONE, " ### use -Z to add a VAT footer !!")
-    if arg in ["mm", "msummarize", "mtasks", "monthlys"]:
+    elif arg in ["mm", "msummarize", "mtasks", "monthlys"]:
         results = monthly_per_project_task(data)
-    if arg in ["sx", "msummary", "monthly"]:
+    elif arg in ["sx", "msummary", "monthly"]:
         results = monthly_per_project(data)
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_odoo:11.2f} hours odoo"]
-    if arg in ["ee", "summarize", "tasks"]:
+    elif arg in ["ee", "summarize", "tasks"]:
         results = summary_per_project_task(data)
-    if arg in ["ss", "summary"]:
+    elif arg in ["ss", "summary"]:
         results = summary_per_project(data)
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_odoo:11.2f} hours odoo"]
-    if arg in ["tt", "topics"]:
+    elif arg in ["tt", "topics"]:
         results = summary_per_topic(data)
+    else:
+        logg.error("unknown report '%s'", arg)
+        import sys
+        logg.error("  hint: check available reports:    %s help", sys.argv[0])
     if results:
         if SHORTNAME:
             for item in results:

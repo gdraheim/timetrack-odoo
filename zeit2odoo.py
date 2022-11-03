@@ -394,7 +394,7 @@ def run(arg: str) -> None:
     if arg in ["help"]:
         report_name = None
         for line in open(__file__):
-            if line.strip().startswith("if arg in"):
+            if line.strip().replace("elif", "if").startswith("if arg in"):
                 report_name = line.split("if arg in", 1)[1].strip()
                 continue
             elif line.strip().startswith("results = "):
@@ -415,31 +415,37 @@ def run(arg: str) -> None:
         with open(json_file, "w") as f:
             f.write(json_text)
         logg.log(DONE, "written %s (%s entries)", json_file, len(data))
+        return
     if arg in ["csv", "make"]:
         csv_text = tabtotext.tabToJSON(data)
         csv_file = zeit2json.zeit_filename(DAYS.after) + ".csv"
         with open(csv_file, "w") as f:
             f.write(csv_text)
         logg.log(DONE, "written %s (%s entries)", csv_file, len(data))
+        return
     summary = []
     results: JSONList = []
     if arg in ["cc", "check"]:
         results = check_in_sync(data)
-    if arg in ["vv", "valid"]:
+    elif arg in ["vv", "valid"]:
         results = valid_per_days(data)
-    if arg in ["uu", "update"]:
+    elif arg in ["uu", "update"]:
         results = update_per_days(data)
-    if arg in ["cc", "compare", "days"]:
+    elif arg in ["cc", "compare", "days"]:
         results = summary_per_day(data)
-    if arg in ["ee", "summarize", "tasks"]:
+    elif arg in ["ee", "summarize", "tasks"]:
         results = summary_per_project_task(data)
-    if arg in ["ss", "summary"]:
+    elif arg in ["ss", "summary"]:
         results = summary_per_project(data)
         sum_zeit = sum([float(cast(JSONBase, item["zeit"])) for item in results if item["zeit"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_zeit} hours zeit", f"{sum_odoo} hours odoo"]
-    if arg in ["tt", "topics"]:
+    elif arg in ["tt", "topics"]:
         results = summary_per_topic(data)
+    else:
+        logg.error("unknown report '%s'", arg)
+        import sys
+        logg.error("  hint: check available reports:    %s help", sys.argv[0])
     if results:
         if SHORTNAME:
             for item in results:
