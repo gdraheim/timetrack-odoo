@@ -21,7 +21,8 @@ symbolic_dayrange = [
     "this", "last", "late", "latest", "blast", "beforelast", "before-last", "b4last",
     "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12",
     "M01-M02", "M02-M03", "M03-M04", "M04-M05", "M05-M06", "M06-M07", "M07-M08", "M08-M09", "M09-M10", "M10-M11", "M11-M12",
-    "M01-M03", "M02-M04", "M03-M05", "M04-M06", "M05-M07", "M06-M08", "M07-M09", "M08-M10", "M09-M11", "M10-M12"]
+    "M01-M03", "M02-M04", "M03-M05", "M04-M06", "M05-M07", "M06-M08", "M07-M09", "M08-M10", "M09-M11", "M10-M12",
+    "year", "thisyear"]
 
 def is_dayrange(arg: str) -> bool:
     return arg in symbolic_dayrange
@@ -76,6 +77,10 @@ def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
     if arg in ["M01-M03", "M02-M04", "M03-M05", "M04-M06", "M05-M07", "M06-M08", "M07-M09", "M08-M10", "M09-M11", "M10-M12"]:
         after = firstday_of_month_name(arg.split("-")[0])
         before = lastday_of_month_name(arg.split("-")[1])
+        return (after, before)
+    if arg in ["year", "thisyear"]:
+        after = firstday_of_month_name("M01")
+        before = lastday_of_month(0)
         return (after, before)
     raise DayrangeException("unknown symbolic dayrange '%s'" % arg)
 
