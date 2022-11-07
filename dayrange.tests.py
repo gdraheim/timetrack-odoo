@@ -241,6 +241,30 @@ class dayrangeTest(unittest.TestCase):
             logg.info("days = %s", days)
             self.assertEqual(days.after, Day(2020, 9, 1))
             self.assertEqual(days.before, Day(2020, 10, 31))
+    def test_560(self) -> None:
+        for month in ["lastweek", "last-week", "latest"]:
+            days = zeit.dayrange(month)
+            logg.info("days = %s", days)
+            self.assertEqual(days.after, Day(2020, 9, 28))
+            self.assertEqual(days.before, Day(2020, 10, 5))
+    def test_561(self) -> None:
+        for month in ["lastweeks", "last-weeks", "late"]:
+            days = zeit.dayrange(month)
+            logg.info("days = %s", days)
+            self.assertEqual(days.after, Day(2020, 9, 28))
+            self.assertEqual(days.before, Day(2020, 10, 12))
+    def test_562(self) -> None:
+        for month in ["thisweek", "this-week", "week"]:
+            days = zeit.dayrange(month)
+            logg.info("days = %s", days)
+            self.assertEqual(days.after, Day(2020, 10, 5))
+            self.assertEqual(days.before, Day(2020, 10, 12))
+    def test_562(self) -> None:
+        for month in ["nextweek", "next-week"]: # "next"
+            days = zeit.dayrange(month)
+            logg.info("days = %s", days)
+            self.assertEqual(days.after, Day(2020, 10, 12))
+            self.assertEqual(days.before, Day(2020, 10, 19))
 
 if __name__ == "__main__":
     # unittest.main()
