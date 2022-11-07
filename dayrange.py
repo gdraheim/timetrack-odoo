@@ -17,7 +17,7 @@ symbolic_dayrange = [
     "week", "thisweek", "this-week", "nextweek", "next-week", "lastweek", "last-week",
     "weeks", "lastweeks", "last-weeks", "blastweek", "blast-week", "before-last-week",
     "month", "thismonth", "this-month", "nextmonth", "next-month", "lastmonth", "last-month",
-    "months", "lastmonths", "last-months", "blastmonth", "blast-month", "before-last-month",
+    "months", "lastmonths", "last-months", "beforelastmonth", "blastmonth", "blast-month", "before-last-month",
     "this", "last", "late", "latest", "blast", "beforelast", "before-last", "b4last",
     "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12",
     "M01-M02", "M02-M03", "M03-M04", "M04-M05", "M05-M06", "M06-M07", "M07-M08", "M08-M09", "M09-M10", "M10-M11", "M11-M12",
@@ -62,7 +62,7 @@ def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
         after = firstday_of_month(-1)
         before = lastday_of_month(+0)
         return (after, before)
-    if arg in ["beforelastmonth", "before-last-month", "beforelast", "blast", "b4last"]:
+    if arg in ["beforelastmonth", "before-last-month", "beforelast", "blast", "blast-month", "b4last"]:
         after = firstday_of_month(-2)
         before = lastday_of_month(-2)
         return (after, before)
@@ -73,10 +73,14 @@ def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
     if arg in ["M01-M02", "M02-M03", "M03-M04", "M04-M05", "M05-M06", "M06-M07", "M07-M08", "M08-M09", "M09-M10", "M10-M11", "M11-M12"]:
         after = firstday_of_month_name(arg.split("-")[0])
         before = lastday_of_month_name(arg.split("-")[1])
+        if before.year < after.year:
+            before = date_dotformat("99.%02i.%04i" % (before.month, after.year))
         return (after, before)
     if arg in ["M01-M03", "M02-M04", "M03-M05", "M04-M06", "M05-M07", "M06-M08", "M07-M09", "M08-M10", "M09-M11", "M10-M12"]:
         after = firstday_of_month_name(arg.split("-")[0])
         before = lastday_of_month_name(arg.split("-")[1])
+        if before.year < after.year:
+            before = date_dotformat("99.%02i.%04i" % (before.month, after.year))
         return (after, before)
     if arg in ["year", "thisyear"]:
         after = firstday_of_month_name("M01")
@@ -165,7 +169,7 @@ def firstday_of_month(diff: int) -> Day:
     return date_dotformat(first_of_month(diff))
 def first_of_month(diff: int) -> str:
     assert -11 <= diff and diff <= +11
-    today = datetime.date.today()
+    today = Day.today()
     year = today.year
     month = today.month + diff
     if month <= 0:
@@ -180,7 +184,7 @@ def lastday_of_month(diff: int) -> Day:
     return date_dotformat(last_of_month(diff))
 def last_of_month(diff: int) -> str:
     assert -11 <= diff and diff <= +11
-    today = datetime.date.today()
+    today = Day.today()
     year = today.year
     month = today.month + diff
     if month <= 0:
@@ -194,7 +198,7 @@ def last_of_month(diff: int) -> str:
 def firstday_of_month_name(name: str) -> Day:
     return date_dotformat(first_of_month_name(name))
 def first_of_month_name(name: str) -> str:
-    today = datetime.date.today()
+    today = Day.today()
     year = today.year
     #
     monthnames = ["M00", "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12"]
@@ -209,7 +213,7 @@ def first_of_month_name(name: str) -> str:
 def lastday_of_month_name(name: str) -> Day:
     return date_dotformat(last_of_month_name(name))
 def last_of_month_name(name: str) -> str:
-    today = datetime.date.today()
+    today = Day.today()
     year = today.year
     #
     monthnames = ["M00", "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12"]
@@ -223,7 +227,7 @@ def last_of_month_name(name: str) -> str:
 
 #########################################################
 def last_sunday(diff: int) -> Day:
-    today = datetime.date.today()
+    today = Day.today()
     for attempt in range(7):
         diffs = datetime.timedelta(days=diff - attempt)
         day = today + diffs
@@ -232,7 +236,7 @@ def last_sunday(diff: int) -> Day:
     return today + datetime.timedelta(days=-7)
 
 def next_sunday(diff: int) -> Day:
-    today = datetime.date.today()
+    today = Day.today()
     for attempt in range(7):
         diffs = datetime.timedelta(days=diff + attempt)
         day = today + diffs
@@ -243,7 +247,7 @@ def next_sunday(diff: int) -> Day:
 def get_date(text: str, on_or_before: Optional[Day] = None) -> Day:
     if isinstance(text, Day):
         return text
-    refday = on_or_before or datetime.date.today()
+    refday = on_or_before or Day.today()
     baseyear = str(refday.year)
     if re.match(r"\d+-\d+-\d+", text):
         return date_isoformat(text)
