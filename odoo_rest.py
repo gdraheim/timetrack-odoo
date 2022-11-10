@@ -421,7 +421,7 @@ class Odoo:
             for user in users:
                 if "user_fullname" not in user: continue
                 attr = cast(str, user["user_fullname"])
-                if attr.lower().strip().replace(" ",".") == name:
+                if attr.lower().strip().replace(" ",".") == named:
                     uid = cast(UserID, user["user_id"])
         return uid
     def databases(self) -> List[str]:
