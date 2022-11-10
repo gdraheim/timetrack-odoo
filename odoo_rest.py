@@ -11,6 +11,7 @@ import os.path as path
 import json
 import requests
 import datetime
+from fnmatch import fnmatchcase as fnmatch
 
 import tabtotext
 from tabtotext import JSONList, JSONDict
@@ -415,6 +416,13 @@ class Odoo:
                 if "user_email" not in user: continue
                 attr = cast(str, user["user_email"])
                 if attr.lower().strip() == email:
+                    uid = cast(UserID, user["user_id"])
+        elif "*" in name:
+            named = name.lower().strip().replace(" ",".")
+            for user in users:
+                if "user_fullname" not in user: continue
+                attr = cast(str, user["user_fullname"])
+                if fnmatch(attr.lower().strip().replace(" ","."), named):
                     uid = cast(UserID, user["user_id"])
         else:
             named = name.lower().strip().replace(" ",".")

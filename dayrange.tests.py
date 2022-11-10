@@ -260,7 +260,7 @@ class dayrangeTest(unittest.TestCase):
             self.assertEqual(days.after, Day(2020, 10, 5))
             self.assertEqual(days.before, Day(2020, 10, 12))
     def test_563(self) -> None:
-        for month in ["nextweek", "next-week"]: # "next"
+        for month in ["nextweek", "next-week"]:  # "next"
             days = zeit.dayrange(month)
             logg.info("days = %s", days)
             self.assertEqual(days.after, Day(2020, 10, 12))
