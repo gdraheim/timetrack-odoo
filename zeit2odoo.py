@@ -9,7 +9,7 @@ import csv
 import datetime
 
 import tabtotext
-import zeit2json
+import zeit2json as zeit_api
 from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
 import odoo_rest as odoo_api
 import netrc
@@ -404,21 +404,23 @@ def run(arg: str) -> None:
             report_name = None
         return
     ###########################################################
-    zeit2json.ZEIT_AFTER = DAYS.after.isoformat()
-    zeit2json.ZEIT_BEFORE = DAYS.before.isoformat()
-    zeit2json.ZEIT_USER_NAME = ZEIT_USER_NAME
-    zeit2json.ZEIT_SUMMARY = ZEIT_SUMMARY
-    data = zeit2json.read_zeit(DAYS.after, DAYS.before)
+    zeit_api.ZEIT_AFTER = DAYS.after.isoformat()
+    zeit_api.ZEIT_BEFORE = DAYS.before.isoformat()
+    zeit_api.ZEIT_USER_NAME = ZEIT_USER_NAME
+    zeit_api.ZEIT_SUMMARY = ZEIT_SUMMARY
+    conf = zeit_api.ZeitConfig(username = ZEIT_USER_NAME)
+    zeit = zeit_api.Zeit(conf)
+    data = zeit.read_entries(DAYS.after, DAYS.before)
     if arg in ["json", "make"]:
         json_text = tabtotext.tabToJSON(data)
-        json_file = zeit2json.zeit_filename(DAYS.after) + ".json"
+        json_file = conf.filename(DAYS.after) + ".json"
         with open(json_file, "w") as f:
             f.write(json_text)
         logg.log(DONE, "written %s (%s entries)", json_file, len(data))
         return
     if arg in ["csv", "make"]:
         csv_text = tabtotext.tabToJSON(data)
-        csv_file = zeit2json.zeit_filename(DAYS.after) + ".csv"
+        csv_file = conf.filename(DAYS.after) + ".csv"
         with open(csv_file, "w") as f:
             f.write(csv_text)
         logg.log(DONE, "written %s (%s entries)", csv_file, len(data))

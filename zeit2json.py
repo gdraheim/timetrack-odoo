@@ -54,25 +54,20 @@ mapping = """
 >> odoo "Odoo Automation",
 """
 
-def get_user_name() -> Optional[str]:
-    if ZEIT_USER_NAME:
-        return ZEIT_USER_NAME
-    import gitrc
-    return gitrc.git_config_value("user.name")
-def get_zeit_filename(on_or_after: Optional[Day] = None) -> str:
-    after = on_or_after or get_zeit_after()
-    return zeit_filename(after)
-def zeit_filename(after: Day) -> str:
-    if ZEIT_FILENAME:
-        return expand_zeit_filename(ZEIT_FILENAME, after)
-    import gitrc
-    found = gitrc.git_config_value("zeit.filename")
-    if found:
-        return expand_zeit_filename(found, after)
-    return expand_zeit_filename("~/zeit{YEAR}.txt", after)
-def expand_zeit_filename(filename: str, after: Day) -> str:
-    YEAR = after.year
-    return path.expanduser(filename.format(**locals()))
+def time2float(time: str) -> float:
+    time = time.replace(",", ".")
+    time = time.replace(":00", ".00")
+    time = time.replace(":15", ".25")
+    time = time.replace(":30", ".50")
+    time = time.replace(":45", ".75")
+    return float(time)
+
+def cleandesc(desc: str) -> str:
+    d = desc.replace("*", "").replace(" , ", ", ")
+    m = re.match("(.*)\\S*\\d:\\d+\\S*$", d)
+    if m:
+        return m.group(1)
+    return d
 
 def get_zeit_after() -> Day:
     global ZEIT_AFTER
@@ -90,29 +85,60 @@ def get_zeit_before() -> Day:
     today = datetime.date.today()
     return Day(today.year, 12, 31)
 
-def time2float(time: str) -> float:
-    time = time.replace(",", ".")
-    time = time.replace(":00", ".00")
-    time = time.replace(":15", ".25")
-    time = time.replace(":30", ".50")
-    time = time.replace(":45", ".75")
-    return float(time)
+def get_user_name() -> Optional[str]:  #obsolete
+    zeit = ZeitConfig()
+    return zeit.user_name()
+def get_zeit_filename(on_or_after: Optional[Day] = None) -> str:  #obsolete
+    after = on_or_after or get_zeit_after()
+    return zeit_filename(after)
+def zeit_filename(after: Day) -> str:  #obsolete
+    zeit = ZeitConfig()
+    return zeit.filename(after)
 
-def cleandesc(desc: str) -> str:
-    d = desc.replace("*", "").replace(" , ", ", ")
-    m = re.match("(.*)\\S*\\d:\\d+\\S*$", d)
-    if m:
-        return m.group(1)
-    return d
+class ZeitConfig:
+    def __init__(self, pathspec: Optional[str] = None, username: Optional[str] = None):
+        self.pathspec = pathspec
+        self.username = username
+    def user_name(self) -> Optional[str]:
+        global ZEIT_USER_NAME
+        if ZEIT_USER_NAME:
+            return ZEIT_USER_NAME
+        import gitrc
+        return gitrc.git_config_value("user.name")
+    def filespec(self) -> str:
+        if self.pathspec:
+            return self.pathspec
+        global ZEIT_FILENAME
+        if ZEIT_FILENAME:
+            return ZEIT_FILENAME
+        import gitrc
+        found = gitrc.git_config_value("zeit.filename")
+        if found:
+            return found
+        return "~/zeit{YEAR}.txt"
+    def filename(self, after: Day) -> str:
+        filename = self.filespec()
+        return self.expand(filename, after)
+    def expand(self, filename: str, after: Day) -> str:
+        YEAR = after.year
+        return path.expanduser(filename.format(**locals()))
+
+class Zeit:
+    def __init__(self, config: Optional[ZeitConfig] = None):
+        self.config = config or ZeitConfig()
+    def read_entries(self, on_or_after: Day, on_or_before: Day) -> JSONList:
+        filename = self.config.filename(on_or_after)
+        return read_data(filename, on_or_after, on_or_before)
 
 def read_zeit(on_or_after: Day, on_or_before: Day) -> JSONList:
-    return read_data(get_zeit_filename(on_or_after), on_or_after, on_or_before)
+    zeit = Zeit()
+    return zeit.read_entries(on_or_after, on_or_before)
 def read_data(filename: str, on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None) -> JSONList:
     logg.info("reading %s", filename)
     return scan_data(open(filename), on_or_after, on_or_before)
-def scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None) -> JSONList:
-    return _scan_data(lines_from_file, on_or_after or get_zeit_after(), on_or_before or get_zeit_before())
-def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day) -> JSONList:
+def scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None, username: Optional[str] = None) -> JSONList:
+    return _scan_data(lines_from_file, on_or_after or get_zeit_after(), on_or_before or get_zeit_before(), username)
+def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> JSONList:
     prefixed = {}
     customer = {}
     projects = {}
@@ -328,7 +354,7 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
                 itemPref = prefix
                 itemProj = customer[proj]
                 itemTask = projects[proj]
-                itemUser = get_user_name()
+                itemUser = username
                 if ZEIT_SHORT:
                     if customer[proj] in custname:
                         itemProj = custname[customer[proj]]
