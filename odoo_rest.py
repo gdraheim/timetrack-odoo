@@ -375,15 +375,29 @@ def odoo_get_users(url: str, cookies: Cookies) -> JSONList:
 # fields_get
 # create / write / unlink (add, update, remote)
 
-
-class Odoo:
+class OdooConfig:
     def __init__(self, url: Optional[str] = None, db: Optional[str] = None):
         self.url: str = url or odoo_url()
         self.db: str = db or odoo_db()
+        self.site: Optional[str] = None
+    def name(self) -> str:
+        if self.site:
+            return self.site
+        return self.db
+
+class Odoo:
+    def __init__(self, config: Optional[OdooConfig] = None):
+        self.config: OdooConfig = config or OdooConfig()
         self.uid: Optional[UserID] = None
         self.sid: Optional[str] = None
         self._projtasklist: Optional[JSONList] = None
         logg.debug("URL %s DB %s", self.url, self.db)
+    @property
+    def url(self) -> str:
+        return self.config.url
+    @property
+    def db(self) -> str:
+        return self.config.db
     def login(self) -> UserID:
         username, password = netrc.get_username_password(self.url)
         uid, sid = odoo_login(self.url, self.db, username, password)
