@@ -6,7 +6,7 @@ but instead of using the Postgres API it uses the Crowd API.
 // Please be aware the --appuser/--password represent crowd-application credentials (not a build user)
 """
 
-from typing import Optional, Union, Dict, List, Any, Sequence
+from typing import Optional, Union, Dict, List, Any, Sequence, Collection, Sized, Type, cast
 from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
@@ -16,6 +16,7 @@ import logging
 import json
 from io import StringIO
 
+
 logg = logging.getLogger("TABTOTEXT")
 
 DATEFMT = "%Y-%m-%d"
@@ -23,12 +24,39 @@ FLOATFMT = "%4.2f"
 NORIGHT = False
 MINWIDTH = 5
 
+JSONData = Union[str, int, float, bool, Date, Time, None]
+
 JSONBase = Union[str, int, float, bool]
 JSONItem = Union[str, int, float, bool, Date, Time, None, Dict[str, Any], List[Any]]
 JSONDict = Dict[str, JSONItem]
 JSONList = List[JSONDict]
 JSONDictList = Dict[str, JSONList]
 JSONDictDict = Dict[str, JSONDict]
+
+# dataclass support
+
+class DataItem:
+    """ Use this as the base class for dataclass types """
+    def __index__(self, name: str) -> JSONItem:
+        return cast(JSONItem, getattr(self, name))
+DataList = List[DataItem]
+
+def _is_dataitem(obj: Any) -> bool:
+    if isinstance(obj, DataItem):
+        return True
+    if hasattr(obj, '__dataclass_fields__'):
+        return True
+    return False
+def _dataitem_asdict(obj: DataItem, dict_factory: Type[Dict[str, Any]] =dict) -> JSONDict:
+    if hasattr(obj, "keys"):
+        return cast(JSONDict, obj)
+    result: JSONDict = dict_factory()
+    annotations: Dict[str, str] = obj.__class__.__dict__.get('__annotations__', {})
+    for name in annotations:
+        result[name] = cast(JSONItem, getattr(obj, name))
+    return result
+
+# helper functions
 
 _None_String = "~"
 _False_String = "(no)"
@@ -88,11 +116,17 @@ class ParseJSONItem:
             return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
         return val  # str
 
-def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
-        result = [result]
-    return tabToGFM(result, sorts, formats, legend)
+        results = [result]
+    elif _is_dataitem(result):
+        results = [_dataitem_asdict(cast(DataItem, result))]
+    elif hasattr(result, "__len__") and len(cast(List[Any], result)) and (_is_dataitem(cast(List[Any], result)[0])):
+        results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
+    else:
+        results = cast(JSONList, result)
+    return tabToGFM(results, sorts, formats, legend)
 def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
              legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     def sortkey(header: str) -> str:
