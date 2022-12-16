@@ -408,7 +408,7 @@ def run(arg: str) -> None:
     zeit_api.ZEIT_BEFORE = DAYS.before.isoformat()
     zeit_api.ZEIT_USER_NAME = ZEIT_USER_NAME
     zeit_api.ZEIT_SUMMARY = ZEIT_SUMMARY
-    conf = zeit_api.ZeitConfig(username = ZEIT_USER_NAME)
+    conf = zeit_api.ZeitConfig(username=ZEIT_USER_NAME)
     zeit = zeit_api.Zeit(conf)
     data = zeit.read_entries(DAYS.after, DAYS.before)
     if arg in ["json", "make"]:

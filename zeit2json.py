@@ -85,13 +85,13 @@ def get_zeit_before() -> Day:
     today = datetime.date.today()
     return Day(today.year, 12, 31)
 
-def get_user_name() -> Optional[str]:  #obsolete
+def get_user_name() -> Optional[str]:  # obsolete
     zeit = ZeitConfig()
     return zeit.user_name()
-def get_zeit_filename(on_or_after: Optional[Day] = None) -> str:  #obsolete
+def get_zeit_filename(on_or_after: Optional[Day] = None) -> str:  # obsolete
     after = on_or_after or get_zeit_after()
     return zeit_filename(after)
-def zeit_filename(after: Day) -> str:  #obsolete
+def zeit_filename(after: Day) -> str:  # obsolete
     zeit = ZeitConfig()
     return zeit.filename(after)
 
