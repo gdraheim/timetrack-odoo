@@ -43,7 +43,8 @@ ODOO_SUMMARY = ""
 
 FOR_USER: List[str] = []
 
-SCSVFILE = ""
+FORMAT = ""
+OUTPUT = ""
 TEXTFILE = ""
 JSONFILE = ""
 HTMLFILE = ""
@@ -403,13 +404,12 @@ def run(arg: str) -> None:
                 results.append({"satz": price_vat, "summe": round(summe * price_vat, 2)})
                 results.append({"summe": summe + round(summe * price_vat, 2)})
         formats = {"odoo": " %4.2f", "summe": " %4.2f"}
-        print(tabtotext.tabToGFM(results, formats=formats))
-        for line in summary:
-            print(f"# {line}")
-        if SCSVFILE:
-            with open(SCSVFILE, "w") as f:
-                f.write(tabtotext.tabToCSV(results))
-            logg.log(DONE, " scsv written   %s '%s'", editprog(), SCSVFILE)
+        if not OUTPUT:
+            print(tabtotext.tabToFMT(FORMAT, results, formats=formats, legend=summary))
+        else:
+            with open(OUTPUT, "w") as f:
+                f.write(tabtotext.tabToFMT(FORMAT, results, formats=formats, legend=summary))
+            logg.log(DONE, " %s written   %s '%s'", FORMAT, editprog(), OUTPUT)
         if JSONFILE:
             with open(JSONFILE, "w") as f:
                 f.write(tabtotext.tabToJSON(results))
@@ -449,7 +449,8 @@ if __name__ == "__main__":
                        help="present only local zeit data [%default]")
     cmdline.add_option("-Z", "--addfooter", action="count", default=ADDFOOTER,
                        help="present sum as lines in data [%default]")
-    cmdline.add_option("-S", "--SCSVfile", metavar="FILE", default=SCSVFILE)
+    cmdline.add_option("-o", "--format", metavar="json|yaml|html|wide|md|tab|csv", default=FORMAT)
+    cmdline.add_option("-O", "--output", metavar="FILE", default=OUTPUT)
     cmdline.add_option("-T", "--textfile", metavar="FILE", default=TEXTFILE)
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE)
     cmdline.add_option("-H", "--htmlfile", metavar="FILE", default=HTMLFILE)
@@ -469,7 +470,8 @@ if __name__ == "__main__":
     netrc.set_password_filename(opt.gitcredentials)
     netrc.add_password_filename(opt.netcredentials, opt.extracredentials)
     FOR_USER = opt.user
-    SCSVFILE = opt.SCSVfile
+    FORMAT = opt.format
+    OUTPUT = opt.output
     TEXTFILE = opt.textfile
     JSONFILE = opt.jsonfile
     HTMLFILE = opt.htmlfile
