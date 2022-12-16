@@ -163,14 +163,14 @@ type:
 %.type:
 	$(MYPY) $(MYPY_STRICT) $(MYPY_OPTIONS) $(@:.type=)
 
-%.pep:
-	$(AUTOPEP8) $(AUTOPEP8_INPLACE) $(AUTOPEP8_OPTIONS) $(@:.pep=)
-	git --no-pager diff $(@:.pep=)
+%.pep8:
+	$(AUTOPEP8) $(AUTOPEP8_INPLACE) $(AUTOPEP8_OPTIONS) $(@:.pep8=)
+	git --no-pager diff $(@:.pep8=)
 
-pep:
-	$(MAKE) $(PARALLEL) $(SCRIPT).pep $(TESTSUITE).pep \
-	                 $(GENSCRIPT).pep $(GEN_TESTS).pep \
-	                 $(DATSCRIPT).pep $(DAT_TESTS).pep \
-	                 $(TAB_UTILS).pep $(TAB_TESTS).pep \
-	                 $(NET_UTILS).pep $(NET_TESTS).pep \
-	                 $(DAY_UTILS).pep $(DAY_TESTS).pep
+style pep8:
+	$(MAKE) $(PARALLEL) $(SCRIPT).pep8 $(TESTSUITE).pep8 \
+	                 $(GENSCRIPT).pep8 $(GEN_TESTS).pep8 \
+	                 $(DATSCRIPT).pep8 $(DAT_TESTS).pep8 \
+	                 $(TAB_UTILS).pep8 $(TAB_TESTS).pep8 \
+	                 $(NET_UTILS).pep8 $(NET_TESTS).pep8 \
+	                 $(DAY_UTILS).pep8 $(DAY_TESTS).pep8
