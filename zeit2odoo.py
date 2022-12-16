@@ -506,7 +506,7 @@ if __name__ == "__main__":
                        help="present short lines for description [%default]")
     cmdline.add_option("-z", "--onlyzeit", action="count", default=ONLYZEIT,
                        help="present only local zeit data [%default]")
-    cmdline.add_option("-o", "--format", metavar="json|yaml|html|wide|md|tab|csv", default=FORMAT)
+    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
     cmdline.add_option("-O", "--output", metavar="FILE", default=OUTPUT)
     cmdline.add_option("-T", "--textfile", metavar="FILE", default=TEXTFILE)
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE)
