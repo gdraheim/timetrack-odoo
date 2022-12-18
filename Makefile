@@ -158,7 +158,8 @@ type:
 	                 $(DATSCRIPT).type $(DAT_TESTS).type \
 	                 $(TAB_UTILS).type $(TAB_TESTS).type \
 	                 $(NET_UTILS).type $(NET_TESTS).type \
-	                 $(DAY_UTILS).type $(DAY_TESTS).type
+	                 $(DAY_UTILS).type $(DAY_TESTS).type \
+	                 timetrack.py.type
 
 %.type:
 	$(MYPY) $(MYPY_STRICT) $(MYPY_OPTIONS) $(@:.type=)
@@ -173,4 +174,5 @@ style pep8:
 	                 $(DATSCRIPT).pep8 $(DAT_TESTS).pep8 \
 	                 $(TAB_UTILS).pep8 $(TAB_TESTS).pep8 \
 	                 $(NET_UTILS).pep8 $(NET_TESTS).pep8 \
-	                 $(DAY_UTILS).pep8 $(DAY_TESTS).pep8
+	                 $(DAY_UTILS).pep8 $(DAY_TESTS).pep8 \
+	                 timetrack.py.pep8

@@ -116,20 +116,21 @@ class TimeDB:
             cur.execute("CREATE TABLE IF NOT EXISTS versions(tab TEXT PRIMARY KEY, ver);")
             cur.execute("REPLACE INTO versions VALUES(?,?);", ('timesheet', 1.1))
             cur.execute("REPLACE INTO versions VALUES(?,?);", ('timespans', 1.2))
+            cur.execute("REPLACE INTO versions VALUES(?,?);", ('timeevent', 1.2))
             for row in cur.execute("SELECT * FROM versions"):
                 logg.debug("version  %s", row)
-            cur.execute(
-                "CREATE TABLE IF NOT EXISTS timesheet(site_name, site_type, proj_name, task_name, entry_date, entry_size, entry_desc)")
-            cur.execute(
-                "CREATE TABLE IF NOT EXISTS timespans(site_name, site_type, proj_name, task_name, entry_date, entry_size, entry_desc)")
-            cur.execute(
-                "CREATE TABLE IF NOT EXISTS timeevent(site_name, site_type, proj_name, task_name, entry_date, entry_time, entry_desc)")
-            cur.execute(
-                "CREATE UNIQUE INDEX IF NOT EXISTS timesheet_date ON timesheet(site_name, site_type, proj_name, task_name, entry_date)")
-            cur.execute(
-                "CREATE UNIQUE INDEX IF NOT EXISTS timespans_date ON timespans(site_name, site_type, proj_name, task_name, entry_date)")
-            cur.execute(
-                "CREATE UNIQUE INDEX IF NOT EXISTS timeevent_date ON timeevent(site_name, site_type, proj_name, task_name, entry_date)")
+            cur.execute("""CREATE TABLE IF NOT EXISTS timesheet(
+                site_name, site_type, proj_name, task_name, entry_date, entry_size, entry_desc)""")
+            cur.execute("""CREATE TABLE IF NOT EXISTS timespans(
+                site_name, site_type, proj_name, task_name, entry_date, entry_size, entry_desc)""")
+            cur.execute("""CREATE TABLE IF NOT EXISTS timeevent(
+                site_name, site_type, proj_name, task_name, entry_date, entry_time, entry_desc)""")
+            cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS timesheet_date ON timesheet(
+                site_name, site_type, proj_name, task_name, entry_date)""")
+            cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS timespans_date ON timespans(
+                site_name, site_type, proj_name, task_name, entry_date)""")
+            cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS timeevent_date ON timeevent(
+                site_name, site_type, proj_name, task_name, entry_date)""")
             found = cur.execute("select name from sqlite_schema where type = 'table'")
             for row in found:
                 logg.debug("table %s", row)
