@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from typing import Optional, Union, Dict, List, Tuple, cast
+from typing import Optional, Union, Dict, List, Tuple, Iterable, cast
 
 import logging
 import re
@@ -10,6 +10,7 @@ import datetime
 import sqlite3
 import os.path as path
 from contextlib import closing
+from configparser import ConfigParser
 
 import tabtotext
 import zeit2json as zeit_api
@@ -53,8 +54,10 @@ JSONFILE = ""
 HTMLFILE = ""
 XLSXFILE = ""
 
+SHORTNAME = True
 
-def default_config() -> str:
+
+def default_config(warn: bool = True) -> str:
     user_name = gitrc.git_config_value("user.name")
     user_mail = gitrc.git_config_value("user.email")
     odoo_url = gitrc.git_config_value("odoo.url")
@@ -63,20 +66,20 @@ def default_config() -> str:
     zeit_filename = gitrc.git_config_value("zeit.filename")
     jira_url = gitrc.git_config_value("jira.url")
     jira_user = gitrc.git_config_value("jira.user")
-    if not user_name:
+    if not user_name and warn:
         logg.error("~/.gitconfig [user] name= (missing)")
-    if not user_mail:
+    if not user_mail and warn:
         logg.error("~/.gitconfig [user] email= (missing)")
-    if not odoo_url:
+    if not odoo_url and warn:
         logg.warning("~/.gitconfig [odoo] url= (missing)")
-    if not odoo_db:
+    if not odoo_db and warn:
         logg.warning("~/.gitconfig [odoo] db= (missing)")
-    if not odoo_email:
+    if not odoo_email and warn:
         logg.info("~/.gitconfig [odoo] email= (missing)")
-    if not zeit_filename:
+    if not zeit_filename and warn:
         logg.info("~/.gitconfig [zeit] filename= (missing)")
     if not user_name or not user_mail:
-        raise ValueError("~/.gitconfig not prepared")
+        raise ValueError("~/.gitconfig not prepared with [user] name= / email=")
     if odoo_email:
         user_mail = odoo_email
     user_first = user_name.split(" ", 1)[0].lower()
@@ -220,6 +223,15 @@ class TimeDB:
     def __del__(self) -> None:
         self.close()
 
+def strName(value: JSONItem) -> str:
+    if value is None:
+        return "~"
+    val = str(value)
+    if SHORTNAME:
+        if len(val) > 22:
+            return val[:12] + "..." + val[-7:]
+    return val
+
 def editprog() -> str:
     return os.environ.get("EDIT", "mcedit")
 def htmlprog() -> str:
@@ -253,9 +265,10 @@ def pull_odoo(after: Day, before: Day, conf: Optional[odoo_api.OdooConfig] = Non
         logg.info(" %s %s [%s] %s", site, kind, proj, task)
         with closing(pull.db(after).cursor()) as cur:
             ok = cur.execute("REPLACE INTO timesheet VALUES(?,?,?,?,?,?,?)", (site, kind, proj, task, date, size, desc))
-            r.append({"row": str(ok)})
+            r.append({"row": ok.rowcount, "values": [site, kind, strName(proj), strName(task), f"{date:%Y-%m-%d}"]})
     pull.commit()
     return r
+
 
 def pull_zeit(after: Day, before: Day, conf: Optional[zeit_api.ZeitConfig] = None) -> JSONList:
     r: JSONList = []
@@ -277,9 +290,12 @@ def pull_zeit(after: Day, before: Day, conf: Optional[zeit_api.ZeitConfig] = Non
         logg.info(" %s %s [%s] %s", site, kind, proj, task)
         with closing(pull.db(after).cursor()) as cur:
             ok = cur.execute("REPLACE INTO timespans VALUES(?,?,?,?,?,?,?)", (site, kind, proj, task, date, size, desc))
-            r.append({"row": str(ok)})
+            r.append({"row": ok.rowcount, "values": [site, kind, strName(proj), strName(task), f"{date:%Y-%m-%d}"]})
     pull.commit()
     return r
+
+def pull_jira(after: Day, before: Day, conf: Optional[odoo_api.OdooConfig] = None) -> JSONList:
+    pass
 
 def odoo_users(conf: Optional[odoo_api.OdooConfig] = None) -> JSONList:
     conf = conf or odoo_api.OdooConfig()
@@ -287,66 +303,171 @@ def odoo_users(conf: Optional[odoo_api.OdooConfig] = None) -> JSONList:
     users = odoo.users()
     return users
 
-def run(arg: str) -> None:
+def set_object_types(config: ConfigParser) -> JSONList:
+    return list(each_object_type(config))
+def get_object_types(config: ConfigParser) -> JSONList:
+    return list(each_object_type(config))
+def each_object_type(config: ConfigParser) -> Iterable[JSONDict]:
+    yield {"type": "user", "used": "mapping to external login names"}
+    yield {"type": "zeit", "used": "access settings for zeit files"}
+    yield {"type": "odoo", "used": "access settings for odoo systems"}
+    yield {"type": "jira", "used": "access settings for jira systems"}
+    yield {"type": "proxy", "used": "access setings for http proxies"}
+    for name in config.sections():
+        obj = config[name]
+        typ = obj.get("type", "unknown")
+        if typ in ["user", "zeit", "odoo", "jira", "proxy"]:
+            yield {"type": typ, "name": name}
+def pull_object_types(config: ConfigParser) -> JSONList:
+    return list(each_pull_object_type(config))
+def each_pull_object_type(config: ConfigParser) -> Iterable[JSONDict]:
+    yield {"type": "zeit", "used": "get timespans from for zeit files"}
+    yield {"type": "odoo", "used": "get timesheet from odoo systems"}
+    yield {"type": "jira", "used": "get worklogs from jira systems"}
+    for name in config.sections():
+        obj = config[name]
+        typ = obj.get("type", "unknown")
+        if typ in ["zeit", "odoo", "jira"]:
+            yield {"type": typ, "name": name}
+
+
+def show_jira(name: str, config: ConfigParser) -> JSONList:
+    return list(each_show_jira(name, config))
+def each_show_jira(name: str, config: ConfigParser) -> Iterable[JSONDict]:
+    for sec in config.sections():
+        if not fnmatch(sec, name):
+            continue
+        obj = config[sec]
+        if obj.get("type", "unknown") in ["jira"]:
+            yield {"name": name, "type": "jira", "url": obj.get("url")}
+
+def show_odoo(name: str, config: ConfigParser) -> JSONList:
+    return list(each_show_odoo(name, config))
+def each_show_odoo(name: str, config: ConfigParser) -> Iterable[JSONDict]:
+    for sec in config.sections():
+        if not fnmatch(sec, name):
+            continue
+        obj = config[sec]
+        if obj.get("type", "unknown") in ["odoo"]:
+            yield {"name": name, "type": "odoo", "url": obj.get("url"), "db": obj.get("db")}
+
+def show_zeit(name: str, config: ConfigParser) -> JSONList:
+    return list(each_show_zeit(name, config))
+def each_show_zeit(name: str, config: ConfigParser) -> Iterable[JSONDict]:
+    for sec in config.sections():
+        if not fnmatch(sec, name):
+            continue
+        obj = config[sec]
+        if obj.get("type", "unknown") in ["zeit"]:
+            yield {"name": name, "type": "zeit", "filename": obj.get("filename")}
+
+def show_user(name: str, config: ConfigParser) -> JSONList:
+    return []
+
+def run(config: ConfigParser, args: List[str]) -> None:
     global DAYS
-    if is_dayrange(arg):
-        DAYS = dayrange(arg)
-        logg.log(DONE, "%s -> %s %s", arg, DAYS.after, DAYS.before)
-        return
-    if arg in ["help"]:
-        report_name = None
-        for line in open(__file__):
-            if line.strip().replace("elif", "if").startswith("if arg in"):
-                report_name = line.split("if arg in", 1)[1].strip()
-                continue
-            elif line.strip().startswith("results = "):
-                report_call = line.split("results = ", 1)[1].strip()
-                if report_name:
-                    print(f"{report_name} {report_call}")
-            report_name = None
-        return
-    if arg in ["conf", "config"]:
-        found = default_config()
-        print(found)
-        return
-    ###########################################################
-    zeit_conf = zeit_api.ZeitConfig(username=USER_NAME)
-    odoo_conf = odoo_api.OdooConfig()
+    verb = None
     summary: List[str] = []
     results: JSONList = []
-    if arg in ["users"]:
-        results = odoo_users(conf=odoo_conf)
-    elif arg in ["pull-odoo", "pullodoo"]:
-        results = pull_odoo(DAYS.after, DAYS.before, conf=odoo_conf)
-    elif arg in ["pull-zeit", "pullzeit"]:
-        results = pull_zeit(DAYS.after, DAYS.before, conf=zeit_conf)
-    else:
-        logg.error("unknown report '%s'", arg)
-        import sys
-        logg.error("  hint: check available reports:    %s help", sys.argv[0])
+    headers: List[str] = ["name", "type"]
+    while args:
+        arg = args[0]
+        args = args[1:]
+        if is_dayrange(arg):
+            DAYS = dayrange(arg)
+            logg.log(DONE, "%s -> %s %s", arg, DAYS.after, DAYS.before)
+            continue
+        if arg in ["help"]:
+            report_name = None
+            for line in open(__file__):
+                if line.strip().replace("elif", "if").startswith("if arg in"):
+                    report_name = line.split("if arg in", 1)[1].strip()
+                    continue
+                elif line.strip().startswith("results = "):
+                    report_call = line.split("results = ", 1)[1].strip()
+                    if report_name:
+                        print(f"{report_name} {report_call}")
+            report_name = None
+            return
+        if arg in ["conf", "config"]:
+            found = default_config()
+            print(found)
+            continue
+        if arg in ["get", "set", "pull"]:
+            verb = arg
+            if not args:
+                if arg in ["get"]:  # any
+                    results = get_object_types(config)
+                elif arg in ["set"]:
+                    results = set_object_types(config)
+                elif arg in ["pull"]:
+                    results = pull_object_types(config)
+                else:
+                    logg.error("unknown verb %s", verb)
+                    return
+            continue
+        ###########################################################
+        if verb and not config.has_section(arg):
+            logg.error("no such object %s - use 'config' to check them", arg)
+            raise ValueError("missing configuration")
+        obj = config[arg]
+        typ = obj.get("type", "unknown")
+        if typ in ["unknown"]:
+            logg.error("untyped object %s - use 'config to check it", arg)
+        elif typ in ["zeit"]:
+            zeit_conf = zeit_api.ZeitConfig(username=USER_NAME)
+            if verb in ["pull"]:
+                results = pull_zeit(DAYS.after, DAYS.before, conf=zeit_conf)
+            elif verb in ["get"]:
+                results = show_zeit(arg, config=config)
+            else:
+                logg.error("%s %s - not possible", verb, arg)
+                return
+        elif typ in ["odoo"]:
+            odoo_conf = odoo_api.OdooConfig()
+            if verb in ["pull"]:
+                results = pull_odoo(DAYS.after, DAYS.before, conf=odoo_conf)
+            elif verb in ["get"]:
+                results = show_odoo(arg, config=config)
+            else:
+                logg.error("%s %s - not possible", verb, arg)
+                return
+        elif typ in ["jira"]:
+            jira_conf = None  # odoo_api.OdooConfig()
+            if verb in ["pull"]:
+                results = pull_jira(DAYS.after, DAYS.before, conf=odoo_conf)
+            elif verb in ["get"]:
+                results = show_jira(arg, config=config)
+            else:
+                logg.error("%s %s - not possible", verb, arg)
+                return
+        elif typ in ["user", "users"]:
+            show_user(arg, config=config)
+        else:
+            logg.error("unknown object type % for  %s - use 'config to check it", typ, arg)
     if results:
         formats = {"zeit": " %4.2f", "odoo": " %4.2f", "summe": " %4.2f"}
         if not OUTPUT:
-            print(tabtotext.tabToFMT(FORMAT, results, formats=formats, legend=summary))
+            print(tabtotext.tabToFMT(FORMAT, results, headers, formats=formats, legend=summary))
         else:
             with open(OUTPUT, "w") as f:
-                f.write(tabtotext.tabToFMT(FORMAT, results, formats=formats, legend=summary))
+                f.write(tabtotext.tabToFMT(FORMAT, results, headers, formats=formats, legend=summary))
             logg.log(DONE, " %s written   %s '%s'", FORMAT, editprog(), OUTPUT)
         if JSONFILE:
             with open(JSONFILE, "w") as f:
-                f.write(tabtotext.tabToJSON(results))
+                f.write(tabtotext.tabToJSON(results, headers))
             logg.log(DONE, " json written   %s '%s'", editprog(), JSONFILE)
         if HTMLFILE:
             with open(HTMLFILE, "w") as f:
-                f.write(tabtotext.tabToHTML(results))
+                f.write(tabtotext.tabToHTML(results, headers))
             logg.log(DONE, " html written   %s '%s'", htmlprog(), HTMLFILE)
         if TEXTFILE:
             with open(TEXTFILE, "w") as f:
-                f.write(tabtotext.tabToGFM(results, formats=formats))
+                f.write(tabtotext.tabToGFM(results, headers, formats=formats))
             logg.log(DONE, " text written   %s '%s'", editprog(), TEXTFILE)
         if XLSXFILE:
             import tabtoxlsx
-            tabtoxlsx.saveToXLSX(XLSXFILE, results)
+            tabtoxlsx.saveToXLSX(XLSXFILE, results, headers)
             logg.log(DONE, " xlsx written   %s '%s'", xlsxprog(), XLSXFILE)
 
 if __name__ == "__main__":
@@ -393,6 +514,8 @@ if __name__ == "__main__":
         gitrc.git_config_override(value)
     netrc.set_password_filename(opt.gitcredentials)
     netrc.add_password_filename(opt.netcredentials, opt.extracredentials)
+    config = ConfigParser()
+    config.read_string(default_config(False))
     UPDATE = opt.update
     FORMAT = opt.format
     OUTPUT = opt.output
@@ -420,5 +543,4 @@ if __name__ == "__main__":
     DAYS = dayrange(opt.after, opt.before)
     if not args:
         args = ["make"]
-    for arg in args:
-        run(arg)
+    run(config, args)
