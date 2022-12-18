@@ -53,6 +53,82 @@ JSONFILE = ""
 HTMLFILE = ""
 XLSXFILE = ""
 
+
+def default_config() -> str:
+    user_name = gitrc.git_config_value("user.name")
+    user_mail = gitrc.git_config_value("user.email")
+    odoo_url = gitrc.git_config_value("odoo.url")
+    odoo_db = gitrc.git_config_value("odoo.db")
+    odoo_email = gitrc.git_config_value("odoo.email")
+    zeit_filename = gitrc.git_config_value("zeit.filename")
+    jira_url = gitrc.git_config_value("jira.url")
+    jira_user = gitrc.git_config_value("jira.user")
+    if not user_name:
+        logg.error("~/.gitconfig [user] name= (missing)")
+    if not user_mail:
+        logg.error("~/.gitconfig [user] email= (missing)")
+    if not odoo_url:
+        logg.warning("~/.gitconfig [odoo] url= (missing)")
+    if not odoo_db:
+        logg.warning("~/.gitconfig [odoo] db= (missing)")
+    if not odoo_email:
+        logg.info("~/.gitconfig [odoo] email= (missing)")
+    if not zeit_filename:
+        logg.info("~/.gitconfig [zeit] filename= (missing)")
+    if not user_name or not user_mail:
+        raise ValueError("~/.gitconfig not prepared")
+    if odoo_email:
+        user_mail = odoo_email
+    user_first = user_name.split(" ", 1)[0].lower()
+    user_login, user_domain = user_mail.split("@", 1)
+    user_site = user_domain.split(".", 1)[0]
+    if not odoo_url:
+        odoo_url = f"https://erp.{user_domain}"
+    if not odoo_db:
+        odoo_db = f"prod-{user_site}"
+    if not zeit_filename:
+        zeit_filename = "~/zeit{YEAR}.txt"
+    if not jira_url:
+        jira_url = f"https://jira.{user_domain}"
+    if not jira_user:
+        jira_user = f"{user_login}"
+    conf = f"""
+[{user_first}]
+type = user
+login = {user_login}
+
+[{user_site}]
+type = site
+domain = {user_domain}
+
+[odoo]
+type = odoo
+url = {odoo_url}
+db = {odoo_db}
+
+[zeit]
+type = zeit
+filename = {zeit_filename}
+
+[jira]
+type = jira
+url = {jira_url}
+user = {jira_user}
+"""
+    for num in range(1, 9):
+        next_url = gitrc.git_config_value(f"jira{num}.url")
+        next_user = gitrc.git_config_value(f"jira{num}.user")
+        if next_url or next_user:
+            if not next_url: next_url = jira_url
+            if not next_user: next_user = jira_user
+            conf += f"""
+[jira{num}]
+type = jira
+url = {next_url}
+user = {next_user}
+"""
+    return conf
+
 class TimeConfig:
     def __init__(self, pathspec: Optional[str] = None, username: Optional[str] = None):
         self.pathspec = pathspec
@@ -228,6 +304,10 @@ def run(arg: str) -> None:
                 if report_name:
                     print(f"{report_name} {report_call}")
             report_name = None
+        return
+    if arg in ["conf", "config"]:
+        found = default_config()
+        print(found)
         return
     ###########################################################
     zeit_conf = zeit_api.ZeitConfig(username=USER_NAME)
