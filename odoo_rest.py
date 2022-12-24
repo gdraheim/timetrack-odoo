@@ -376,14 +376,26 @@ def odoo_get_users(url: str, cookies: Cookies) -> JSONList:
 # create / write / unlink (add, update, remote)
 
 class OdooConfig:
-    def __init__(self, url: Optional[str] = None, db: Optional[str] = None):
+    url: str
+    db: str
+    user: Optional[str]
+    site: Optional[str]
+    def __init__(self, url: Optional[str] = None, db: Optional[str] = None, *,  #
+                 user: Optional[str] = None, site: Optional[str] = None):
         self.url: str = url or odoo_url()
         self.db: str = db or odoo_db()
-        self.site: Optional[str] = None
+        self.site: Optional[str] = site
+        self.user: Optional[str] = user
     def name(self) -> str:
         if self.site:
             return self.site
         return self.db
+    def on_site(self, site: str) -> "OdooConfig":
+        self.site = site
+        return self
+    def for_user(self, user: str) -> "OdooConfig":
+        self.user = user
+        return self
 
 class Odoo:
     def __init__(self, config: Optional[OdooConfig] = None):
@@ -391,18 +403,26 @@ class Odoo:
         self.uid: Optional[UserID] = None
         self.sid: Optional[str] = None
         self._projtasklist: Optional[JSONList] = None
-        logg.debug("URL %s DB %s", self.url, self.db)
+        logg.debug("URL %s DB %s", self.url, self.config.db)
+        self.user_name: Optional[str] = None
     @property
     def url(self) -> str:
         return self.config.url
     @property
     def db(self) -> str:
         return self.config.db
+    @property
+    def user(self) -> str:
+        if self.user_name:
+            return self.user_name
+        return self.config.user or ""
     def login(self) -> UserID:
-        username, password = netrc.get_username_password(self.url)
+        username, password = netrc.get_username_password(self.config.url)
         uid, sid = odoo_login(self.url, self.db, username, password)
         self.uid = uid
         self.sid = sid
+        if self.user:
+            self.uid = self.get_user_id(self.user)
         return self.uid
     def from_login(self) -> UserID:
         if not self.uid:
@@ -413,6 +433,7 @@ class Odoo:
             self.uid = self.login()
         if name:
             self.uid = self.get_user_id(name)
+            self.user_name = name
         return self
     def get_user_id(self, name: str, default: Optional[UserID] = None) -> UserID:
         uid = default or -1
@@ -457,10 +478,10 @@ class Odoo:
         found = odoo_get_users(self.url, self.cookies())
         return [{"user_id": item["id"], "user_fullname": item["name"], "user_email": item["email"]} for item in found if item["active"]]
     def projects(self) -> JSONList:
-        found = odoo_get_projects(self.url, self.cookies())
+        found = odoo_get_projects(self.config.url, self.cookies())
         return [{"proj_id": item["id"], "proj_name": item["name"]} for item in found if item["active"]]
     def projects_tasks(self) -> JSONList:
-        found = odoo_get_projects_tasks(self.url, self.cookies())
+        found = odoo_get_projects_tasks(self.config.url, self.cookies())
         return [{"task_id": item["id"], "task_name": item["name"],
                  "proj_id": item["project_id"][0], "proj_name": item["project_id"][1],  # type: ignore
                  } for item in found if item["active"]]

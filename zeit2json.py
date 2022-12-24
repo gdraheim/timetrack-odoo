@@ -35,6 +35,8 @@ ZEIT_SHORT = False
 ZEIT_FILENAME = ""
 ZEIT_USER_NAME = ""
 
+DEFAULT_FILENAME = "~/zeit{YEAR}.txt"
+
 WRITEJSON = True
 WRITECSV = True
 
@@ -96,9 +98,25 @@ def zeit_filename(after: Day) -> str:  # obsolete
     return zeit.filename(after)
 
 class ZeitConfig:
+    pathspec: str
+    username: Optional[str]
+    site: Optional[str]
     def __init__(self, pathspec: Optional[str] = None, username: Optional[str] = None):
-        self.pathspec = pathspec
+        self.pathspec = pathspec or DEFAULT_FILENAME
         self.username = username
+    def for_user(self, user: str) -> "ZeitConfig":
+        self.username = user
+        return self
+    def from_file(self, spec: str) -> "ZeitConfig":
+        self.pathspec = spec
+        return self
+    def on_site(self, site: str) -> "ZeitConfig":
+        self.site = site
+        return self
+    def name(self) -> str:
+        if self.site:
+            return self.site
+        return path.basename(path.dirname(self.pathspec))
     def user_name(self) -> Optional[str]:
         global ZEIT_USER_NAME
         if ZEIT_USER_NAME:
@@ -115,7 +133,7 @@ class ZeitConfig:
         found = gitrc.git_config_value("zeit.filename")
         if found:
             return found
-        return "~/zeit{YEAR}.txt"
+        return DEFAULT_FILENAME
     def filename(self, after: Day) -> str:
         filename = self.filespec()
         return self.expand(filename, after)
@@ -460,7 +478,7 @@ if __name__ == "__main__":
     cmdline.add_option("-b", "--before", metavar="DATE", default=ZEIT_BEFORE,
                        help="only evaluate entrys on and before [last of year]")
     cmdline.add_option("-f", "--filename", metavar="TEXT", default=ZEIT_FILENAME,
-                       help="choose input filename [%default]")
+                       help="choose input filename [%s]" % (ZEIT_FILENAME or DEFAULT_FILENAME))
     cmdline.add_option("-s", "--summary", metavar="TEXT", default=ZEIT_SUMMARY,
                        help="suffix for summary report [%default]")
     cmdline.add_option("-P", "--projfilter", metavar="TEXT", default=ZEIT_PROJFILTER,

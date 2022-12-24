@@ -48,7 +48,7 @@ SHORTDESC = 0
 ONLYZEIT = 0
 
 FORMAT = ""
-OUTPUT = ""
+OUTPUT = "-"
 TEXTFILE = ""
 JSONFILE = ""
 HTMLFILE = ""
@@ -393,6 +393,16 @@ def run(config: ConfigParser, args: List[str]) -> None:
             found = default_config()
             print(found)
             continue
+        if arg in ["with"]:
+            if not args:
+                logg.error("missing argument for 'with'")
+                return
+            filename = args[0]
+            args = args[1:]
+            config2 = ConfigParser()
+            config2.read(filename)
+            config = config2
+            continue
         if arg in ["get", "set", "pull"]:
             verb = arg
             if not args:
@@ -415,7 +425,10 @@ def run(config: ConfigParser, args: List[str]) -> None:
         if typ in ["unknown"]:
             logg.error("untyped object %s - use 'config to check it", arg)
         elif typ in ["zeit"]:
-            zeit_conf = zeit_api.ZeitConfig(username=USER_NAME)
+            user_name = obj.get("user", USER_NAME)
+            file_spec = obj.get("filename")
+            zeit_conf = zeit_api.ZeitConfig(file_spec)
+            zeit_conf.for_user(user_name)
             if verb in ["pull"]:
                 results = pull_zeit(DAYS.after, DAYS.before, conf=zeit_conf)
             elif verb in ["get"]:
@@ -424,7 +437,11 @@ def run(config: ConfigParser, args: List[str]) -> None:
                 logg.error("%s %s - not possible", verb, arg)
                 return
         elif typ in ["odoo"]:
-            odoo_conf = odoo_api.OdooConfig()
+            user_name = obj.get("user", USER_NAME)
+            odoo_url = obj.get("url")
+            odoo_db = obj.get("db")
+            odoo_conf = odoo_api.OdooConfig(odoo_url, odoo_db)
+            odoo_conf.for_user(user_name)
             if verb in ["pull"]:
                 results = pull_odoo(DAYS.after, DAYS.before, conf=odoo_conf)
             elif verb in ["get"]:
@@ -447,9 +464,9 @@ def run(config: ConfigParser, args: List[str]) -> None:
             logg.error("unknown object type % for  %s - use 'config to check it", typ, arg)
     if results:
         formats = {"zeit": " %4.2f", "odoo": " %4.2f", "summe": " %4.2f"}
-        if not OUTPUT:
+        if OUTPUT in ["-", "CON"]:
             print(tabtotext.tabToFMT(FORMAT, results, headers, formats=formats, legend=summary))
-        else:
+        elif OUTPUT:
             with open(OUTPUT, "w") as f:
                 f.write(tabtotext.tabToFMT(FORMAT, results, headers, formats=formats, legend=summary))
             logg.log(DONE, " %s written   %s '%s'", FORMAT, editprog(), OUTPUT)
@@ -473,6 +490,8 @@ def run(config: ConfigParser, args: List[str]) -> None:
 if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog [help|data|check|valid|update|compare|summarize|summary|topics] files...")
+    cmdline.add_option("--quiet", action="count", default=0,
+                       help="less verbose logging")
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
     cmdline.add_option("-a", "--after", metavar="DATE", default=None,
@@ -495,7 +514,7 @@ if __name__ == "__main__":
     cmdline.add_option("-z", "--onlyzeit", action="count", default=ONLYZEIT,
                        help="present only local zeit data [%default]")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
-    cmdline.add_option("-O", "--output", metavar="FILE", default=OUTPUT)
+    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect to filename")
     cmdline.add_option("-T", "--textfile", metavar="FILE", default=TEXTFILE)
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE)
     cmdline.add_option("-H", "--htmlfile", metavar="FILE", default=HTMLFILE)

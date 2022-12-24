@@ -45,7 +45,7 @@ SHORTDESC = 0
 ONLYZEIT = 0
 
 FORMAT = ""
-OUTPUT = ""
+OUTPUT = "-"
 TEXTFILE = ""
 JSONFILE = ""
 HTMLFILE = ""
@@ -457,9 +457,9 @@ def run(arg: str) -> None:
                 if "at task" in item:
                     item["at task"] = strName(item["at task"])
         formats = {"zeit": " %4.2f", "odoo": " %4.2f", "summe": " %4.2f"}
-        if not OUTPUT:
+        if OUTPUT in ["-", "CON"]:
             print(tabtotext.tabToFMT(FORMAT, results, formats=formats, legend=summary))
-        else:
+        elif OUTPUT:
             with open(OUTPUT, "w") as f:
                 f.write(tabtotext.tabToFMT(FORMAT, results, formats=formats, legend=summary))
             logg.log(DONE, " %s written   %s '%s'", FORMAT, editprog(), OUTPUT)
@@ -507,7 +507,7 @@ if __name__ == "__main__":
     cmdline.add_option("-z", "--onlyzeit", action="count", default=ONLYZEIT,
                        help="present only local zeit data [%default]")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
-    cmdline.add_option("-O", "--output", metavar="FILE", default=OUTPUT)
+    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect to filename")
     cmdline.add_option("-T", "--textfile", metavar="FILE", default=TEXTFILE)
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE)
     cmdline.add_option("-H", "--htmlfile", metavar="FILE", default=HTMLFILE)
