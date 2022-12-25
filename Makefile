@@ -13,6 +13,7 @@ ZEIT_PROG = zeit2json.py
 DATA_PROG = odoo2data.py
 ODOO_APIS = odoo_rest.py
 ODOO_MOCK = odoo_rest_mockup.py
+TRACKPROG = timetrack.py
 
 DAY_UTILS = dayrange.py
 DAY_TESTS = dayrange.tests.py
@@ -33,6 +34,7 @@ check:
 	$(MAKE) odoo
 	$(MAKE) zeit
 	$(MAKE) test
+	$(MAKE) track
 
 x tabt: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V
 x_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) $@ -v $V
@@ -51,6 +53,9 @@ z_%: ;    $(PYTHON3) $(ZEIT_PROG:.py=.tests.py) $@ -v $V
 
 t test: ; $(PYTHON3) $(MAIN_PROG:.py=.tests.py) -v $V
 t_%: ;    $(PYTHON3) $(MAIN_PROG:.py=.tests.py) $@ -v $V
+
+k track: ; $(PYTHON3) $(TRACKPROG:.py=.tests.py) -v $V
+k_%: ;     $(PYTHON3) $(TRACKPROG:.py=.tests.py) $@ -v $V
 
 ####################################################################################
 
@@ -154,7 +159,7 @@ type:
 	                 $(TAB_UTILS).type $(TAB_UTILS:.py=.tests.py).type \
 	                 $(NET_UTILS).type $(NET_UTILS:.py=.tests.py).type \
 	                 $(DAY_UTILS).type $(DAY_UTILS:.py=.tests.py).type \
-	                 timetrack.py.type
+	                 $(TRACKPROG).type $(TRACKPROG:.py=.tests.py).type 
 
 style pep8:
 	$(MAKE) $(PARALLEL) \
@@ -165,4 +170,4 @@ style pep8:
 	                 $(TAB_UTILS).pep8 $(TAB_UTILS:.py=.tests.py).pep8 \
 	                 $(NET_UTILS).pep8 $(NET_UTILS:.py=.tests.py).pep8 \
 	                 $(DAY_UTILS).pep8 $(DAY_UTILS:.py=.tests.py).pep8 \
-	                 timetrack.py.pep8
+	                 $(TRACKPROG).pep8 $(TRACKPROG:.py=.tests.py).pep8 

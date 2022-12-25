@@ -1,0 +1,57 @@
+#! /usr/bin/python3
+
+import timetrack as track
+from typing import Optional
+import datetime
+import unittest
+import tempfile
+import os.path as path
+import sys
+from configparser import ConfigParser
+from fnmatch import fnmatchcase as fnmatch
+import subprocess
+
+import logging
+logg = logging.getLogger("TEST")
+
+SCRIPT = "./timetrack.py"
+
+class timetrackTest(unittest.TestCase):
+    def setUp(self) -> None:
+        track.OUTPUT = ""
+    def default_conf(self) -> ConfigParser:
+        config = track.default_config()
+        conf = ConfigParser()
+        conf.read_string(config)
+        return conf
+    def test_100(self) -> None:
+        conf = self.default_conf()
+        track.run(conf, ["help"])
+
+if __name__ == "__main__":
+    # unittest.main()
+    from optparse import OptionParser
+    cmdline = OptionParser("%prog [t_]test...")
+    cmdline.add_option("-v", "--verbose", action="count", default=0)
+    opt, args = cmdline.parse_args()
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
+    track.logg.setLevel(max(0, logging.INFO - 10 * opt.verbose))
+    if not args:
+        args = ["test_*"]
+    suite = unittest.TestSuite()
+    for arg in args:
+        if len(arg) > 2 and arg[0].isalpha() and arg[1] == "_":
+            arg = "test_" + arg[2:]
+        for classname in sorted(globals()):
+            if not classname.endswith("Test"):
+                continue
+            testclass = globals()[classname]
+            for method in sorted(dir(testclass)):
+                if "*" not in arg: arg += "*"
+                if arg.startswith("_"): arg = arg[1:]
+                if fnmatch(method, arg):
+                    suite.addTest(testclass(method))
+    Runner = unittest.TextTestRunner
+    result = Runner(verbosity=opt.verbose).run(suite)
+    if not result.wasSuccessful():
+        sys.exit(1)
