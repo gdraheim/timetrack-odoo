@@ -28,7 +28,7 @@ URL = mock_url
 
 db_projlist = [mock_proj_1, mock_proj_2]
 db_tasklist = {mock_proj_1: [mock_task_1], mock_proj_2: [mock_task_2]}
-db_records : JSONList = []
+db_records: JSONList = []
 
 def reset() -> None:
     global DB, URL
@@ -120,12 +120,12 @@ class Odoo:
         task_id = self.task_id(proj_id, task)
         proj_name = self.proj_name(proj)
         task_name = self.task_name(proj_name, task)
-        record : JSONDict = {
-                  "proj_id": proj_id, "proj_name": proj_name,
-                  "task_id": task_id, "task_name": task_name,
-                  "user_id": mock_uid, "user_name": str(mock_uid),
-                  "entry_size": time, "entry_desc": desc,
-                  "entry_id": entry_id, "entry_date": date}
+        record: JSONDict = {
+            "proj_id": proj_id, "proj_name": proj_name,
+            "task_id": task_id, "task_name": task_name,
+            "user_id": mock_uid, "user_name": str(mock_uid),
+            "entry_size": time, "entry_desc": desc,
+            "entry_id": entry_id, "entry_date": date}
         db_records[entry_id] = record
         return True
     def timesheet_create(self, proj: ProjREF, task: TaskREF, date: Day, time: Num, desc: str) -> bool:
@@ -133,12 +133,12 @@ class Odoo:
         task_id = self.task_id(proj_id, task)
         proj_name = self.proj_name(proj)
         task_name = self.task_name(proj_name, task)
-        record : JSONDict = {
-                  "proj_id": proj_id, "proj_name": proj_name,
-                  "task_id": task_id, "task_name": task_name,
-                  "user_id": mock_uid, "user_name": str(mock_uid),
-                  "entry_size": time, "entry_desc": desc,
-                  "entry_id": len(db_records), "entry_date": date}
+        record: JSONDict = {
+            "proj_id": proj_id, "proj_name": proj_name,
+            "task_id": task_id, "task_name": task_name,
+            "user_id": mock_uid, "user_name": str(mock_uid),
+            "entry_size": time, "entry_desc": desc,
+            "entry_id": len(db_records), "entry_date": date}
         db_records.append(record)
         return True
     def timesheet_update(self, proj: ProjREF, task: TaskREF, date: Day, time: Num, desc: str) -> bool:

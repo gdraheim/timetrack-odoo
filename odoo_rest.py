@@ -443,7 +443,7 @@ class Odoo:
             for user in users:
                 if "user_email" not in user: continue
                 attr = cast(str, user["user_email"])
-                if attr.lower().strip().split("@",1)[0] == emailname:
+                if attr.lower().strip().split("@", 1)[0] == emailname:
                     uid = cast(UserID, user["user_id"])
         elif "@" in name:
             email = name.lower().strip()
@@ -453,18 +453,18 @@ class Odoo:
                 if attr.lower().strip() == email:
                     uid = cast(UserID, user["user_id"])
         elif "*" in name:
-            named = name.lower().strip().replace(" ",".")
+            named = name.lower().strip().replace(" ", ".")
             for user in users:
                 if "user_fullname" not in user: continue
                 attr = cast(str, user["user_fullname"])
-                if fnmatch(attr.lower().strip().replace(" ","."), named):
+                if fnmatch(attr.lower().strip().replace(" ", "."), named):
                     uid = cast(UserID, user["user_id"])
         else:
-            named = name.lower().strip().replace(" ",".")
+            named = name.lower().strip().replace(" ", ".")
             for user in users:
                 if "user_fullname" not in user: continue
                 attr = cast(str, user["user_fullname"])
-                if attr.lower().strip().replace(" ",".") == named:
+                if attr.lower().strip().replace(" ", ".") == named:
                     uid = cast(UserID, user["user_id"])
         return uid
     def databases(self) -> List[str]:
@@ -629,7 +629,7 @@ def run(arg: str) -> None:
         print(text)
 
 def reset() -> None:
-    pass # only defined in the mockup
+    pass  # only defined in the mockup
 
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -644,6 +644,6 @@ if __name__ == "__main__":
     ODOO_URL = opt.url
     ODOO_DB = opt.db
     if not args:
-        args = [ "projects" ]
+        args = ["projects"]
     for arg in args:
         run(arg)
