@@ -8,15 +8,11 @@ PYTHON3 = python3
 COVERAGE3 = $(PYTHON3) -m coverage
 TWINE = twine
 
-SCRIPT = zeit2odoo.py
-TESTSUITE = zeit2odoo.tests.py
-GENSCRIPT = zeit2json.py
-GEN_TESTS = zeit2json.tests.py
-DATSCRIPT = odoo2data.py
-DAT_TESTS = odoo2data.tests.py
-APISCRIPT = odoo_rest.py
-# API_TESTS = odoo_tests.tests.py
-API_TESTS = odoo_rest_mockup.py
+MAIN_PROG = zeit2odoo.py
+ZEIT_PROG = zeit2json.py
+DATA_PROG = odoo2data.py
+ODOO_APIS = odoo_rest.py
+ODOO_MOCK = odoo_rest_mockup.py
 
 DAY_UTILS = dayrange.py
 DAY_TESTS = dayrange.tests.py
@@ -38,35 +34,23 @@ check:
 	$(MAKE) zeit
 	$(MAKE) test
 
-x tabt:
-	$(PYTHON3) $(TAB_TESTS) -v $V
-x_%:
-	$(PYTHON3) $(TAB_TESTS) $@ -v $V
+x tabt: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V
+x_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) $@ -v $V
 
-n nett:
-	$(PYTHON3) $(NET_TESTS) -v $V
-n_%:
-	$(PYTHON3) $(NET_TESTS) $@ -v $V
+n nett: ; $(PYTHON3) $(NET_UTILS:.py=.tests.py) -v $V
+n_%: ;    $(PYTHON3) $(NET_UTILS:.py=.tests.py) $@ -v $V
 
-d dayt:
-	$(PYTHON3) $(DAY_TESTS) -v $V
-d_%:
-	$(PYTHON3) $(DAY_TESTS) $@ -v $V
+d dayt: ; $(PYTHON3) $(DAY_UTILS:.py=.tests.py) -v $V
+d_%: ;    $(PYTHON3) $(DAY_UTILS:.py=.tests.py) $@ -v $V
 
-o odoo:
-	$(PYTHON3) $(DAT_TESTS) -v $V
-o_%:
-	$(PYTHON3) $(DAT_TESTS) $@ -v $V
+o odoo: ; $(PYTHON3) $(DATA_PROG:.py=.tests.py) -v $V
+o_%: ;    $(PYTHON3) $(DATA_PROG:.py=.tests.py) $@ -v $V
 
-z zeit:
-	$(PYTHON3) $(GEN_TESTS) -v $V
-z_%:
-	$(PYTHON3) $(GEN_TESTS) $@ -v $V
+z zeit: ; $(PYTHON3) $(ZEIT_PROG:.py=.tests.py) -v $V
+z_%: ;    $(PYTHON3) $(ZEIT_PROG:.py=.tests.py) $@ -v $V
 
-t test:
-	$(PYTHON3) $(TESTSUITE) -v $V
-t_%:
-	$(PYTHON3) $(TESTSUITE) $@ -v $V
+t test: ; $(PYTHON3) $(MAIN_PROG:.py=.tests.py) -v $V
+t_%: ;    $(PYTHON3) $(MAIN_PROG:.py=.tests.py) $@ -v $V
 
 ####################################################################################
 
@@ -84,6 +68,8 @@ version:
 	-e "/^ *__copyright__/s/(C) [0123456789]* /(C) $$THISYEAR /" \
 	$$f; done; }
 	@ grep ^__version__ $(FILES)
+
+TESTSUITE = $(MAIN_PROG:.py=.tests.py)
 
 help:
 	$(PYTHON3) $(SCRIPT) --help
@@ -152,15 +138,6 @@ MYPY_STRICT = --strict --show-error-codes --show-error-context --no-warn-unused-
 AUTOPEP8=autopep8
 AUTOPEP8_INPLACE= --in-place
 
-type: 
-	$(MAKE) $(PARALLEL) $(SCRIPT).type $(TESTSUITE).type \
-	                 $(GENSCRIPT).type $(GEN_TESTS).type \
-	                 $(DATSCRIPT).type $(DAT_TESTS).type \
-	                 $(TAB_UTILS).type $(TAB_TESTS).type \
-	                 $(NET_UTILS).type $(NET_TESTS).type \
-	                 $(DAY_UTILS).type $(DAY_TESTS).type \
-	                 timetrack.py.type
-
 %.type:
 	$(MYPY) $(MYPY_STRICT) $(MYPY_OPTIONS) $(@:.type=)
 
@@ -168,11 +145,24 @@ type:
 	$(AUTOPEP8) $(AUTOPEP8_INPLACE) $(AUTOPEP8_OPTIONS) $(@:.pep8=)
 	git --no-pager diff $(@:.pep8=)
 
+type: 
+	$(MAKE) $(PARALLEL) \
+	                 $(ODOO_APIS).type $(ODOO_MOCK).type \
+	                 $(MAIN_PROG).type $(MAIN_PROG:.py=.tests.py).type \
+	                 $(ZEIT_PROG).type $(ZEIT_PROG:.py=.tests.py).type \
+	                 $(DATA_PROG).type $(DATA_PROG:.py=.tests.py).type \
+	                 $(TAB_UTILS).type $(TAB_UTILS:.py=.tests.py).type \
+	                 $(NET_UTILS).type $(NET_UTILS:.py=.tests.py).type \
+	                 $(DAY_UTILS).type $(DAY_UTILS:.py=.tests.py).type \
+	                 timetrack.py.type
+
 style pep8:
-	$(MAKE) $(PARALLEL) $(SCRIPT).pep8 $(TESTSUITE).pep8 \
-	                 $(GENSCRIPT).pep8 $(GEN_TESTS).pep8 \
-	                 $(DATSCRIPT).pep8 $(DAT_TESTS).pep8 \
-	                 $(TAB_UTILS).pep8 $(TAB_TESTS).pep8 \
-	                 $(NET_UTILS).pep8 $(NET_TESTS).pep8 \
-	                 $(DAY_UTILS).pep8 $(DAY_TESTS).pep8 \
+	$(MAKE) $(PARALLEL) \
+	                 $(ODOO_APIS).pep8 $(ODOO_MOCK).pep8 \
+	                 $(MAIN_PROG).pep8 $(MAIN_PROG:.py=.tests.py).pep8 \
+	                 $(ZEIT_PROG).pep8 $(ZEIT_PROG:.py=.tests.py).pep8 \
+	                 $(DATA_PROG).pep8 $(DATA_PROG:.py=.tests.py).pep8 \
+	                 $(TAB_UTILS).pep8 $(TAB_UTILS:.py=.tests.py).pep8 \
+	                 $(NET_UTILS).pep8 $(NET_UTILS:.py=.tests.py).pep8 \
+	                 $(DAY_UTILS).pep8 $(DAY_UTILS:.py=.tests.py).pep8 \
 	                 timetrack.py.pep8
