@@ -364,7 +364,7 @@ def each_show_zeit(name: str, config: ConfigParser) -> Iterable[JSONDict]:
 def show_user(name: str, config: ConfigParser) -> JSONList:
     return []
 
-def run(config: ConfigParser, args: List[str]) -> None:
+def run(config: ConfigParser, args: List[str]) -> JSONList:
     global DAYS
     verb = None
     summary: List[str] = []
@@ -388,7 +388,7 @@ def run(config: ConfigParser, args: List[str]) -> None:
                     if report_name:
                         print(f"{report_name} {report_call}")
             report_name = None
-            return
+            return [{"done": "help"}]
         if arg in ["conf", "config"]:
             found = default_config()
             print(found)
@@ -396,7 +396,7 @@ def run(config: ConfigParser, args: List[str]) -> None:
         if arg in ["with"]:
             if not args:
                 logg.error("missing argument for 'with'")
-                return
+                return [{"error": "missing argument"}]
             filename = args[0]
             args = args[1:]
             config2 = ConfigParser()
@@ -414,7 +414,7 @@ def run(config: ConfigParser, args: List[str]) -> None:
                     results = pull_object_types(config)
                 else:
                     logg.error("unknown verb %s", verb)
-                    return
+                    return [{"error": "unknown verb"}]
             continue
         ###########################################################
         if verb and not config.has_section(arg):
@@ -424,6 +424,7 @@ def run(config: ConfigParser, args: List[str]) -> None:
         typ = obj.get("type", "unknown")
         if typ in ["unknown"]:
             logg.error("untyped object %s - use 'config to check it", arg)
+            return [{"error": "untyped object"}]
         elif typ in ["zeit"]:
             user_name = obj.get("user", USER_NAME)
             file_spec = obj.get("filename")
@@ -435,7 +436,7 @@ def run(config: ConfigParser, args: List[str]) -> None:
                 results = show_zeit(arg, config=config)
             else:
                 logg.error("%s %s - not possible", verb, arg)
-                return
+                return [{"error": "not possible"}]
         elif typ in ["odoo"]:
             user_name = obj.get("user", USER_NAME)
             odoo_url = obj.get("url")
@@ -448,7 +449,7 @@ def run(config: ConfigParser, args: List[str]) -> None:
                 results = show_odoo(arg, config=config)
             else:
                 logg.error("%s %s - not possible", verb, arg)
-                return
+                return [{"error": "not possible"}]
         elif typ in ["jira"]:
             jira_conf = None  # odoo_api.OdooConfig()
             if verb in ["pull"]:
@@ -457,11 +458,12 @@ def run(config: ConfigParser, args: List[str]) -> None:
                 results = show_jira(arg, config=config)
             else:
                 logg.error("%s %s - not possible", verb, arg)
-                return
+                return [{"error": "not possible"}]
         elif typ in ["user", "users"]:
             show_user(arg, config=config)
         else:
             logg.error("unknown object type % for  %s - use 'config to check it", typ, arg)
+            return [{"error": "unknown object type"}]
     if results:
         formats = {"zeit": " %4.2f", "odoo": " %4.2f", "summe": " %4.2f"}
         if OUTPUT in ["-", "CON"]:
@@ -486,6 +488,7 @@ def run(config: ConfigParser, args: List[str]) -> None:
             import tabtoxlsx
             tabtoxlsx.saveToXLSX(XLSXFILE, results, headers)
             logg.log(DONE, " xlsx written   %s '%s'", xlsxprog(), XLSXFILE)
+    return results
 
 if __name__ == "__main__":
     from optparse import OptionParser

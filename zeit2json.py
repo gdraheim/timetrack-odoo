@@ -102,7 +102,7 @@ class ZeitConfig:
     username: Optional[str]
     site: Optional[str]
     def __init__(self, pathspec: Optional[str] = None, username: Optional[str] = None):
-        self.pathspec = pathspec or DEFAULT_FILENAME
+        self.pathspec = pathspec or ""
         self.username = username
     def for_user(self, user: str) -> "ZeitConfig":
         self.username = user

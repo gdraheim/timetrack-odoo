@@ -24,9 +24,37 @@ class timetrackTest(unittest.TestCase):
         conf = ConfigParser()
         conf.read_string(config)
         return conf
+    def conf1(self) -> ConfigParser:
+        config = """[odoo]
+        type = odoo
+        url = https://example.com
+        db  = testdb"""
+        conf = ConfigParser()
+        conf.read_string(config)
+        return conf
     def test_100(self) -> None:
         conf = self.default_conf()
-        track.run(conf, ["help"])
+        data = track.run(conf, ["help"])
+        logg.info("data %s", data)
+        want = [{"done": "help"}]
+        self.assertEqual(want, data)
+    def test_101(self) -> None:
+        data = track.run(self.conf1(), ["help"])
+        logg.info("data %s", data)
+        want = [{"done": "help"}]
+        self.assertEqual(want, data)
+    def test_102(self) -> None:
+        conf = self.default_conf()
+        data = track.run(self.conf1(), ["get"])
+        logg.info("data %s", data)
+        types = [item["type"] for item in data]
+        want = ["jira", "odoo","odoo", "proxy", "user", "zeit"]
+        self.assertEqual(want, sorted(types))
+    def test_103(self) -> None:
+        data = track.run(self.conf1(), ["get", "odoo"])
+        logg.info("data %s", data)
+        want = [{'db': 'testdb', 'name': 'odoo', 'type': 'odoo', 'url': 'https://example.com'}]
+        self.assertEqual(want, data)
 
 if __name__ == "__main__":
     # unittest.main()

@@ -19,7 +19,7 @@ symbolic_dayrange = [
     "month", "thismonth", "this-month", "nextmonth", "next-month", "lastmonth", "last-month",
     "months", "lastmonths", "last-months", "beforelastmonth", "blastmonth", "blast-month", "before-last-month",
     "this", "last", "late", "latest", "blast", "beforelast", "before-last", "b4last",
-    "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12",
+    "M00", "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12",
     "M01-M02", "M02-M03", "M03-M04", "M04-M05", "M05-M06", "M06-M07", "M07-M08", "M08-M09", "M09-M10", "M10-M11", "M11-M12",
     "M01-M03", "M02-M04", "M03-M05", "M04-M06", "M05-M07", "M06-M08", "M07-M09", "M08-M10", "M09-M11", "M10-M12",
     "year", "thisyear"]
@@ -66,7 +66,7 @@ def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
         after = firstday_of_month(-2)
         before = lastday_of_month(-2)
         return (after, before)
-    if arg in ["M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12"]:
+    if arg in ["M00", "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12"]:
         after = firstday_of_month_name(arg)
         before = lastday_of_month_name(arg)
         return (after, before)
@@ -206,7 +206,10 @@ def first_of_month_name(name: str) -> str:
         month = monthnames.index(name)
     else:
         month = today.month
-    if month > today.month:
+    if month == 0:
+        year -= 1
+        month = 12
+    elif month > today.month + 6:
         year -= 1
     return f"01.{month}.{year}"
 
@@ -221,7 +224,10 @@ def last_of_month_name(name: str) -> str:
         month = monthnames.index(name)
     else:
         month = today.month
-    if month > today.month:
+    if month == 0:
+        year -= 1
+        month = 12
+    elif month > today.month + 6:
         year -= 1
     return f"99.{month}.{year}"
 
