@@ -30,12 +30,13 @@ class zeit2jsonTest(unittest.TestCase):
         logg.error("could not find sunday before %s", today)
         return today
     def test_101(self) -> None:
+        on_day = Date(2022, 1, 1)
         data = zeit.scan_data("""
         >> dev1 [Development]
         >> dev1 "project1"
         so **** WEEK 02.01.2022-09.01.
         so 1:15 dev1 started
-        """.splitlines())
+        """.splitlines(), on_day)
         logg.debug("data = %s", data)
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["Date"], Date(2022, 1, 2))
