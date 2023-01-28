@@ -10,6 +10,8 @@ Day = datetime.date
 
 logg = logging.getLogger("dayrange")
 
+FUTURE = 3  # months (otherwise assume date is for last year)
+
 class DayrangeException(Exception):
     pass
 
@@ -207,10 +209,10 @@ def first_of_month_name(name: str) -> str:
     else:
         month = today.month
     if month == 0:
-        year -= 1
+        year -= 1  # M00 case
         month = 12
-    elif month > today.month + 6:
-        year -= 1
+    elif month > today.month + FUTURE:
+        year -= 1  # assume last year
     return f"01.{month}.{year}"
 
 def lastday_of_month_name(name: str) -> Day:
@@ -225,10 +227,10 @@ def last_of_month_name(name: str) -> str:
     else:
         month = today.month
     if month == 0:
-        year -= 1
+        year -= 1  # M00 case
         month = 12
-    elif month > today.month + 6:
-        year -= 1
+    elif month > today.month + FUTURE:
+        year -= 1  # assume last year
     return f"99.{month}.{year}"
 
 #########################################################
