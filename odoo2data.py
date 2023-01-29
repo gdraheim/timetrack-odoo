@@ -122,10 +122,59 @@ def get_price_vat() -> float:
     else:
         return PRICEVAT
 
-def odoo_users() -> JSONList:
+def odoo_all_users() -> JSONList:
     odoo = odoo_api.Odoo()
-    users = odoo.users()
-    return users
+    data = odoo.users()
+    return data
+
+def odoo_all_projects() -> JSONList:
+    odoo = odoo_api.Odoo()
+    data = odoo.projects()
+    return data
+
+def odoo_all_projects_tasks() -> JSONList:
+    odoo = odoo_api.Odoo()
+    data = odoo.projects_tasks()
+    return data
+
+def odoo_users() -> JSONList:
+    return list(each_odoo_users())
+def each_odoo_users() -> JSONList:
+    for item in odoo_all_users():
+        name = item["user_email"].lower() + "|" + item["user_fullname"].lower()
+        if ODOO_PROJONLY:
+            pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
+            if not fnmatches(name, pattern): continue
+        if ODOO_PROJSKIP:
+            skipping = (f"*{ODOO_PROJSKIP}*" if ODOO_PROJSKIP.isalnum() else f"{ODOO_PROJSKIP}").lower()
+            if fnmatches(name, skipping): continue
+        yield item
+
+def odoo_projects() -> JSONList:
+    return list(each_odoo_projects())
+def each_odoo_projects() -> JSONList:
+    for item in odoo_all_projects():
+        name = item["proj_name"].lower()
+        if ODOO_PROJONLY:
+            pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
+            if not fnmatches(name, pattern): continue
+        if ODOO_PROJSKIP:
+            skipping = (f"*{ODOO_PROJSKIP}*" if ODOO_PROJSKIP.isalnum() else f"{ODOO_PROJSKIP}").lower()
+            if fnmatches(name, skipping): continue
+        yield item
+
+def odoo_projects_tasks() -> JSONList:
+    return list(each_odoo_projects_tasks())
+def each_odoo_projects_tasks() -> JSONList:
+    for item in odoo_all_projects_tasks():
+        name = item["proj_name"].lower()
+        if ODOO_PROJONLY:
+            pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
+            if not fnmatches(name, pattern): continue
+        if ODOO_PROJSKIP:
+            skipping = (f"*{ODOO_PROJSKIP}*" if ODOO_PROJSKIP.isalnum() else f"{ODOO_PROJSKIP}").lower()
+            if fnmatches(name, skipping): continue
+        yield item
 
 def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
@@ -174,9 +223,11 @@ def _summary_per_project_task(odoodata: JSONList) -> JSONList:
         odoo_size: Num = cast(Num, item["entry_size"])
         odoo_key = (proj_name, task_name)
         if ODOO_PROJONLY:
-            if not fnmatches(proj_name, ODOO_PROJONLY): continue
+            pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
+            if not fnmatches(proj_name, pattern): continue
         if ODOO_PROJSKIP:
-            if fnmatches(proj_name, ODOO_PROJSKIP): continue
+            skipping = (f"*{ODOO_PROJSKIP}*" if ODOO_PROJSKIP.isalnum() else f"{ODOO_PROJSKIP}").lower()
+            if fnmatches(proj_name, skipping): continue
         if odoo_key not in sumdata:
             sumdata[odoo_key] = {"at proj": proj_name, "at task": task_name, "odoo": 0}
         sumdata[odoo_key]["odoo"] += odoo_size  # type: ignore
@@ -264,9 +315,11 @@ def _monthly_per_project_task(odoodata: JSONList) -> JSONList:
         odoo_month = "M%02i" % odoo_date.month
         odoo_key = (odoo_month, proj_name, task_name)
         if ODOO_PROJONLY:
-            if not fnmatches(proj_name, ODOO_PROJONLY): continue
+            pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
+            if not fnmatches(proj_name, pattern): continue
         if ODOO_PROJSKIP:
-            if fnmatches(proj_name, ODOO_PROJSKIP): continue
+            skipping = (f"*{ODOO_PROJSKIP}*" if ODOO_PROJSKIP.isalnum() else f"{ODOO_PROJSKIP}").lower()
+            if fnmatches(proj_name, skipping): continue
         if odoo_key not in sumdata:
             sumdata[odoo_key] = {"am": odoo_month, "at proj": proj_name, "at task": task_name, "odoo": 0, "zeit": 0}
         sumdata[odoo_key]["odoo"] += odoo_size  # type: ignore
@@ -336,11 +389,17 @@ def run(arg: str) -> None:
     data: Optional[JSONList] = None
     summary = []
     results: JSONList = []
+    formats = {"odoo": " %4.2f", "summe": " %4.2f"}
     if ONLYZEIT:
         import zeit2json
         data = json2odoo(zeit2json.read_zeit(DAYS.after, DAYS.before))
-    if arg in ["users"]:
+    if arg in ["ou", "odoo-users", "users"]:
         results = odoo_users()
+    elif arg in ["op", "odoo-projects", "projects"]:
+        results = odoo_projects()
+    elif arg in ["oo", "opt", "odoo-projects-tasks", "projects-tasks"]:
+        results = odoo_projects_tasks()
+        formats["task_name"] = '"{:}"'
     elif arg in ["ww", "data", "worked"]:
         results = work_data(data)
         if results and not SHORTNAME:
@@ -403,8 +462,7 @@ def run(arg: str) -> None:
                 price_vat = get_price_vat()
                 results.append({"satz": price_vat, "summe": round(summe * price_vat, 2)})
                 results.append({"summe": summe + round(summe * price_vat, 2)})
-        formats = {"odoo": " %4.2f", "summe": " %4.2f"}
-        if OUTPUT in ["-", "CON"]:
+        if OUTPUT in ["", "-", "CON"]:
             print(tabtotext.tabToFMT(FORMAT, results, formats=formats, legend=summary))
         elif OUTPUT:
             with open(OUTPUT, "w") as f:

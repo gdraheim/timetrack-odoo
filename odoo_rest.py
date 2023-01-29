@@ -369,7 +369,6 @@ def odoo_get_users(url: str, cookies: Cookies) -> JSONList:
         return []
     return response.json()['result']['records']  # type: ignore
 
-
 # https://www.odoo.com/documentation/10.0/api_integration.html
 # search / search_read / search_count
 # fields_get
