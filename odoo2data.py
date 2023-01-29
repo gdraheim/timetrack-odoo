@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from typing import Optional, Union, Dict, List, Tuple, cast, Generator
+from typing import Optional, Union, Dict, List, Tuple, cast, Iterable
 
 import logging
 import re
@@ -139,9 +139,9 @@ def odoo_all_projects_tasks() -> JSONList:
 
 def odoo_users() -> JSONList:
     return list(each_odoo_users())
-def each_odoo_users() -> JSONList:
+def each_odoo_users() -> Iterable[JSONDict]:
     for item in odoo_all_users():
-        name = item["user_email"].lower() + "|" + item["user_fullname"].lower()
+        name = cast(str, item["user_email"]).lower() + "|" + cast(str, item["user_fullname"]).lower()
         if ODOO_PROJONLY:
             pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
             if not fnmatches(name, pattern): continue
@@ -152,9 +152,9 @@ def each_odoo_users() -> JSONList:
 
 def odoo_projects() -> JSONList:
     return list(each_odoo_projects())
-def each_odoo_projects() -> JSONList:
+def each_odoo_projects() -> Iterable[JSONDict]:
     for item in odoo_all_projects():
-        name = item["proj_name"].lower()
+        name = cast(str, item["proj_name"]).lower()
         if ODOO_PROJONLY:
             pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
             if not fnmatches(name, pattern): continue
@@ -165,9 +165,9 @@ def each_odoo_projects() -> JSONList:
 
 def odoo_projects_tasks() -> JSONList:
     return list(each_odoo_projects_tasks())
-def each_odoo_projects_tasks() -> JSONList:
+def each_odoo_projects_tasks() -> Iterable[JSONDict]:
     for item in odoo_all_projects_tasks():
-        name = item["proj_name"].lower()
+        name = cast(str, item["proj_name"]).lower()
         if ODOO_PROJONLY:
             pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
             if not fnmatches(name, pattern): continue
@@ -182,7 +182,7 @@ def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     # return list(odoodata)
     return list(_work_data(odoodata))
-def _work_data(odoodata: JSONList) -> Generator[JSONDict, None, None]:
+def _work_data(odoodata: JSONList) -> Iterable[JSONDict]:
     for item in odoodata:
         proj_name: str = cast(str, item["proj_name"])
         task_name: str = cast(str, item["task_name"])
@@ -356,7 +356,7 @@ def _summary_per_topic(odoodata: JSONList) -> JSONList:
 
 def json2odoo(data: JSONList) -> JSONList:
     return list(_json2odoo(data))
-def _json2odoo(data: JSONList) -> Generator[JSONDict, None, None]:
+def _json2odoo(data: JSONList) -> Iterable[JSONDict]:
     for item in data:
         info: JSONDict = {}
         info["proj_name"] = item["Project"]
