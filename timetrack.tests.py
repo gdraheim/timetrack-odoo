@@ -48,7 +48,7 @@ class timetrackTest(unittest.TestCase):
         data = track.run(self.conf1(), ["get"])
         logg.info("data %s", data)
         types = [item["type"] for item in data]
-        want = ["jira", "odoo","odoo", "proxy", "user", "zeit"]
+        want = ["jira", "odoo", "odoo", "proxy", "user", "zeit"]
         self.assertEqual(want, sorted(types))
     def test_103(self) -> None:
         data = track.run(self.conf1(), ["get", "odoo"])
