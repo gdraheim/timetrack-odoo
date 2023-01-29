@@ -237,7 +237,7 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
                     continue
                 logg.error("?? %s", line)
                 continue
-            day, time, proj, desc = m.groups()
+            day, time, topic, desc = m.groups()
             if time.startswith("("):
                 logg.debug("??: %s", line)
                 continue
@@ -249,14 +249,14 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
             weekdays = ["so", "mo"]
             # old-style "** **** WEEK ..."
             if day.strip() in ["**"]:
-                if proj.strip() not in ["WEEK"]:
-                    logg.error("could not check *** %s", proj)
+                if topic.strip() not in ["WEEK"]:
+                    logg.error("could not check *** %s", topic)
                     continue
                 weekdesc = desc
                 logg.debug("found weekdesc %s", weekdesc)
             elif time.strip() in ["**", "***", "****", "*****", "******", "*******"]:
-                if proj.strip() not in ["WEEK"]:
-                    logg.error("could not check *** %s", proj)
+                if topic.strip() not in ["WEEK"]:
+                    logg.error("could not check *** %s", topic)
                     continue
                 weekdesc = desc
                 weekdays = [day]
@@ -359,13 +359,18 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
                 logg.debug("daydate %s is after %s", daydate, on_or_before)
                 continue
             if True:
-                prefix = proj
+                prefix = topic
                 if desc.strip().startswith(":"):
-                    desc = proj
-                elif proj[-1] not in "0123456789" and len(proj) > 4:
-                    prefix = proj
-                elif proj in prefixed:
-                    prefix = prefixed[proj]
+                    desc = topic
+                elif topic[-1] not in "0123456789" and len(topic) > 4:
+                    prefix = topic
+                elif topic in prefixed:
+                    prefix = prefixed[topic]
+                proj = topic
+                if proj not in projects and proj[-1] in "0123456789" and proj[:-1] in projects:
+                    proj = proj[:-1]
+                if proj not in projects and '-' in proj and proj[:proj.index('-')] in projects:
+                    proj = proj[:proj.index('-')]
                 itemDate = daydate
                 itemTime = time2float(time)
                 itemDesc = prefix + " " + cleandesc(desc)
@@ -383,7 +388,7 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
                 # idx = proj_ids[proj]
                 datex = int(daydate.strftime("%y%m%d"))
                 # year = daydate.strftime("%y")
-                itemID = "%s%s" % (datex, proj)
+                itemID = "%s%s" % (datex, topic)
                 item: JSONDict = {}
                 item[TitleID] = itemID
                 item[TitleDate] = itemDate
