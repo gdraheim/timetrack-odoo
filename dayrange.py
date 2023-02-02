@@ -38,11 +38,17 @@ def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
         return (after, before)
     if arg in ["lastweek", "last-week", "latest"]:  # e.g. "run latest sync"
         after = last_sunday(-6)
-        before = next_sunday(-6)
+        before = next_sunday(-1)
+        today = Day.today()
+        if today > before:
+           before = today
         return (after, before)
     if arg in ["lastweeks", "last-weeks", "late"]:  # e.g. "run late sync"
-        after = last_sunday(-6)
+        after = last_sunday(-13)
         before = next_sunday(-1)
+        today = Day.today()
+        if today > before:
+           before = today
         return (after, before)
     if arg in ["nextweek", "next-week", "next"]:  # e.g. "run next sync"
         after = last_sunday(+7)
