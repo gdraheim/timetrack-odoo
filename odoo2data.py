@@ -143,11 +143,9 @@ def each_odoo_users() -> Iterable[JSONDict]:
     for item in odoo_all_users():
         name = cast(str, item["user_email"]).lower() + "|" + cast(str, item["user_fullname"]).lower()
         if ODOO_PROJONLY:
-            pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
-            if not fnmatches(name, pattern): continue
+            if not fnmatches(name, ODOO_PROJONLY): continue
         if ODOO_PROJSKIP:
-            skipping = (f"*{ODOO_PROJSKIP}*" if ODOO_PROJSKIP.isalnum() else f"{ODOO_PROJSKIP}").lower()
-            if fnmatches(name, skipping): continue
+            if fnmatches(name, ODOO_PROJSKIP): continue
         yield item
 
 def odoo_projects() -> JSONList:
@@ -156,11 +154,9 @@ def each_odoo_projects() -> Iterable[JSONDict]:
     for item in odoo_all_projects():
         name = cast(str, item["proj_name"]).lower()
         if ODOO_PROJONLY:
-            pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
-            if not fnmatches(name, pattern): continue
+            if not fnmatches(name, ODOO_PROJONLY): continue
         if ODOO_PROJSKIP:
-            skipping = (f"*{ODOO_PROJSKIP}*" if ODOO_PROJSKIP.isalnum() else f"{ODOO_PROJSKIP}").lower()
-            if fnmatches(name, skipping): continue
+            if fnmatches(name, ODOO_PROJSKIP): continue
         yield item
 
 def odoo_projects_tasks() -> JSONList:
@@ -169,11 +165,9 @@ def each_odoo_projects_tasks() -> Iterable[JSONDict]:
     for item in odoo_all_projects_tasks():
         name = cast(str, item["proj_name"]).lower()
         if ODOO_PROJONLY:
-            pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
-            if not fnmatches(name, pattern): continue
+            if not fnmatches(name, ODOO_PROJONLY): continue
         if ODOO_PROJSKIP:
-            skipping = (f"*{ODOO_PROJSKIP}*" if ODOO_PROJSKIP.isalnum() else f"{ODOO_PROJSKIP}").lower()
-            if fnmatches(name, skipping): continue
+            if fnmatches(name, ODOO_PROJSKIP): continue
         yield item
 
 def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
@@ -223,11 +217,9 @@ def _summary_per_project_task(odoodata: JSONList) -> JSONList:
         odoo_size: Num = cast(Num, item["entry_size"])
         odoo_key = (proj_name, task_name)
         if ODOO_PROJONLY:
-            pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
-            if not fnmatches(proj_name, pattern): continue
+            if not fnmatches(proj_name, ODOO_PROJONLY): continue
         if ODOO_PROJSKIP:
-            skipping = (f"*{ODOO_PROJSKIP}*" if ODOO_PROJSKIP.isalnum() else f"{ODOO_PROJSKIP}").lower()
-            if fnmatches(proj_name, skipping): continue
+            if fnmatches(proj_name, ODOO_PROJSKIP): continue
         if odoo_key not in sumdata:
             sumdata[odoo_key] = {"at proj": proj_name, "at task": task_name, "odoo": 0}
         sumdata[odoo_key]["odoo"] += odoo_size  # type: ignore
@@ -315,11 +307,9 @@ def _monthly_per_project_task(odoodata: JSONList) -> JSONList:
         odoo_month = "M%02i" % odoo_date.month
         odoo_key = (odoo_month, proj_name, task_name)
         if ODOO_PROJONLY:
-            pattern = (f"*{ODOO_PROJONLY}*" if ODOO_PROJONLY.isalnum() else f"{ODOO_PROJONLY}").lower()
-            if not fnmatches(proj_name, pattern): continue
+            if not fnmatches(proj_name, ODOO_PROJONLY): continue
         if ODOO_PROJSKIP:
-            skipping = (f"*{ODOO_PROJSKIP}*" if ODOO_PROJSKIP.isalnum() else f"{ODOO_PROJSKIP}").lower()
-            if fnmatches(proj_name, skipping): continue
+            if fnmatches(proj_name, ODOO_PROJSKIP): continue
         if odoo_key not in sumdata:
             sumdata[odoo_key] = {"am": odoo_month, "at proj": proj_name, "at task": task_name, "odoo": 0, "zeit": 0}
         sumdata[odoo_key]["odoo"] += odoo_size  # type: ignore
@@ -327,8 +317,12 @@ def _monthly_per_project_task(odoodata: JSONList) -> JSONList:
 
 def fnmatches(text: str, pattern: str) -> bool:
     for pat in pattern.split("|"):
-        if fnmatch(text, pat + "*"):
-            return True
+        if pat.isalnum() and pat.islower():
+            if fnmatch(text.lower(), f"*{pat}*"):
+                return True
+        else:
+            if fnmatch(text, pat + "*"):
+                return True
     return False
 
 def pref_desc(desc: str) -> str:
