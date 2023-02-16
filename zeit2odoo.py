@@ -362,8 +362,11 @@ def pref_desc(desc: str) -> str:
 
 def summary_per_topic(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
-        odoo = odoo_api.Odoo()
-        return _summary_per_topic(data, odoo.timesheet(DAYS.after, DAYS.before))
+        if ONLYZEIT:
+            odoodata = []
+        else:
+            odoo = odoo_api.Odoo()
+            odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _summary_per_topic(data, odoodata)
 def _summary_per_topic(data: JSONList, odoodata: JSONList) -> JSONList:
     sumdata: Dict[str, JSONDict] = {}
