@@ -38,7 +38,7 @@ topic-shorthand does not include numbers then it always the prefix.
 The zeit records are given per week. Each week is introduced with "**" where the
 first date is the references for the following timesheet notes given by weekday.
 You can choose whether to have that base date starting a week on sunday or monday.
-The weekdays are given in German by default (sorry for that).
+The weekdays can be given in the German or English two-letter abbreviation.
 
     so **** WEEK 02.01.-09.01.
     so 2:45 PM4 tech session

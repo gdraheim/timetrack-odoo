@@ -80,11 +80,11 @@ need to be at the start of file, just have them before using the
 topic in a timesheet entry.
 
 The timesheet entries start with the weekday. The weekdays are in
-German mo (monday), di (tuesday), mi (wednesday), do (thursday),
-fr (friday), sa (saturday), so (sunday). This comes from the habit
-to add missing entries at the end of the week. You don't need to
-know the exact calendar date - it is computed as the offset of the
-weekday from the `WEEK` specification before it.
+German or English, ie. mo (monday), di/tu (tuesday), mi/we (wednesday), 
+do/th (thursday), fr (friday), sa (saturday), so/su (sunday). This comes 
+from the habit to add missing entries at the end of the week. You don't 
+need to know the exact calendar date - it is computed as the offset of 
+the weekday from the `WEEK` specification before it.
 
 The `WEEK` specification requires a date following this special
 word. The second date after it is ignored but I tend to write
