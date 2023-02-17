@@ -39,35 +39,34 @@ import os.path as _path
 import stat
 import re
 import codecs
+from collections import OrderedDict
 from urllib.parse import urlparse as _urlparse
 from fnmatch import fnmatchcase as _fnmatch
-from configparser import RawConfigParser
-from collections import OrderedDict
 
 netrc_logg = logging.getLogger("NETRC")
+HINT = (logging.DEBUG + logging.INFO) // 2
+logging.addLevelName(HINT, "HINT")
 
 NETRC_USERNAME = ""
 NETRC_PASSWORD = ""
 NETRC_CLEARTEXT = False
 
-NETRC_OVERRIDE: Dict[str, Tuple[str, str]] = {}
+NETRC_OVERRIDE: Dict[str, Tuple[str, str]] = OrderedDict()
 NET_CREDENTIALS = "~/.net-credentials"
 GIT_CREDENTIALS = "~/.git-credentials"
 NETRC_FILENAME = "~/.netrc"
 NETRC_FILENAMES = [GIT_CREDENTIALS, NETRC_FILENAME]
 
-GIT_CONFIG = "~/.gitconfig"
-
 def _target(url: str) -> str:
     if "://" not in url:
         url = f"https://{url}"
     machine = _urlparse(url)
+    port = ""
+    if machine.port and machine.port not in [80, 443]:
+        port = f":{machine.port}"
     if machine.path:
-        return f"{machine.hostname}/{machine.path}".replace("//", "/")
-    return f"{machine.hostname}"
-def _targethost(url: str) -> str:
-    machine = _urlparse(url)
-    return f"{machine.hostname}"
+        return f"{machine.hostname}{port}/{machine.path}".replace("//", "/")
+    return f"{machine.hostname}{port}"
 
 def _encode64(text: str) -> str:
     """ echo -n pw | base64 """
@@ -119,6 +118,10 @@ def add_username_password(username: str, password: str, url: str) -> Tuple[str, 
     return (username, password)
 
 def get_username_password(url: str = "") -> Tuple[str, str]:
+    credentials = CredentialsStore()
+    auth = credentials.lookup(url)
+    if auth is not None:
+        return auth
     for filename in reversed(get_password_filenames()):
         credentials = Credentials(filename)
         auth = credentials.lookup(url)
@@ -129,15 +132,19 @@ def get_username_password(url: str = "") -> Tuple[str, str]:
 def get_username(url: str = "") -> str:
     return get_username_password(url)[0]
 
-class Credentials:
-    """ lookup for a single credentials store. The default() value can be provided as well. """
-    def __init__(self, filename: str,  #
-                 username: Optional[str] = None, password: Optional[str] = None, override: Dict[str, Tuple[str, str]] = {}):
-        self.FILENAME = filename
+class CredentialsStore:
+    def __init__(self, username: Optional[str] = None, password: Optional[str] = None, override: Optional[Dict[str, Tuple[str, str]]] = None):
         self.USERNAME = username or NETRC_USERNAME
         self.PASSWORD = password or NETRC_PASSWORD
-        self.OVERRIDE = override or NETRC_OVERRIDE.copy()
-    def set(self, username: str, password: str) -> 'Credentials':
+        self.OVERRIDE = OrderedDict()
+        if override is not None:
+            for key, val in override.items():
+                self.OVERRIDE[key] = val
+        else:
+            for key, val in NETRC_OVERRIDE.items():
+                self.OVERRIDE[key] = val
+        self.USEOVERRIDES = True
+    def set(self, username: str, password: str) -> 'CredentialsStore':
         if ":" in username:
             self.PASSWORD = username.split(':', 1)[1]
             self.USERNAME = username.split(':', 1)[0]
@@ -145,7 +152,7 @@ class Credentials:
             self.USERNAME = username
             self.PASSWORD = password
         return self
-    def add(self, username: str, password: str, url: str) -> 'Credentials':
+    def add(self, username: str, password: str, url: str) -> 'CredentialsStore':
         if not url:
             return self.set(username, password)
         if ":" in username:
@@ -168,10 +175,32 @@ class Credentials:
             netrc_logg.warning("no password given and not configured in ~/.netrc")
         return self.username(), self.PASSWORD
     def lookup(self, url: str = "") -> Optional[Tuple[str, str]]:
-        target = _target(url)
-        if target in self.OVERRIDE:
-            return self.OVERRIDE[target]
-        return self.search(target)
+        return self.search(_target(url))
+    def search(self, target: str) -> Optional[Tuple[str, str]]:
+        matches: Dict[str, Tuple[str, str]] = {}
+        for machine in self.OVERRIDE:
+            # netrc_logg.debug("target %s override %s", target, machine)
+            if _fnmatch(target, machine) or _fnmatch(target, machine + "/*"):
+                matches[machine] = self.OVERRIDE[machine]
+        if matches:
+            best = ""
+            for match in matches:
+                if len(match) >= len(best):
+                    best = match
+            username, password = matches[best]
+            netrc_logg.log(HINT, "using %s from %s override machine %s",  #
+                           str_username_password(username, password), len(matches), best)
+            return username, password
+        return None
+
+class Credentials(CredentialsStore):
+    """ lookup for a single credentials store. The default() value can be provided as well. """
+    def __init__(self, filename: str,  #
+                 username: Optional[str] = None, password: Optional[str] = None, override: Optional[Dict[str, Tuple[str, str]]] = None):
+        CredentialsStore.__init__(self, username, password, override)
+        self.FILENAME = filename
+    def lookup(self, url: str = "") -> Optional[Tuple[str, str]]:
+        return self.search(_target(url))
     def search(self, target: str) -> Optional[Tuple[str, str]]:
         return self._search(target, self.FILENAME)
     def _search(self, target: str, filename: str) -> Optional[Tuple[str, str]]:
@@ -225,7 +254,7 @@ class Credentials:
                         aliased = (alias.group(3) or "").strip()
                         encoding = (alias.group(2) or "").strip()
                         password = ""
-                    else:
+                    elif block.strip():  # not empty
                         netrc_logg.debug("invalid machine block: %s", block)
                     block = ""
                 if line.strip().startswith("machine"):
@@ -254,6 +283,12 @@ class Credentials:
                             netrc_logg.debug("skipped %s for %s: %s", machine, target, e)
                     else:
                         netrc_logg.debug("skipped %s for %s", machine, target)
+            if self.USEOVERRIDES:
+                for machine in self.OVERRIDE:
+                    # netrc_logg.debug("target %s override %s", target, machine)
+                    if _fnmatch(target, machine) or _fnmatch(target, machine + "/*"):
+                        username, password = self.OVERRIDE[machine]
+                        matches[machine] = (username, password, "")
             if matches:
                 best = ""
                 for match in matches:
@@ -262,8 +297,8 @@ class Credentials:
                 username, password, aliased = matches[best]
                 if aliased:
                     return self._search(aliased, filename)
-                netrc_logg.debug("using %s from %s netrc machine %s",  #
-                                 str_username_password(username, password), len(matches), best)
+                netrc_logg.log(HINT, "using %s from %s netrc machine %s",  #
+                               str_username_password(username, password), len(matches), best)
                 return username, password
         else:
             netrc_logg.debug("no such files: %s", netrc)
@@ -311,7 +346,7 @@ def store_username_password(url: str, username: str, password: str) -> str:
         with open(filename) as f:
             for line in f:
                 if _fnmatch(line, matching0) or _fnmatch(line, matching1):
-                    continue  # delete
+                    continue # delete
                 lines.append(line.rstrip())
     with open(filename, "w") as f:
         password46 = _encode46(password)
@@ -332,7 +367,7 @@ def erase_username_password(url: str) -> str:
         with open(filename) as f:
             for line in f:
                 if _fnmatch(line, matching0) or _fnmatch(line, matching1):
-                    continue  # delete
+                    continue # delete
                 lines.append(line.rstrip())
     with open(filename, "w") as f:
         for line in lines:
@@ -347,21 +382,30 @@ if __name__ == "__main__":
     o.add_option("-v", "--verbose", action="count", default=0)
     o.add_option("-u", "--username", metavar="NAME", default=NETRC_USERNAME)
     o.add_option("-p", "--password", metavar="PASS", default=NETRC_PASSWORD)
+    o.add_option("-f", "--fromcredentials", metavar="FILE", default="")
     o.add_option("-N", "--netcredentials", metavar="FILE", default=NET_CREDENTIALS)
     o.add_option("-g", "--gitcredentials", metavar="FILE", default=GIT_CREDENTIALS)
     o.add_option("-G", "--extracredentials", metavar="FILE", default=NETRC_FILENAME)
     o.add_option("-e", "--extrafile", metavar="NAME", default="")
     o.add_option("-y", "--cleartext", action="store_true", default=NETRC_CLEARTEXT)
+    o.add_option("--as-ac", action="store_true")
+    o.add_option("--as-up", action="store_true")
     opt, args = o.parse_args()
     logging.basicConfig(level=logging.WARNING - 10 * opt.verbose)
-    GIT_CREDENTIALS = opt.gitcredentials
-    NET_CREDENTIALS = opt.netcredentials
-    net_password_filename(opt.netcredentials)
-    set_password_filename(opt.gitcredentials)
+    if opt.fromcredentials:
+        NET_CREDENTIALS = opt.fromcredentials
+        net_password_filename(opt.fromcredentials)
+    else:
+        GIT_CREDENTIALS = opt.gitcredentials
+        NET_CREDENTIALS = opt.netcredentials
+        net_password_filename(opt.netcredentials)
+        set_password_filename(opt.gitcredentials)
     add_password_filename(opt.extracredentials)
     NETRC_USERNAME = opt.username
     NETRC_PASSWORD = opt.password
     NETRC_CLEARTEXT = opt.cleartext
+    NET_AS_AC = opt.as_ac
+    NET_AS_UP = opt.as_up
     if not args:
         args = ["help"]
     cmd = args[0]
@@ -372,10 +416,15 @@ if __name__ == "__main__":
         if not uselogin: sys.exit(1)
         hostpath = _target(args[1]).split("/", 1) + [""]
         # printing in the style of https://git-scm.com/docs/git-credential
-        if hostpath[0]: print("host=" + hostpath[0])
-        if hostpath[1]: print("path=" + hostpath[1])
-        if uselogin[0]: print("username=" + uselogin[0])
-        if uselogin[1]: print("password=" + uselogin[1])
+        if opt.as_ac:
+            print(" -a " + uselogin[0] + " -c " + uselogin[1])
+        elif opt.as_up:
+            print(" -u " + uselogin[0] + " -p " + uselogin[1])
+        else:
+            if hostpath[0]: print("host=" + hostpath[0])
+            if hostpath[1]: print("path=" + hostpath[1])
+            if uselogin[0]: print("username=" + uselogin[0])
+            if uselogin[1]: print("password=" + uselogin[1])
         print("")
     elif cmd in ["store", "write", "set"]:
         references = store_username_password(args[1], args[2], args[3])
