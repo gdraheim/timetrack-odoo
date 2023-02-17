@@ -169,7 +169,7 @@ class DateFromWeekday:
             self.ignore = True
         else:
             self.ignore = False
-        ## checking if given date1 matches with day-name of the weekstart
+        # checking if given date1 matches with day-name of the weekstart
         logg.debug("start of week %s", date1)
         offset = 0
         plus2 = date1 + datetime.timedelta(days=2)
@@ -244,7 +244,6 @@ class DateFromWeekday:
         if line:
             logg.error("   %s", line.strip())
         return None
-
 
 def time2float(time: str) -> float:
     time = time.replace(",", ".")
@@ -390,7 +389,7 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
             # <weekday> **** WEEK <date-string>
             weekdesc = ""
             weekdays = ["so", "mo"]
-            if day.strip() in ["**"]: # old-style "** **** WEEK ..."
+            if day.strip() in ["**"]:  # old-style "** **** WEEK ..."
                 if topic.strip() not in ["WEEK"]:
                     logg.error("could not check *** %s", topic)
                     continue
