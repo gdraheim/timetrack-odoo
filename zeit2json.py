@@ -142,6 +142,110 @@ class OdooValuesForTopic:
                 itemTask = self.projname[proj]
         return OdooValues(itemProj, itemTask, itemPref)
 
+class DateFromWeekday:
+    mo: Optional[Day] = None
+    di: Optional[Day] = None
+    mi: Optional[Day] = None
+    do: Optional[Day] = None
+    fr: Optional[Day] = None
+    sa: Optional[Day] = None
+    so: Optional[Day] = None
+    ignore = False
+    def __init__(self) -> None:
+        self.weekspan1 = re.compile(r"(\d+[.]\d+[.]\d*)-*(\d+[.]\d+[.]\d*).*")
+        self.weekstart1 = re.compile(r"(\d+[.]\d+[.]\d*) *$")
+    def setweek(self, weekdesc: str, weekdays: List[str] = ["so", "mo"], refdate: Optional[Day] = None) -> bool:
+        today = Day.today()
+        span1 = self.weekspan1.match(weekdesc)
+        start1 = self.weekstart1.match(weekdesc)
+        match1 = span1 or start1
+        if not match1:
+            logg.error("could not parse WEEK %s", weekdesc)
+            return False
+        # sync weekdays to dates
+        date1 = get_date(match1.group(1), refdate or today)
+        if date1 > today:
+            logg.info("going to ignore future week date (%s)", date1)
+            self.ignore = True
+        else:
+            self.ignore = False
+        ## checking if given date1 matches with day-name of the weekstart
+        logg.debug("start of week %s", date1)
+        offset = 0
+        plus2 = date1 + datetime.timedelta(days=2)
+        if "sa" in weekdays and plus2.weekday() == 0:
+            self.sa = date1 + datetime.timedelta(days=0)
+            self.so = date1 + datetime.timedelta(days=1)
+            self.mo = date1 + datetime.timedelta(days=2)
+            self.di = date1 + datetime.timedelta(days=3)
+            self.mi = date1 + datetime.timedelta(days=4)
+            self.do = date1 + datetime.timedelta(days=5)
+            self.fr = date1 + datetime.timedelta(days=6)
+            logg.debug("accept %s %s as 'sa'", weekdays, date1)
+            return True
+        elif "so" in weekdays and plus2.weekday() == 1:
+            self.so = date1 + datetime.timedelta(days=0)
+            self.mo = date1 + datetime.timedelta(days=1)
+            self.di = date1 + datetime.timedelta(days=2)
+            self.mi = date1 + datetime.timedelta(days=3)
+            self.do = date1 + datetime.timedelta(days=4)
+            self.fr = date1 + datetime.timedelta(days=5)
+            self.sa = date1 + datetime.timedelta(days=6)
+            logg.debug("accept %s %s as 'so'", weekdays, date1)
+            return True
+        elif "so" in weekdays and "mo" in weekdays and plus2.weekday() == 2:
+            self.so = date1 + datetime.timedelta(days=1)
+            self.mo = date1 + datetime.timedelta(days=2)
+            self.di = date1 + datetime.timedelta(days=3)
+            self.mi = date1 + datetime.timedelta(days=4)
+            self.do = date1 + datetime.timedelta(days=5)
+            self.fr = date1 + datetime.timedelta(days=6)
+            self.sa = date1 + datetime.timedelta(days=7)
+            logg.debug("accept %s %s as 'so'", weekdays, date1)
+            return True
+        elif "mo" in weekdays and plus2.weekday() == 2:
+            self.mo = date1 + datetime.timedelta(days=1)
+            self.di = date1 + datetime.timedelta(days=2)
+            self.mi = date1 + datetime.timedelta(days=3)
+            self.do = date1 + datetime.timedelta(days=4)
+            self.fr = date1 + datetime.timedelta(days=5)
+            self.sa = date1 + datetime.timedelta(days=6)
+            self.so = date1 + datetime.timedelta(days=7)
+            logg.debug("accept %s %s as 'mo'", weekdays, date1)
+            return True
+        else:
+            logg.error("not a week start: %s", weekdesc)
+            logg.error(" real date: %s", date1)
+            logg.error("  real day: %s (allowed %s)", ["mo", "di", "mi",
+                                                       "do", "fr", "sa", "so"][date1.weekday()], weekdays)
+            logg.info("going to ignore incompatible weekstart (%s %s)", weekdays, weekdesc)
+            self.ignore = True
+            return False
+    def daydate(self, day: str, line: Optional[str] = None) -> Optional[Day]:
+        if self.ignore:
+            if line:
+                logg.warning("ignoring %s", line)
+            return None
+        if day in ["mo"]:
+            return self.mo
+        if day in ["di", "tu"]:
+            return self.di
+        if day in ["mi", "we"]:
+            return self.mi
+        if day in ["do", "th"]:
+            return self.do
+        if day in ["fr"]:
+            return self.fr
+        if day in ["sa"]:
+            return self.sa
+        if day in ["so", "su"]:
+            return self.so
+        logg.error("no day to put the line to: %s", day)
+        if line:
+            logg.error("   %s", line.strip())
+        return None
+
+
 def time2float(time: str) -> float:
     time = time.replace(",", ".")
     time = time.replace(":00", ".00")
@@ -244,15 +348,12 @@ def scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Option
     return _scan_data(lines_from_file, on_or_after or get_zeit_after(), on_or_before or get_zeit_before(), username)
 def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> JSONList:
     odoomap = OdooValuesForTopic()
+    weekmap = DateFromWeekday()
     idvalues: Dict[str, str] = {}
     cols0 = re.compile(r"^(\S+)\s+(\S+)+\s+(\S+)(\s*)$")
     cols1 = re.compile(r"^(\S+)\s+(\S+)+\s+(\S+)\s+(.*)")
-    weekspan1 = re.compile(r"(\d+[.]\d+[.]\d*)-*(\d+[.]\d+[.]\d*).*")
-    weekstart1 = re.compile(r"(\d+[.]\d+[.]\d*) *$")
     timespan = re.compile(r"(\d+)(:\d+)?-(\d+)(:\d+)?")
-    mo, di, mi, do, fr, sa, so = None, None, None, None, None, None, None
     data: JSONList = []
-    ignore = False
     for line in lines_from_file:
         try:
             line = line.strip()
@@ -263,6 +364,8 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
             if line.startswith(">>"):
                 odoomap.scanline(line)
                 continue
+            # general format is:
+            # <weekday> <timespan> <topic-word> <description>
             m0 = cols0.match(line)
             m1 = cols1.match(line)
             m = m1 or m0
@@ -283,10 +386,11 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
             if mm:
                 logg.error("ignoring a timespan %s (%s)", time, line.strip())
                 continue
+            # checking for week start:
+            # <weekday> **** WEEK <date-string>
             weekdesc = ""
             weekdays = ["so", "mo"]
-            # old-style "** **** WEEK ..."
-            if day.strip() in ["**"]:
+            if day.strip() in ["**"]: # old-style "** **** WEEK ..."
                 if topic.strip() not in ["WEEK"]:
                     logg.error("could not check *** %s", topic)
                     continue
@@ -300,93 +404,10 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
                 weekdays = [day]
                 logg.debug("found weekdesc %s", weekdesc)
             if weekdesc:
-                span1 = weekspan1.match(desc)
-                start1 = weekstart1.match(desc)
-                match1 = span1 or start1
-                if not match1:
-                    logg.error("could not parse WEEK %s", desc)
-                    continue
-                # sync weekdays to dates
-                today = datetime.date.today()
-                date1 = get_date(match1.group(1), on_or_before or today)
-                if date1 > today:
-                    ignore = True
-                else:
-                    ignore = False
-                logg.debug("start of week %s", date1)
-                offset = 0
-                plus2 = date1 + datetime.timedelta(days=2)
-                if "sa" in weekdays and plus2.weekday() == 0:
-                    sa = date1 + datetime.timedelta(days=0)
-                    so = date1 + datetime.timedelta(days=1)
-                    mo = date1 + datetime.timedelta(days=2)
-                    di = date1 + datetime.timedelta(days=3)
-                    mi = date1 + datetime.timedelta(days=4)
-                    do = date1 + datetime.timedelta(days=5)
-                    fr = date1 + datetime.timedelta(days=6)
-                    logg.debug("accept %s %s as 'sa'", weekdays, date1)
-                    continue
-                elif "so" in weekdays and plus2.weekday() == 1:
-                    so = date1 + datetime.timedelta(days=0)
-                    mo = date1 + datetime.timedelta(days=1)
-                    di = date1 + datetime.timedelta(days=2)
-                    mi = date1 + datetime.timedelta(days=3)
-                    do = date1 + datetime.timedelta(days=4)
-                    fr = date1 + datetime.timedelta(days=5)
-                    sa = date1 + datetime.timedelta(days=6)
-                    logg.debug("accept %s %s as 'so'", weekdays, date1)
-                    continue
-                elif "so" in weekdays and "mo" in weekdays and plus2.weekday() == 2:
-                    so = date1 + datetime.timedelta(days=1)
-                    mo = date1 + datetime.timedelta(days=2)
-                    di = date1 + datetime.timedelta(days=3)
-                    mi = date1 + datetime.timedelta(days=4)
-                    do = date1 + datetime.timedelta(days=5)
-                    fr = date1 + datetime.timedelta(days=6)
-                    sa = date1 + datetime.timedelta(days=7)
-                    logg.debug("accept %s %s as 'so'", weekdays, date1)
-                    continue
-                elif "mo" in weekdays and plus2.weekday() == 2:
-                    mo = date1 + datetime.timedelta(days=1)
-                    di = date1 + datetime.timedelta(days=2)
-                    mi = date1 + datetime.timedelta(days=3)
-                    do = date1 + datetime.timedelta(days=4)
-                    fr = date1 + datetime.timedelta(days=5)
-                    sa = date1 + datetime.timedelta(days=6)
-                    so = date1 + datetime.timedelta(days=7)
-                    logg.debug("accept %s %s as 'mo'", weekdays, date1)
-                    continue
-                else:
-                    logg.error("not a week start: %s", desc)
-                    logg.error(" real date: %s", date1)
-                    logg.error("  real day: %s (allowed %s)", ["mo", "di", "mi",
-                                                               "do", "fr", "sa", "so"][date1.weekday()], weekdays)
-                    continue
-                logg.error("what is a '%s'?", line)
-            # else
-            if day not in ["mo", "di", "mi", "do", "fr", "sa", "so"]:
-                logg.error("no day to put the line to: %s", day)
-                logg.error("   %s", line.strip())
+                weekmap.setweek(weekdesc, weekdays, on_or_before)
                 continue
-            if ignore:
-                logg.warning("ignoring future %s", line)
-                continue
-            else:
-                daydate = None
-                if day in ["mo"]:
-                    daydate = mo
-                if day in ["di"]:
-                    daydate = di
-                if day in ["mi"]:
-                    daydate = mi
-                if day in ["do"]:
-                    daydate = do
-                if day in ["fr"]:
-                    daydate = fr
-                if day in ["sa"]:
-                    daydate = sa
-                if day in ["so"]:
-                    daydate = so
+            # else # convert weekday to real date and get odoo values
+            daydate = weekmap.daydate(day, line)
             if daydate is None:
                 logg.error("no daydate for day '%s'", day)
                 continue
