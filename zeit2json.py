@@ -10,7 +10,7 @@ import os.path as path
 
 import tabtotext
 from tabtotext import JSONList, JSONDict, JSONItem
-from dayrange import get_date, Day
+from dayrange import get_date, Day, is_dayrange, dayrange
 from odootopic import OdooValuesForTopic
 
 logg = logging.getLogger("zeit2json")
@@ -39,6 +39,7 @@ DEFAULT_FILENAME = "~/zeit{YEAR}.txt"
 WRITEJSON = True
 WRITECSV = True
 
+NEWFORMAT = True
 TitleID = "ID"
 TitleDate = "Date"  # "Datum"
 TitleUser = "User"
@@ -431,14 +432,29 @@ def each_filter_data(data: JSONList = []) -> Iterator[JSONDict]:
         if ok:
             yield item
 
-def run(filename: str) -> None:
+def get_data(filename: str) -> JSONList:
+    filename = arg
     on_or_before = get_zeit_before()
     on_or_after = get_zeit_after()
     if on_or_after.year != on_or_before.year:
         logg.error("--after / --before must be the same year (-a ... to -b ...)")
     logg.error("read %s", filename)
-    zeitdata = read_data(filename, on_or_after, on_or_before)
-    data = filter_data(zeitdata)
+    if NEWFORMAT:
+        zeitdata = read_data2(filename, on_or_after, on_or_before)
+    else:
+        zeitdata = read_data(filename, on_or_after, on_or_before)
+    return filter_data(zeitdata)
+
+def run(arg: str) -> None:
+    if is_dayrange(arg):
+        days = dayrange(arg)
+        logg.log(DONE, "%s -> %s %s", arg, days.after, days.before)
+        global ZEIT_AFTER, ZEIT_BEFORE
+        ZEIT_AFTER = days.after.isoformat()
+        ZEIT_BEFORE = days.before.isoformat()
+        return
+    filename = arg
+    data = get_data(filename)
     if WRITEJSON:
         json_text = tabtotext.tabToJSON(data)
         json_file = filename + ".json"
@@ -446,7 +462,7 @@ def run(filename: str) -> None:
             f.write(json_text)
         logg.log(DONE, "written %s (%s entries)", json_file, len(data))
     if WRITECSV:
-        csv_text = tabtotext.tabToJSON(data)
+        csv_text = tabtotext.tabToCSV(data)
         csv_file = filename + ".csv"
         with open(csv_file, "w") as f:
             f.write(csv_text)
@@ -457,6 +473,10 @@ if __name__ == "__main__":
     cmdline = OptionParser("%prog files...")
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
+    cmdline.add_option("-1", "--oldformat", action="store_true", default=False,
+                       help="generate ID column (was used as foreignkey in old odoo)")
+    cmdline.add_option("-2", "--newformat", action="store_true", default=False,
+                       help="generate Ticket column (can be used to import to jira)")
     cmdline.add_option("-a", "--after", metavar="DATE", default=ZEIT_AFTER,
                        help="only evaluate entrys on and after [first of year]")
     cmdline.add_option("-b", "--before", metavar="DATE", default=ZEIT_BEFORE,
@@ -483,6 +503,10 @@ if __name__ == "__main__":
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose))
     # logg.addHandler(logging.StreamHandler())
+    if opt.newformat:
+        NEWFORMAT = True
+    elif opt.oldformat:
+        NEWFORMAT = False
     ZEIT_USER_NAME = opt.user_name
     ZEIT_SHORT = opt.short
     ZEIT_EXTRATIME = opt.extra
@@ -494,8 +518,8 @@ if __name__ == "__main__":
     ZEIT_SUMMARY = opt.summary
     ZEIT_AFTER = opt.after
     ZEIT_BEFORE = opt.before
-    if not args:
-        args = [get_zeit_filename()]
+    if not args or is_dayrange(args[0]):
+        args += [get_zeit_filename()]
         logg.info(" %s ", args)
     for arg in args:
         run(arg)
