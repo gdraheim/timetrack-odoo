@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from typing import List, Dict, Union, Optional, Sequence, TextIO, Generator, cast
+from typing import List, Dict, Union, Optional, Sequence, TextIO, Iterator, cast
 
 import logging
 import re
@@ -47,6 +47,7 @@ TitlePref = "Topic"  # Prefix used in Desc
 TitleProj = "Project"  # "Projekt"
 TitleTask = "Task"  # "Aufgabe"
 TitleTime = "Quantity"  # "Anzahl"
+TitleTicket = "Ticket"
 
 # format to map a topic to the proj/task
 _zeit_topics_mapping = """
@@ -248,6 +249,9 @@ class Zeit:
     def read_entries(self, on_or_after: Day, on_or_before: Day) -> JSONList:
         filename = self.config.filename(on_or_after)
         return read_data(filename, on_or_after, on_or_before)
+    def read_entries2(self, on_or_after: Day, on_or_before: Day) -> JSONList:
+        filename = self.config.filename(on_or_after)
+        return read_data2(filename, on_or_after, on_or_before)
 
 def read_zeit(on_or_after: Day, on_or_before: Day) -> JSONList:
     zeit = Zeit()
@@ -255,16 +259,32 @@ def read_zeit(on_or_after: Day, on_or_before: Day) -> JSONList:
 def read_data(filename: str, on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None) -> JSONList:
     logg.info("reading %s", filename)
     return scan_data(open(filename), on_or_after, on_or_before)
+def read_data2(filename: str, on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None) -> JSONList:
+    logg.info("reading %s", filename)
+    return scan_data2(open(filename), on_or_after, on_or_before)
+
+def scan_data2(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None, username: Optional[str] = None) -> JSONList:
+    return list(each_scan_data2(lines_from_file, on_or_after or get_zeit_after(), on_or_before or get_zeit_before(), username))
+def each_scan_data2(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> Iterator[JSONDict]:
+    for item in scanlines(lines_from_file, on_or_after, on_or_before, username):
+        if TitleID in item:
+            del item[TitleID]  # new
+        yield item
 def scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None, username: Optional[str] = None) -> JSONList:
-    return _scan_data(lines_from_file, on_or_after or get_zeit_after(), on_or_before or get_zeit_before(), username)
-def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> JSONList:
+    return list(each_scan_data(lines_from_file, on_or_after or get_zeit_after(), on_or_before or get_zeit_before(), username))
+def each_scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> Iterator[JSONDict]:
+    for item in scanlines(lines_from_file, on_or_after, on_or_before, username):
+        if TitleTicket in item:
+            del item[TitleTicket]  # new
+        yield item
+
+def scanlines(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> Iterator[JSONDict]:
     odoomap = OdooValuesForTopic(ZEIT_SHORT)
     weekmap = DateFromWeekday()
     idvalues: Dict[str, str] = {}
     cols0 = re.compile(r"^(\S+)\s+(\S+)+\s+(\S+)(\s*)$")
     cols1 = re.compile(r"^(\S+)\s+(\S+)+\s+(\S+)\s+(.*)")
     timespan = re.compile(r"(\d+)(:\d+)?-(\d+)(:\d+)?")
-    data: JSONList = []
     for line in lines_from_file:
         try:
             line = line.strip()
@@ -357,20 +377,20 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
                 item[TitleProj] = itemProj
                 item[TitleTask] = itemTask
                 item[TitleUser] = itemUser
-                data.append(item)
+                item[TitleTicket] = odoo.ticket  # new
                 #
                 if itemID in idvalues:
                     logg.error("duplicate idvalue %s", itemID)
                     logg.error("OLD:   %s", idvalues[itemID].strip())
                     logg.error("NEW:   %s", line.strip())
                 idvalues[itemID] = line
+                yield item
         except:
             logg.error("FOR:    %s", line.strip())
             raise
-    return data
 def filter_data(data: JSONList = []) -> JSONList:
     return list(each_filter_data(data))
-def each_filter_data(data: JSONList = []) -> Generator[JSONDict, None, None]:
+def each_filter_data(data: JSONList = []) -> Iterator[JSONDict]:
     r: JSONList = []
     for item in data:
         # itemDate = cast(str, item[TitleDate])

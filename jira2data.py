@@ -24,6 +24,7 @@ logg = logging.getLogger("JIRA2DATA")
 def get_login() -> str:
     return os.environ.get("LOGIN", "") or os.environ.get("USER") or "admin"
 
+Day = datetime.date
 FrontendUrl = str
 Verify = Union[bool, str]
 NIX = ""
@@ -286,7 +287,7 @@ def each_jiraGetIssueActivity(api: JiraFrontend, issue: str) -> Iterator[JSONDic
     if api.error(r):
         logg.error("%s => %s\n", req, r.text)
         logg.warning("    %s", api.pwinfo())
-        return
+        raise HTTPError(r)
     else:
         logg.debug("%s => %s", req, r.text)
         data = json.loads(r.text)
@@ -371,6 +372,110 @@ def each_jiraGetUserActivityInDays(api: JiraFrontend, user: str = NIX, days: Opt
     for ticket in jiraGetUserIssuesInDays(api, user, days):
         for item in each_jiraGetIssueActivity(api, cast(str, ticket["issue"])):
             yield item
+
+def date2isotime(ondate: Day) -> str:
+    return ondate.strftime("%Y-%m-%dT20:20:00.000+0000")
+
+def jiraGetWorklog(api: JiraFrontend, issue: str) -> JSONList:
+    return list(_jiraGetWorklog(api, issue))
+def _jiraGetWorklog(api: JiraFrontend, issue: str) -> Iterator[JSONDict]:
+    skipfields = ["self", "author", "updateAuthor", "body"]
+    req = f"/rest/api/2/issue/{issue}/worklog"
+    url = api.jira() + req
+    http = api.session(api.jira())
+    headers = {"Content-Type": "application/json"}
+    r = http.get(url, headers=headers, verify=api.verify)
+    if api.error(r):
+        logg.error("%s => %s\n", req, r.text)
+        logg.warning("    %s", api.pwinfo())
+        raise HTTPError(r)
+    else:
+        logg.debug("%s => %s", req, r.text)
+        data = json.loads(r.text)
+        # logg.info("data %s", data)
+        # logg.debug("data worklogs %s", data["worklogs"])
+        for res in data["worklogs"]:
+            if "author" in res:
+                res["authorname"] = res["author"]["name"]
+            for field in skipfields:
+                if field in res:
+                    del res[field]
+            yield res
+
+def jiraAddWorklog(api: JiraFrontend, issue: str, ondate: Day, size: float, desc: str) -> JSONDict:
+    req = f"/rest/api/2/issue/{issue}/worklog"
+    url = api.jira() + req
+    http = api.session(api.jira())
+    headers = {"Content-Type": "application/json"}
+    post = {
+        "comment": desc,
+        "started": date2isotime(ondate),
+        "timeSpentSeconds": int(size * 3600),
+    }
+    logg.debug("post %s", post)
+    r = http.post(url, headers=headers, verify=api.verify, json=post)
+    if api.error(r):
+        logg.error("%s => %s\n", req, r.text)
+        logg.warning("    %s", api.pwinfo())
+        raise HTTPError(r)
+    else:
+        logg.debug("%s => %s", req, r.text)
+        data: JSONDict = json.loads(r.text)
+        logg.debug("data %s", data)
+        return data
+
+def jiraUpdateWorklog(api: JiraFrontend, worklog: int, issue: str, ondate: Day, size: float, desc: str) -> JSONDict:
+    req = f"/rest/api/2/issue/{issue}/worklog/{worklog}"
+    url = api.jira() + req
+    http = api.session(api.jira())
+    headers = {"Content-Type": "application/json"}
+    post = {
+        "comment": desc,
+        "started": date2isotime(ondate),
+        "timeSpentSeconds": int(size * 3600),
+    }
+    logg.debug("put %s", post)
+    r = http.put(url, headers=headers, verify=api.verify, json=post)
+    if api.error(r):
+        logg.error("%s => %s\n", req, r.text)
+        logg.warning("    %s", api.pwinfo())
+        raise HTTPError(r)
+    else:
+        logg.debug("%s => %s", req, r.text)
+        data: JSONDict = json.loads(r.text)
+        logg.debug("data %s", data)
+        return data
+
+class Worklogs:
+    def __init__(self, user: str = NIX) -> None:
+        self.remote = JiraFrontend()
+        self.user = user
+    def timesheet(self, issue: str, on_or_after: Day, on_or_before: Day) -> Iterator[JSONDict]:
+        session = self.remote.session()
+        user = self.user or self.remote.user()
+        for record in jiraGetWorklog(self.remote, issue):
+            if user:
+                author = cast(str, record["authorname"])
+                if user != author:
+                    logg.info("ignore author %s (we are %s)", author, user)
+                    continue
+            logg.debug("jira %s worklog %s", issue, record)
+            created = get_date(cast(str, record["created"]))
+            updated = get_date(cast(str, record["updated"]))
+            started = get_date(cast(str, record["started"]))
+            worktime = started or updated or created
+            logg.debug("check %s on %s (%s .. %s)", record, worktime, on_or_after, on_or_before)
+            if on_or_after > worktime or worktime > on_or_before:
+                continue
+            record["entry_id"] = record["id"]
+            record["entry_date"] = worktime
+            record["entry_size"] = cast(int, record["timeSpentSeconds"]) / 3600
+            record["entry_desc"] = record["comment"]
+            yield record
+    def worklog_create(self, issue: str, ondate: Day, size: float, desc: str) -> JSONDict:
+        return jiraAddWorklog(self.remote, issue, ondate, size, desc)
+    def worklog_update(self, worklog: int, issue: str, ondate: Day, size: float, desc: str) -> JSONDict:
+        return jiraUpdateWorklog(self.remote, worklog, issue, ondate, size, desc)
 
 def run(remote: JiraFrontend, args: List[str]) -> int:
     global DAYS
