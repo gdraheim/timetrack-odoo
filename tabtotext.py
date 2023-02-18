@@ -15,8 +15,7 @@ import os
 import re
 import logging
 import json
-from io import StringIO
-
+from io import StringIO, TextIOWrapper
 
 logg = logging.getLogger("TABTOTEXT")
 
@@ -766,9 +765,13 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
         writer.writerow(line)
     return csvfile.getvalue()
 
+def readFromCSV(filename: str, datedelim: str = '-', tab: str = ";") -> JSONList:
+    return _readFromCSV(open(filename), datedelim, tab)
 def loadCSV(text: str, datedelim: str = '-', tab: str = ";") -> JSONList:
-    import csv
     csvfile = StringIO(text)
+    return _readFromCSV(csvfile, datedelim, tab)
+def _readFromCSV(csvfile: TextIOWrapper, datedelim: str = '-', tab: str = ";") -> JSONList:
+    import csv
     reader = csv.DictReader(csvfile, restval='ignore',
                             quoting=csv.QUOTE_MINIMAL, delimiter=tab)
     #
@@ -776,6 +779,7 @@ def loadCSV(text: str, datedelim: str = '-', tab: str = ";") -> JSONList:
     data: JSONList = []
     for row in reader:
         newrow: JSONDict = dict(row)
+        logg.info("read ..%s", newrow)
         for key, val in newrow.items():
             if isinstance(val, str):
                 newrow[key] = convert.toJSONItem(val)
