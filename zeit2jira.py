@@ -46,6 +46,9 @@ TEXTFILE = ""
 JSONFILE = ""
 HTMLFILE = ""
 XLSXFILE = ""
+CSVFILE = ""
+CSVDATA = ""
+XLSXDATA = ""
 
 norm_frac_1_4 = 0x00BC
 norm_frac_1_2 = 0x00BD
@@ -338,7 +341,13 @@ def run(arg: str) -> None:
     zeit_api.ZEIT_SUMMARY = ZEIT_SUMMARY
     conf = zeit_api.ZeitConfig(username=ZEIT_USER_NAME)
     zeit = zeit_api.Zeit(conf)
-    data = zeit.read_entries2(DAYS.after, DAYS.before)
+    if CSVDATA:
+        data = tabtotext.loadCSV(CSVDATA)
+    elif XLSXDATA:
+        import tabtoxlsx
+        data = tabtoxlsx.readFromXLSX(XLSXDATA)
+    else:
+        data = zeit.read_entries2(DAYS.after, DAYS.before)
     if arg in ["json", "make"]:
         json_text = tabtotext.tabToJSON(data)
         json_file = conf.filename(DAYS.after) + ".json"
@@ -347,7 +356,7 @@ def run(arg: str) -> None:
         logg.log(DONE, "written %s (%s entries)", json_file, len(data))
         return
     if arg in ["csv", "make"]:
-        csv_text = tabtotext.tabToJSON(data)
+        csv_text = tabtotext.tabToCSV(data)
         csv_file = conf.filename(DAYS.after) + ".csv"
         with open(csv_file, "w") as f:
             f.write(csv_text)
@@ -431,6 +440,9 @@ if __name__ == "__main__":
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE)
     cmdline.add_option("-H", "--htmlfile", metavar="FILE", default=HTMLFILE)
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE)
+    cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE)
+    cmdline.add_option("-d", "--csvdata", metavar="FILE", default=CSVDATA)
+    cmdline.add_option("-x", "--xlsxdata", metavar="FILE", default=XLSXDATA)
     cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=netrc.GIT_CREDENTIALS)
     cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=netrc.NET_CREDENTIALS)
     cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=netrc.NETRC_FILENAME)
@@ -452,6 +464,9 @@ if __name__ == "__main__":
     JSONFILE = opt.jsonfile
     HTMLFILE = opt.htmlfile
     XLSXFILE = opt.xlsxfile
+    CSVFILE = opt.csvfile
+    CSVDATA = opt.csvdata
+    XLSXDATA = opt.xlsxdata
     ONLYZEIT = opt.onlyzeit
     SHORTDESC = opt.shortdesc
     SHORTNAME = opt.shortname
