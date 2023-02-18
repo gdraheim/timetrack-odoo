@@ -32,6 +32,7 @@ check:
 	$(MAKE) tabt
 	$(MAKE) nett
 	$(MAKE) dayt
+	$(MAKE) topt
 	$(MAKE) odoo
 	$(MAKE) zeit
 	$(MAKE) test
