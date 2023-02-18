@@ -342,7 +342,7 @@ def run(arg: str) -> None:
     conf = zeit_api.ZeitConfig(username=ZEIT_USER_NAME)
     zeit = zeit_api.Zeit(conf)
     if CSVDATA:
-        data = tabtotext.loadCSV(CSVDATA)
+        data = tabtotext.readFromCSV(CSVDATA)
     elif XLSXDATA:
         import tabtoxlsx
         data = tabtoxlsx.readFromXLSX(XLSXDATA)
