@@ -10,11 +10,8 @@ import os.path as path
 
 import tabtotext
 from tabtotext import JSONList, JSONDict, JSONItem
-from dayrange import get_date
-from collections import namedtuple
-
-Day = datetime.date
-OdooValues = namedtuple("OdooValues", ["proj", "task", "pref"])
+from dayrange import get_date, Day
+from odootopic import OdooValuesForTopic
 
 logg = logging.getLogger("zeit2json")
 DONE = (logging.WARNING + logging.ERROR) // 2
@@ -52,95 +49,10 @@ TitleTask = "Task"  # "Aufgabe"
 TitleTime = "Quantity"  # "Anzahl"
 
 # format to map a topic to the proj/task
-mapping = """
+_zeit_topics_mapping = """
 >> odoo [GUIDO (Private Investigations)]
 >> odoo "Odoo Automation",
 """
-
-class OdooValuesForTopic:
-    prefixed: Dict[str, str]
-    customer: Dict[str, str]
-    projects: Dict[str, str]
-    proj_ids: Dict[str, str]  # obsolete
-    custname: Dict[str, str]
-    projname: Dict[str, str]
-    def __init__(self) -> None:
-        self.prefixed = {}  # zeit-topic to odoo description-prefix
-        self.customer = {}  # called "Project" in Odoo
-        self.projects = {}  # called "Task" in Odoo
-        self.custname = {}  # a shorthand for "Project" in Odoo
-        self.projname = {}  # a shorthand for "Task" in Odoo
-        self.proj_ids = {}  # obsolete - used for old Odoo to generate foreign-refkey
-        self.as_prefixed = re.compile(r'^(\S+)\s+=\s*(\S+)')
-        self.as_customer = re.compile(r'^(\S+)\s+\[(.*)\](.*)')
-        self.as_project0 = re.compile(r'^(\S+)\s+["](AS-(\d+):.*)["](.*)')  # obsolete
-        self.as_project1 = re.compile(r'^(\S+)\s+["](.*)["](.*)')
-        self.as_project2 = re.compile(r'^(\S+)\s+(\w+):\s+["](.*)["](.*)')  # obsolete
-
-    def scanline(self, line: str) -> None:
-        """ expecting a line with >> first two chars, 
-            followed by topic name, then definitions to be stored"""
-        m = self.as_prefixed.match(line[2:].strip())
-        if m:
-            self.prefixed[m.group(1)] = m.group(2)
-            return
-        m = self.as_customer.match(line[2:].strip())
-        if m:
-            self.customer[m.group(1)] = m.group(2)
-            self.customer[m.group(1).upper()] = m.group(2)
-            self.projects[m.group(1)] = ""  # empty is always allowed (as of 2021)
-            self.projects[m.group(1).upper()] = ""
-            shorthand = m.group(3).strip().replace("#", ":")
-            if shorthand:
-                self.custname[m.group(2)] = shorthand
-            return
-        m = self.as_project0.match(line[2:].strip())
-        if m:
-            self.projects[m.group(1)] = m.group(2)
-            self.proj_ids[m.group(1)] = m.group(3)  # obsolete
-            shorthand = m.group(4).strip().replace("#", ":")
-            if not shorthand: shorthand = m.group(2)
-            self.projname[m.group(1)] = shorthand
-            return
-        m = self.as_project1.match(line[2:].strip())
-        if m:
-            self.projects[m.group(1)] = m.group(2)
-            shorthand = m.group(3).strip().replace("#", ":")
-            if not shorthand: shorthand = m.group(2)
-            self.projname[m.group(1)] = shorthand
-            return
-        m = self.as_project2.match(line[2:].strip())
-        if m:
-            self.projects[m.group(1)] = m.group(3)
-            self.proj_ids[m.group(1)] = m.group(2)  # obsolete
-            shorthand = m.group(4).strip().replace("#", ":")
-            if not shorthand: shorthand = m.group(3)
-            self.projname[m.group(1)] = shorthand
-            return
-        logg.error("??? %s", line)
-    def lookup(self, topic: str, daydate: Optional[Day] = None) -> OdooValues:
-        """ from a topic try to find the odoo values to be used. """
-        prefix = topic
-        # if desc.strip().startswith(":"):
-        # desc = topic
-        if topic[-1] not in "0123456789" and len(topic) > 4:
-            prefix = topic
-        elif topic in self.prefixed:
-            prefix = self.prefixed[topic]
-        proj = topic
-        if proj not in self.projects and proj[-1] in "0123456789" and proj[:-1] in self.projects:
-            proj = proj[:-1]
-        if proj not in self.projects and '-' in proj and proj[:proj.index('-')] in self.projects:
-            proj = proj[:proj.index('-')]
-        itemPref = prefix
-        itemProj = self.customer[proj]
-        itemTask = self.projects[proj]
-        if ZEIT_SHORT:
-            if self.customer[proj] in self.custname:
-                itemProj = self.custname[self.customer[proj]]
-            if proj in self.projname:
-                itemTask = self.projname[proj]
-        return OdooValues(itemProj, itemTask, itemPref)
 
 class DateFromWeekday:
     mo: Optional[Day] = None
@@ -346,7 +258,7 @@ def read_data(filename: str, on_or_after: Optional[Day] = None, on_or_before: Op
 def scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None, username: Optional[str] = None) -> JSONList:
     return _scan_data(lines_from_file, on_or_after or get_zeit_after(), on_or_before or get_zeit_before(), username)
 def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> JSONList:
-    odoomap = OdooValuesForTopic()
+    odoomap = OdooValuesForTopic(ZEIT_SHORT)
     weekmap = DateFromWeekday()
     idvalues: Dict[str, str] = {}
     cols0 = re.compile(r"^(\S+)\s+(\S+)+\s+(\S+)(\s*)$")
@@ -418,6 +330,10 @@ def _scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, 
                 continue
             if True:
                 odoo = odoomap.lookup(topic, daydate)
+                if not odoo:
+                    logg.error("can not find odoo values for topic %s (on %s)", topic, daydate)
+                    logg.error("    on line: %s", line.strip())
+                    raise ValueError(topic)
                 itemDate = daydate
                 itemTime = time2float(time)
                 itemDesc = odoo.pref + " " + cleandesc(desc)

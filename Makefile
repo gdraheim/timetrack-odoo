@@ -13,6 +13,7 @@ ZEIT_PROG = zeit2json.py
 DATA_PROG = odoo2data.py
 ODOO_APIS = odoo_rest.py
 ODOO_MOCK = odoo_rest_mockup.py
+ODOOTOPIC = odootopic.py
 TRACKPROG = timetrack.py
 
 DAY_UTILS = dayrange.py
@@ -153,6 +154,7 @@ AUTOPEP8_INPLACE= --in-place
 type: 
 	$(MAKE) $(PARALLEL) \
 	                 $(ODOO_APIS).type $(ODOO_MOCK).type \
+	                 $(ODOOTOPIC).type $(ODOOTOPIC:.py=.tests.py).type \
 	                 $(MAIN_PROG).type $(MAIN_PROG:.py=.tests.py).type \
 	                 $(ZEIT_PROG).type $(ZEIT_PROG:.py=.tests.py).type \
 	                 $(DATA_PROG).type $(DATA_PROG:.py=.tests.py).type \
@@ -164,6 +166,7 @@ type:
 style pep8:
 	$(MAKE) $(PARALLEL) \
 	                 $(ODOO_APIS).pep8 $(ODOO_MOCK).pep8 \
+	                 $(ODOOTOPIC).pep8 $(ODOOTOPIC:.py=.tests.py).pep8 \
 	                 $(MAIN_PROG).pep8 $(MAIN_PROG:.py=.tests.py).pep8 \
 	                 $(ZEIT_PROG).pep8 $(ZEIT_PROG:.py=.tests.py).pep8 \
 	                 $(DATA_PROG).pep8 $(DATA_PROG:.py=.tests.py).pep8 \
