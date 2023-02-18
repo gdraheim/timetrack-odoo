@@ -24,7 +24,9 @@ symbolic_dayrange = [
     "M00", "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12",
     "M01-M02", "M02-M03", "M03-M04", "M04-M05", "M05-M06", "M06-M07", "M07-M08", "M08-M09", "M09-M10", "M10-M11", "M11-M12",
     "M01-M03", "M02-M04", "M03-M05", "M04-M06", "M05-M07", "M06-M08", "M07-M09", "M08-M10", "M09-M11", "M10-M12",
-    "year", "thisyear"]
+    "year", "thisyear", "lastyear", "oldyear", "blastyear", "beforelastyear",
+    "lastyearM00", "lastyearM01", "lastyearM02", "lastyearM03", "lastyearM04", "lastyearM05",
+    "lastyearM06", "lastyearM07", "lastyearM08", "lastyearM09", "lastyearM10", "lastyearM11", "lastyearM12"]
 
 def is_dayrange(arg: str) -> bool:
     return arg in symbolic_dayrange
@@ -94,6 +96,22 @@ def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
         after = firstday_of_month_name("M01")
         before = lastday_of_month(0)
         return (after, before)
+    if arg in ["oldyear", "lastyear"]:
+        lastyear = Day.today() - datetime.timedelta(days=364)
+        after = firstday_of_month_name("M01", lastyear)
+        before = lastday_of_month_name("M12", lastyear)
+        return (after, before)
+    if arg in ["blastyear", "beforelastyear"]:
+        lastyear = Day.today() - datetime.timedelta(days=728)
+        after = firstday_of_month_name("M01", lastyear)
+        before = lastday_of_month_name("M12", lastyear)
+        return (after, before)
+    if arg in ["lastyearM00", "lastyearM01", "lastyearM02", "lastyearM03", "lastyearM04", "lastyearM05",  # ..
+               "lastyearM06", "lastyearM07", "lastyearM08", "lastyearM09", "lastyearM10", "lastyearM11", "lastyearM12"]:
+        lastyear = Day.today() - datetime.timedelta(days=364)
+        after = firstday_of_month_name(arg, lastyear)
+        before = lastday_of_month_name(arg, lastyear)
+        return (after, before)
     raise DayrangeException("unknown symbolic dayrange '%s'" % arg)
 
 class Dayrange:
@@ -102,6 +120,14 @@ class Dayrange:
     def __init__(self, after: Day, before: Day):
         self.after = after
         self.before = before
+    @property
+    def daysbefore(self) -> int:
+        diff = self.before - Day.today()
+        return diff.days
+    @property
+    def daysafter(self) -> int:
+        diff = self.after - Day.today()
+        return diff.days
     def __len__(self) -> int:
         return(self.before - self.after).days + 1
     def __str__(self) -> str:
@@ -173,12 +199,12 @@ def date_dotformat(text: str) -> Day:
     return datetime.datetime.strptime(text, "%d.%m.%Y").date()
 
 ########################################################
-def firstday_of_month(diff: int) -> Day:
-    return date_dotformat(first_of_month(diff))
-def first_of_month(diff: int) -> str:
+def firstday_of_month(diff: int, ref: Optional[Day] = None) -> Day:
+    return date_dotformat(first_of_month(diff, ref))
+def first_of_month(diff: int, ref: Optional[Day] = None) -> str:
     assert -11 <= diff and diff <= +11
     today = Day.today()
-    year = today.year
+    year = ref.year if ref else today.year
     month = today.month + diff
     if month <= 0:
         month += 12
@@ -188,12 +214,12 @@ def first_of_month(diff: int) -> str:
         year += 1
     return f"01.{month}.{year}"
 
-def lastday_of_month(diff: int) -> Day:
-    return date_dotformat(last_of_month(diff))
-def last_of_month(diff: int) -> str:
+def lastday_of_month(diff: int, ref: Optional[Day] = None) -> Day:
+    return date_dotformat(last_of_month(diff, ref))
+def last_of_month(diff: int, ref: Optional[Day] = None) -> str:
     assert -11 <= diff and diff <= +11
     today = Day.today()
-    year = today.year
+    year = ref.year if ref else today.year
     month = today.month + diff
     if month <= 0:
         month += 12
@@ -203,11 +229,11 @@ def last_of_month(diff: int) -> str:
         year += 1
     return f"99.{month}.{year}"
 
-def firstday_of_month_name(name: str) -> Day:
-    return date_dotformat(first_of_month_name(name))
-def first_of_month_name(name: str) -> str:
+def firstday_of_month_name(name: str, ref: Optional[Day] = None) -> Day:
+    return date_dotformat(first_of_month_name(name, ref))
+def first_of_month_name(name: str, ref: Optional[Day] = None) -> str:
     today = Day.today()
-    year = today.year
+    year = ref.year if ref else today.year
     #
     monthnames = ["M00", "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12"]
     if name in monthnames:
@@ -217,15 +243,15 @@ def first_of_month_name(name: str) -> str:
     if month == 0:
         year -= 1  # M00 case
         month = 12
-    elif month > today.month + FUTURE:
+    elif month > today.month + FUTURE and not ref:
         year -= 1  # assume last year
     return f"01.{month}.{year}"
 
-def lastday_of_month_name(name: str) -> Day:
-    return date_dotformat(last_of_month_name(name))
-def last_of_month_name(name: str) -> str:
+def lastday_of_month_name(name: str, ref: Optional[Day] = None) -> Day:
+    return date_dotformat(last_of_month_name(name, ref))
+def last_of_month_name(name: str, ref: Optional[Day] = None) -> str:
     today = Day.today()
-    year = today.year
+    year = ref.year if ref else today.year
     #
     monthnames = ["M00", "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12"]
     if name in monthnames:
@@ -235,7 +261,7 @@ def last_of_month_name(name: str) -> str:
     if month == 0:
         year -= 1  # M00 case
         month = 12
-    elif month > today.month + FUTURE:
+    elif month > today.month + FUTURE and not ref:
         year -= 1  # assume last year
     return f"99.{month}.{year}"
 
@@ -263,6 +289,8 @@ def get_date(text: str, on_or_before: Optional[Day] = None) -> Day:
         return text
     refday = on_or_before or Day.today()
     baseyear = str(refday.year)
+    if re.match(r"\d+-\d+-\d+T.*", text):
+        return date_isoformat(text.split("T", 1)[0])
     if re.match(r"\d+-\d+-\d+", text):
         return date_isoformat(text)
     if re.match(r"\d+-\d+", text):
