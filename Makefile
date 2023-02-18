@@ -15,6 +15,7 @@ ODOO_APIS = odoo_rest.py
 ODOO_MOCK = odoo_rest_mockup.py
 ODOOTOPIC = odootopic.py
 JIRA_PROG = jira2data.py
+JIRA_ZEIT = zeit2jira.py
 TRACKPROG = timetrack.py
 
 DAY_UTILS = dayrange.py
@@ -174,7 +175,7 @@ type:
 	                 $(TAB_UTILS).type $(TAB_UTILS:.py=.tests.py).type \
 	                 $(NET_UTILS).type $(NET_UTILS:.py=.tests.py).type \
 	                 $(DAY_UTILS).type $(DAY_UTILS:.py=.tests.py).type \
-	                 $(JIRA_PROG).type \
+	                 $(JIRA_PROG).type $(JIRA_ZEIT).type \
 	                 $(TRACKPROG).type $(TRACKPROG:.py=.tests.py).type 
 
 style pep8:
@@ -187,5 +188,5 @@ style pep8:
 	                 $(TAB_UTILS).pep8 $(TAB_UTILS:.py=.tests.py).pep8 \
 	                 $(NET_UTILS).pep8 $(NET_UTILS:.py=.tests.py).pep8 \
 	                 $(DAY_UTILS).pep8 $(DAY_UTILS:.py=.tests.py).pep8 \
-	                 $(JIRA_PROG).pep8 \
+	                 $(JIRA_PROG).pep8 $(JIRA_ZEIT).pep8 \
 	                 $(TRACKPROG).pep8 $(TRACKPROG:.py=.tests.py).pep8 
