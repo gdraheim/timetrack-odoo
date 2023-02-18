@@ -7,6 +7,7 @@ import re
 import datetime
 
 Day = datetime.date
+Hour = datetime.datetime
 
 logg = logging.getLogger("dayrange")
 
@@ -179,14 +180,20 @@ class dayrange(Dayrange):
             self.before = before
 
 def date_isoformat(text: str) -> Day:
+    return datetime_isoformat(text).date()
+def datetime_isoformat(text: str) -> Hour:
     if "-99" in text:
         for end in ["-31", "-30", "-29", "-28"]:
             try:
                 text31 = text.replace("-99", end, 1)
-                return datetime.datetime.strptime(text31, "%Y-%m-%d").date()
+                if "." in text31 and ":" not in text31:
+                    return datetime.datetime.strptime(text31, "%Y-%m-%d.%H%M")
+                if "." in text31 and ":" in text31:
+                    return datetime.datetime.strptime(text31, "%Y-%m-%d.%H:%M")
+                return datetime.datetime.strptime(text31, "%Y-%m-%d")
             except ValueError as e:
                 logg.debug("[%s] %s", text31, e)
-    return datetime.datetime.strptime(text, "%Y-%m-%d").date()
+    return datetime.datetime.strptime(text, "%Y-%m-%d")
 
 def date_dotformat(text: str) -> Day:
     if "99." in text:
@@ -283,6 +290,17 @@ def next_sunday(diff: int) -> Day:
         if day.weekday() in [0, 7]:
             return day
     return today + datetime.timedelta(days=+7)
+
+def get_datetime(text: str, on_or_before: Optional[Day] = None) -> Hour:
+    if isinstance(text, datetime.datetime):
+        return text
+    if re.match(r"\d+-\d+-\d+T.*", text):
+        hour = text.split(":", 1)[0]
+        if text[-2] == "T":
+            text += "00"
+        return datetime_isoformat(text)
+    ondate = get_date(text, on_or_before)
+    return Hour(ondate.year, ondate.month, ondate.day, hour=20, minute=20)
 
 def get_date(text: str, on_or_before: Optional[Day] = None) -> Day:
     if isinstance(text, Day):
