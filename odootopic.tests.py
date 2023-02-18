@@ -88,6 +88,38 @@ class odootopicTest(unittest.TestCase):
         self.assertEqual(data[2]["proj"], "Development")
         self.assertEqual(data[2]["task"], "project2")
         self.assertEqual(data[2]["pref"], "dev2-backend")
+    def test_144(self) -> None:
+        spec = """
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev2 [Development]
+        >> dev2 "project2"
+        .. dev1
+        .. dev2-frontend
+        .. dev2-backend
+        >> dev2-frontend [Frontends]
+        >> dev2-frontend "project2"
+        .. dev2-frontend
+        .. dev2-backend
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 5)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "project2")
+        self.assertEqual(data[1]["pref"], "dev2-frontend")
+        self.assertEqual(data[2]["proj"], "Development")
+        self.assertEqual(data[2]["task"], "project2")
+        self.assertEqual(data[2]["pref"], "dev2-backend")
+        self.assertEqual(data[3]["proj"], "Frontends")
+        self.assertEqual(data[3]["task"], "project2")
+        self.assertEqual(data[3]["pref"], "dev2-frontend")
+        self.assertEqual(data[4]["proj"], "Development")
+        self.assertEqual(data[4]["task"], "project2")
+        self.assertEqual(data[4]["pref"], "dev2-backend")
     def test_200(self) -> None:
         spec = """
         >> dev [Development]
@@ -224,7 +256,7 @@ class odootopicTest(unittest.TestCase):
         self.assertEqual(data[2]["proj"], "Development")
         self.assertEqual(data[2]["task"], "project2")
         self.assertEqual(data[2]["pref"], "dev2-backend")
-    def test_224(self) -> None:
+    def test_219(self) -> None:
         spec = """
         >> dev [Development]
         >> dev "projects"
@@ -248,6 +280,430 @@ class odootopicTest(unittest.TestCase):
         self.assertEqual(data[2]["proj"], "Development")
         self.assertEqual(data[2]["task"], "projects")
         self.assertEqual(data[2]["pref"], "dev-backend")
+    def test_411(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        .. dev1
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], None)
+    def test_412(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        .. dev1
+        .. dev2
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], None)
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "projects")
+        self.assertEqual(data[1]["pref"], "dev2")
+        self.assertEqual(data[1]["ticket"], None)
+    def test_413(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev2 [Development]
+        >> dev2 "project2"
+        .. dev1
+        .. dev2
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], None)
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "project2")
+        self.assertEqual(data[1]["pref"], "dev2")
+        self.assertEqual(data[1]["ticket"], None)
+    def test_414(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev2 [Development]
+        >> dev2 "project2"
+        .. dev1
+        .. dev2-frontend
+        .. dev2-backend
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], None)
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "project2")
+        self.assertEqual(data[1]["pref"], "dev2-frontend")
+        self.assertEqual(data[1]["ticket"], None)
+        self.assertEqual(data[2]["proj"], "Development")
+        self.assertEqual(data[2]["task"], "project2")
+        self.assertEqual(data[2]["pref"], "dev2-backend")
+        self.assertEqual(data[2]["ticket"], None)
+    def test_419(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev2 [Development]
+        >> dev2 "project2"
+        .. dev1
+        .. dev-frontend
+        .. dev-backend
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], None)
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "projects")
+        self.assertEqual(data[1]["pref"], "dev-frontend")
+        self.assertEqual(data[1]["ticket"], None)
+        self.assertEqual(data[2]["proj"], "Development")
+        self.assertEqual(data[2]["task"], "projects")
+        self.assertEqual(data[2]["pref"], "dev-backend")
+        self.assertEqual(data[2]["ticket"], None)
+    def test_441(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev MAKE-10: "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        .. dev1
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], None)
+    def test_442(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev MAKE-10: "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        .. dev1
+        .. dev2
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], None)
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "projects")
+        self.assertEqual(data[1]["pref"], "dev2")
+        self.assertEqual(data[1]["ticket"], "MAKE-10")
+    def test_443(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev MAKE-10: "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev2 [Development]
+        >> dev2 "project2"
+        .. dev1
+        .. dev2
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], None)
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "project2")
+        self.assertEqual(data[1]["pref"], "dev2")
+        self.assertEqual(data[1]["ticket"], None)
+    def test_444(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev MAKE-10: "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev2 [Development]
+        >> dev2 "project2"
+        .. dev1
+        .. dev2-frontend
+        .. dev2-backend
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], None)
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "project2")
+        self.assertEqual(data[1]["pref"], "dev2-frontend")
+        self.assertEqual(data[1]["ticket"], None)
+        self.assertEqual(data[2]["proj"], "Development")
+        self.assertEqual(data[2]["task"], "project2")
+        self.assertEqual(data[2]["pref"], "dev2-backend")
+        self.assertEqual(data[2]["ticket"], None)
+    def test_445(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev MAKE-10
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev2 [Development]
+        >> dev2 "project2"
+        .. dev1
+        .. dev2-frontend
+        .. dev2-backend
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], None)
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "project2")
+        self.assertEqual(data[1]["pref"], "dev2-frontend")
+        self.assertEqual(data[1]["ticket"], None)
+        self.assertEqual(data[2]["proj"], "Development")
+        self.assertEqual(data[2]["task"], "project2")
+        self.assertEqual(data[2]["pref"], "dev2-backend")
+        self.assertEqual(data[2]["ticket"], None)
+    def test_448(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev MAKE-10
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev2 [Development]
+        >> dev2 "project2"
+        .. dev1
+        .. dev-frontend
+        .. dev-backend
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], None)
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "projects")
+        self.assertEqual(data[1]["pref"], "dev-frontend")
+        self.assertEqual(data[1]["ticket"], "MAKE-10")
+        self.assertEqual(data[2]["proj"], "Development")
+        self.assertEqual(data[2]["task"], "projects")
+        self.assertEqual(data[2]["pref"], "dev-backend")
+        self.assertEqual(data[2]["ticket"], "MAKE-10")
+    def test_449(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev MAKE-10: "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev2 [Development]
+        >> dev2 "project2"
+        .. dev1
+        .. dev-frontend
+        .. dev-backend
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], None)
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "projects")
+        self.assertEqual(data[1]["pref"], "dev-frontend")
+        self.assertEqual(data[1]["ticket"], "MAKE-10")
+        self.assertEqual(data[2]["proj"], "Development")
+        self.assertEqual(data[2]["task"], "projects")
+        self.assertEqual(data[2]["pref"], "dev-backend")
+        self.assertEqual(data[2]["ticket"], "MAKE-10")
+    def test_450(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev MAKE-10: "projects"
+        >> dev1 [Development]
+        >> dev1 MAKE-11: "project1"
+        >> dev2 [Development]
+        >> dev2 MAKE-12: "project2"
+        .. dev1
+        .. dev-frontend
+        .. dev-backend
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], "MAKE-11")
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "projects")
+        self.assertEqual(data[1]["pref"], "dev-frontend")
+        self.assertEqual(data[1]["ticket"], "MAKE-10")
+        self.assertEqual(data[2]["proj"], "Development")
+        self.assertEqual(data[2]["task"], "projects")
+        self.assertEqual(data[2]["pref"], "dev-backend")
+        self.assertEqual(data[2]["ticket"], "MAKE-10")
+    def test_451(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev MAKE-10: "projects"
+        >> dev1 [Development]
+        >> dev1 MAKE-11: "project1"
+        >> dev2 [Development]
+        >> dev2 MAKE-12: "project2"
+        .. dev1
+        .. dev1-frontend
+        .. dev1-backend
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], "MAKE-11")
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "project1")
+        self.assertEqual(data[1]["pref"], "dev1-frontend")
+        self.assertEqual(data[1]["ticket"], "MAKE-11")
+        self.assertEqual(data[2]["proj"], "Development")
+        self.assertEqual(data[2]["task"], "project1")
+        self.assertEqual(data[2]["pref"], "dev1-backend")
+        self.assertEqual(data[2]["ticket"], "MAKE-11")
+    def test_452(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev MAKE-10: "projects"
+        >> dev1 [Development]
+        >> dev1 MAKE-11: "project1"
+        >> dev2 [Development]
+        >> dev2 MAKE-12: "project2"
+        .. dev1
+        .. dev1-frontend
+        .. dev2-backend
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], "MAKE-11")
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "project1")
+        self.assertEqual(data[1]["pref"], "dev1-frontend")
+        self.assertEqual(data[1]["ticket"], "MAKE-11")
+        self.assertEqual(data[2]["proj"], "Development")
+        self.assertEqual(data[2]["task"], "project2")
+        self.assertEqual(data[2]["pref"], "dev2-backend")
+        self.assertEqual(data[2]["ticket"], "MAKE-12")
+    def test_453(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev MAKE-10: "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev1 MAKE-11:
+        >> dev2 [Development]
+        >> dev2 MAKE-12
+        >> dev2 "project2"
+        .. dev1
+        .. dev1-frontend
+        .. dev2-backend
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], "MAKE-11")
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "project1")
+        self.assertEqual(data[1]["pref"], "dev1-frontend")
+        self.assertEqual(data[1]["ticket"], "MAKE-11")
+        self.assertEqual(data[2]["proj"], "Development")
+        self.assertEqual(data[2]["task"], "project2")
+        self.assertEqual(data[2]["pref"], "dev2-backend")
+        self.assertEqual(data[2]["ticket"], "MAKE-12")
+    def test_454(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev MAKE-10: "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev1 MAKE-11:
+        >> dev2 [Development]
+        >> dev2 MAKE-12
+        >> dev2 "project2"
+        .. dev1
+        .. dev1-frontend
+        .. dev2-backend
+        >> dev2 MAKE-123
+        .. dev2-backend
+        """.splitlines()
+        data = list(topics.mapping(spec))
+        logg.debug("data = %s", data)
+        self.assertEqual(len(data), 4)
+        self.assertEqual(data[0]["proj"], "Development")
+        self.assertEqual(data[0]["task"], "project1")
+        self.assertEqual(data[0]["pref"], "dev1")
+        self.assertEqual(data[0]["ticket"], "MAKE-11")
+        self.assertEqual(data[1]["proj"], "Development")
+        self.assertEqual(data[1]["task"], "project1")
+        self.assertEqual(data[1]["pref"], "dev1-frontend")
+        self.assertEqual(data[1]["ticket"], "MAKE-11")
+        self.assertEqual(data[2]["proj"], "Development")
+        self.assertEqual(data[2]["task"], "project2")
+        self.assertEqual(data[2]["pref"], "dev2-backend")
+        self.assertEqual(data[2]["ticket"], "MAKE-12")
+        self.assertEqual(data[3]["proj"], "Development")
+        self.assertEqual(data[3]["task"], "project2")
+        self.assertEqual(data[3]["pref"], "dev2-backend")
+        self.assertEqual(data[3]["ticket"], "MAKE-123")
 
 if __name__ == "__main__":
     # unittest.main()

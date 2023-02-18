@@ -13,7 +13,7 @@ from tabtotext import JSONList, JSONDict, JSONItem
 from dayrange import get_date, Day
 from collections import namedtuple
 
-OdooValues = namedtuple("OdooValues", ["proj", "task", "pref"])
+OdooValues = namedtuple("OdooValues", ["proj", "task", "pref", "ticket"])
 
 logg = logging.getLogger("odootopics")
 
@@ -30,6 +30,7 @@ class OdooValuesForTopic:
     proj_ids: Dict[str, str]  # obsolete
     custname: Dict[str, str]
     projname: Dict[str, str]
+    ticket4: Dict[str, str]
     shortnames: bool
     def __init__(self, shortnames: bool = False) -> None:
         self.shortnames = shortnames
@@ -39,11 +40,14 @@ class OdooValuesForTopic:
         self.custname = {}  # a shorthand for "Project" in Odoo
         self.projname = {}  # a shorthand for "Task" in Odoo
         self.proj_ids = {}  # obsolete - used for old Odoo to generate foreign-refkey
+        self.ticket4 = {}  # allow to sync to jira trackers as well
         self.as_prefixed = re.compile(r'^(\S+)\s+=\s*(\S+)')
         self.as_customer = re.compile(r'^(\S+)\s+\[(.*)\](.*)')
         self.as_project0 = re.compile(r'^(\S+)\s+["](AS-(\d+):.*)["](.*)')  # obsolete
         self.as_project1 = re.compile(r'^(\S+)\s+["](.*)["](.*)')
-        self.as_project2 = re.compile(r'^(\S+)\s+(\w+):\s+["](.*)["](.*)')  # obsolete
+        self.as_project2 = re.compile(r'^(\S+)\s+(\w[\w-]*\w):\s+["](.*)["](.*)')
+        self.as_ticket1 = re.compile(r'^(\S+)\s+(\w[\w-]*\w)')
+        self.as_ticket2 = re.compile(r'^(\S+)\s+(\w[\w-]*\w):\s+(\w.*)')
 
     def scanline(self, line: str) -> None:
         """ expecting a line with >> first two chars, 
@@ -84,6 +88,16 @@ class OdooValuesForTopic:
             shorthand = m.group(4).strip().replace("#", ":")
             if not shorthand: shorthand = m.group(3)
             self.projname[m.group(1)] = shorthand
+            self.ticket4[m.group(1)] = m.group(2)  # repurpose
+            return
+        m = self.as_ticket1.match(line[2:].strip())
+        if m:
+            self.ticket4[m.group(1)] = m.group(2)
+            return
+        m = self.as_ticket2.match(line[2:].strip())
+        if m:
+            self.ticket4[m.group(1)] = m.group(2)
+            self.projname[m.group(1)] = m.group(3)
             return
         logg.error("??? %s", line)
     def lookup(self, topic: str, daydate: Optional[Day] = None) -> Optional[OdooValues]:
@@ -111,7 +125,10 @@ class OdooValuesForTopic:
                 itemProj = self.custname[self.customer[proj]]
             if proj in self.projname:
                 itemTask = self.projname[proj]
-        return OdooValues(itemProj, itemTask, itemPref)
+        if proj in self.ticket4:
+            return OdooValues(itemProj, itemTask, itemPref, self.ticket4[proj])
+        else:
+            return OdooValues(itemProj, itemTask, itemPref, None)
 
 def mapping(lines: Iterable[str]) -> Iterator[JSONDict]:
     odoomap = OdooValuesForTopic()
@@ -137,6 +154,7 @@ def mapping(lines: Iterable[str]) -> Iterator[JSONDict]:
                 item["pref"] = found.pref
                 item["proj"] = found.proj
                 item["task"] = found.task
+                item["ticket"] = found.ticket
             yield item
             continue
         if line.startswith("--"):
