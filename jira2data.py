@@ -591,16 +591,24 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
             result = list(jiraOdooData(remote))
         else:
             logg.error("unknown report %s", report)
+    def lastdesc(name: str) -> str:
+        if name in ["Description", "comment"]:
+            return f"z.{name}"
+        if name in ["Quantity"]:
+            return f"Day{name}"
+        if name in ["upcreated"]:
+            return f"at.{name}"
+        return name
     if result:
         summary += ["found %s items" % (len(result))]
-        print(tabToGFM(result, sorts=sortby, legend=summary))
+        print(tabToGFM(result, sorts=sortby, legend=summary, reorder=lastdesc))
         if TEXTFILE:
             with open(TEXTFILE, "w") as f:
-                print(tabToGFM(result, sorts=sortby, legend=summary), file=f)
+                print(tabToGFM(result, sorts=sortby, legend=summary, reorder=lastdesc), file=f)
                 logg.info("written %s", TEXTFILE)
         if HTMLFILE:
             with open(HTMLFILE, "w") as f:
-                print(tabToHTML(result, sorts=sortby, legend=summary), file=f)
+                print(tabToHTML(result, sorts=sortby, legend=summary, reorder=lastdesc), file=f)
                 logg.info("written %s", HTMLFILE)
         if JSONFILE:
             with open(JSONFILE, "w") as f:
