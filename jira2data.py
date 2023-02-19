@@ -413,6 +413,12 @@ def jira_project(taskname: str) -> str:
     return parts[0]
 
 def jira_odoo_project(taskname: str, desc: str = "") -> str:
+    found = find_jira_odoo_project(taskname, desc)
+    if found:
+        return found
+    parts = taskname.split("-", 1)
+    return parts[0]
+def find_jira_odoo_project(taskname: str, desc: str = "") -> Optional[str]:
     if jira_odoomap:
         values = jira_odoomap.values(taskname)
         if desc:
@@ -422,20 +428,24 @@ def jira_odoo_project(taskname: str, desc: str = "") -> str:
         if values:
             first = sorted(values, key=lambda x: cast(str, x.pref), reverse=True)
             return cast(str, first[0].proj)
-    parts = taskname.split("-", 1)
-    return parts[0]
+    return None
 
 def jira_odoo_task(taskname: str, desc: str = "") -> str:
+    found = find_jira_odoo_task(taskname, desc)
+    if found:
+        return found
+    return taskname
+def find_jira_odoo_task(taskname: str, desc: str = "") -> Optional[str]:
     if jira_odoomap:
         values = jira_odoomap.values(taskname)
         if desc:
             for value in sorted(values, key=lambda x: cast(str, x.pref), reverse=True):
                 if desc.startswith(cast(str, value.pref)):
-                    return cast(str, value.proj)
+                    return cast(str, value.task)
         if values:
             first = sorted(values, key=lambda x: cast(str, x.pref), reverse=True)
             return cast(str, first[0].task)
-    return taskname
+    return None
 
 def read_odoo_taskdata(filename: str) -> Dict[str, str]:
     global jira_odoomap
@@ -488,6 +498,12 @@ def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
             line = f"{weekday} {hh}:{mm:02} {desc}"
             data[key] += [line]
     for prefix, issue in mapping.items():
+        proj = find_jira_odoo_project(issue, prefix)
+        task = find_jira_odoo_task(issue, prefix)
+        if proj:
+            yield {"zeit.txt": f""">> {prefix} [{proj}] """}
+        if task:
+            yield {"zeit.txt": f""">> {prefix} "{task}" """}
         yield {"zeit.txt": f">> {prefix} {issue}"}
     for key in sorted(data):
         lines = data[key]
