@@ -141,6 +141,8 @@ def each_odoo_projects_tasks() -> Iterable[JSONDict]:
             if fnmatches(name, ODOO_PROJSKIP): continue
         yield item
 
+# ========================================================================
+
 def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
         odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
@@ -157,6 +159,65 @@ def _work_data(odoodata: JSONList) -> Iterable[JSONDict]:
         yield {"at proj": proj_name, "at task": task_name,
                "at date": odoo_date, "odoo": odoo_size, "worked on": odoo_desc}
 
+WEEKDAYS = ["so", "mo", "di", "mi", "do", "fr", "sa", "so"]
+
+def work_zeit(odoodata: Optional[JSONList] = None) -> JSONList:
+    if not odoodata:
+        odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
+        odoodata = odoo.timesheet(DAYS.after, DAYS.before)
+    # return list(odoodata)
+    return list(_work_zeit(odoodata))
+def _work_zeit(odoodata: JSONList) -> Iterable[JSONDict]:
+    data: Dict[Tuple[str, str], List[str]] = {}
+    mapping: Dict[str, str] = {}
+    projnames: Dict[str, str] = {}
+    tasknames: Dict[str, str] = {}
+    weekstart = None
+    for item in odoodata:
+        proj_name: str = cast(str, item["proj_name"])
+        task_name: str = cast(str, item["task_name"])
+        odoo_date: Day = get_date(cast(str, item["entry_date"]))  # in case we use raw zeit
+        odoo_size: Num = cast(Num, item["entry_size"])
+        odoo_desc: str = cast(str, item["entry_desc"])
+        prefix = odoo_desc.split(" ", 1)[0]
+        mapping[prefix] = ""
+        projnames[prefix] = proj_name
+        tasknames[prefix] = task_name
+        key = (odoo_date.strftime("%Y-%m-%d"), prefix)
+        if key not in data:
+            data[key] = []
+        sunday = last_sunday(0, odoo_date)
+        if weekstart is None or weekstart != sunday:
+            nextsunday = next_sunday(0, sunday)
+            line = "so **** WEEK %s-%s" % (sunday.strftime("%d.%m."), nextsunday.strftime("%d.%m."))
+            data[(sunday.strftime("%Y-%m-%d"), "***")] = [line]
+            weekstart = sunday
+        weekday = WEEKDAYS[odoo_date.weekday()]
+        hours = odoo_size
+        desc = odoo_desc.strip()
+        hh = int(hours)
+        mm = int((hours - hh) * 60)
+        line = f"{weekday} {hh}:{mm:02} {desc}"
+        data[key] += [line]
+    for prefix, issue in mapping.items():
+        proj = projnames[prefix]
+        task = tasknames[prefix]
+        if proj:
+            yield {"zeit.txt": f""">> {prefix} [{proj}] """}
+        if task:
+            yield {"zeit.txt": f""">> {prefix} "{task}" """}
+        if issue:
+            yield {"zeit.txt": f""">> {prefix} {issue} """}
+    for key in sorted(data):
+        lines = data[key]
+        if len(lines) > 1:
+            logg.warning(" multiple lines for day %s topic %s", *key)
+            for line in lines:
+                logg.warning(" | %s", line)
+        for line in lines:
+            yield {"zeit.txt": line}
+
+# ========================================================================
 def summary_per_day(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
         odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
@@ -367,6 +428,10 @@ def run(arg: str) -> None:
         formats["task_name"] = '"{:}"'
     elif arg in ["ww", "data", "worked"]:
         results = work_data(data)
+        if results and not SHORTNAME:
+            logg.log(DONE, " ### use -q or -qq to shorten the names for proj and task !!")
+    elif arg in ["z", "text", "zeit"]:
+        results = work_zeit(data)
         if results and not SHORTNAME:
             logg.log(DONE, " ### use -q or -qq to shorten the names for proj and task !!")
     elif arg in ["dd", "dsummary", "days"]:
