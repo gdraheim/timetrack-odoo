@@ -41,9 +41,10 @@ WRITEXLSX = False
 WRITEJSON = True
 WRITECSV = True
 JSONFILE = ""
-HTMLFILE = ""
 XLSXFILE = ""
 CSVFILE = ""
+FORMAT = ""
+OUTPUT = ""
 
 NEWFORMAT = True
 TitleID = "ID"
@@ -467,6 +468,11 @@ def run(arg: str) -> None:
         if name in ["Quantity"]:
             return f"Day{name}"
         return name
+    if OUTPUT:
+        FMT = FORMAT
+        with open(OUTPUT, "w") as f:
+            f.write(tabtotext.tabToFMT(FMT, data))
+        logg.log(DONE, " written   %s '%s'", editprog(), OUTPUT)
     if WRITEJSON or JSONFILE:
         json_text = tabtotext.tabToJSON(data)
         json_file = JSONFILE or filename + ".json"
@@ -508,8 +514,9 @@ if __name__ == "__main__":
                        help="suffix for summary report [%default]")
     cmdline.add_option("-f", "--filename", metavar="TEXT", default=ZEIT_FILENAME,
                        help="choose input filename [%s]" % (ZEIT_FILENAME or DEFAULT_FILENAME))
+    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
+    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect to filename")
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE)
-    cmdline.add_option("-H", "--htmlfile", metavar="FILE", default=HTMLFILE)
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE)
     cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE)
     cmdline.add_option("-P", "--projfilter", metavar="TEXT", default=ZEIT_PROJFILTER,
@@ -530,8 +537,9 @@ if __name__ == "__main__":
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose))
     # logg.addHandler(logging.StreamHandler())
+    FORMAT = opt.format
+    OUTPUT = opt.output
     JSONFILE = opt.jsonfile
-    HTMLFILE = opt.htmlfile
     XLSXFILE = opt.xlsxfile
     CSVFILE = opt.csvfile
     if opt.newformat:

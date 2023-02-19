@@ -18,9 +18,11 @@ from urllib.parse import quote_plus as qq
 import netrc
 import gitrc
 from dayrange import get_date, is_dayrange, dayrange, last_sunday, next_sunday
-from tabtotext import tabToJSON, tabToGFM, tabToHTML, JSONDict, JSONList, JSONItem, setNoRight, tabWithDateHour
+from tabtotext import tabToJSON, tabToGFM, tabToFMT, JSONDict, JSONList, JSONItem, setNoRight, tabWithDateHour
 
 logg = logging.getLogger("JIRA2DATA")
+DONE = (logging.WARNING + logging.ERROR) // 2
+logging.addLevelName(DONE, "DONE")
 
 def get_login() -> str:
     return os.environ.get("LOGIN", "") or os.environ.get("USER") or "admin"
@@ -42,9 +44,10 @@ PROJECTS: List[str] = []
 PROJECTDEFAULT = "ASO"
 JIRADEFAULT = "http://jira.host"  # RFC2606
 
-HTMLFILE = ""
-TEXTFILE = ""
+FORMAT = ""
+OUTPUT = ""
 JSONFILE = ""
+XLSXFILE = ""
 TASKDATA = ""
 SHORTDESC = 0
 DRYRUN = 0
@@ -492,6 +495,7 @@ def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
                 nextsunday = next_sunday(0, sunday)
                 line = "so **** WEEK %s-%s" % (sunday.strftime("%d.%m."), nextsunday.strftime("%d.%m."))
                 data[(sunday.strftime("%Y-%m-%d"), "***")] = [line]
+                weekstart = sunday
             weekday = WEEKDAYS[started.weekday()]
             hh = int(hours)
             mm = int((hours - hh) * 60)
@@ -622,6 +626,7 @@ class Worklogs:
 def run(remote: JiraFrontend, args: List[str]) -> int:
     global DAYS
     # execute verbs after arguments are scanned
+    FMT = FORMAT
     result: JSONList = []
     summary: List[str] = []
     sortby: List[str] = []
@@ -671,7 +676,8 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
             if TASKDATA:
                 read_odoo_taskdata(TASKDATA)
             result = list(jiraZeitData(remote))
-            tab = ""
+            if not FMT:
+                FMT = "wide"
         else:
             logg.error("unknown report %s", report)
     def lastdesc(name: str) -> str:
@@ -684,19 +690,20 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
         return name
     if result:
         summary += ["found %s items" % (len(result))]
-        print(tabToGFM(result, sorts=sortby, legend=summary, reorder=lastdesc, tab=tab))
-        if TEXTFILE:
-            with open(TEXTFILE, "w") as f:
-                print(tabToGFM(result, sorts=sortby, legend=summary, reorder=lastdesc, tab=tab), file=f)
-                logg.info("written %s", TEXTFILE)
-        if HTMLFILE:
-            with open(HTMLFILE, "w") as f:
-                print(tabToHTML(result, sorts=sortby, legend=summary, reorder=lastdesc), file=f)
-                logg.info("written %s", HTMLFILE)
+        if OUTPUT in ["", "-", "CON"]:
+            print(tabToFMT(FMT, result, sorts=sortby, legend=summary, reorder=lastdesc))
+        elif OUTPUT:
+            with open(OUTPUT, "w") as f:
+                f.write(tabToFMT(FMT, result, sorts=sortby, legend=summary, reorder=lastdesc))
+            logg.log(DONE, "written %s '%s'", FMT, OUTPUT)
         if JSONFILE:
             with open(JSONFILE, "w") as f:
                 print(tabToJSON(result, sorts=sortby), file=f)
-                logg.info("written %s", JSONFILE)
+                logg.log(DONE, "written %s", JSONFILE)
+        if XLSXFILE:
+            import tabtoxlsx
+            tabtoxlsx.saveToXLSX(XLSXFILE, result, sorts=sortby)
+            logg.log(DONE, "written %s", XLSXFILE)
     return 0
 
 if __name__ == "__main__":
@@ -710,9 +717,10 @@ if __name__ == "__main__":
                        help="only evaluate entrys on and before [last of month]")
     cmdline.add_option("-j", "--project", metavar="JIRA", action="append", default=PROJECTS,
                        help="jira projects (%default) or " + PROJECTDEFAULT)
-    cmdline.add_option("-H", "--htmlfile", metavar="PATH", default=HTMLFILE)
-    cmdline.add_option("-T", "--textfile", metavar="PATH", default=TEXTFILE)
+    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
+    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect to filename")
     cmdline.add_option("-J", "--jsonfile", metavar="PATH", default=JSONFILE)
+    cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE)
     cmdline.add_option("-m", "--taskdata", metavar="PATH", default=TASKDATA)
     cmdline.add_option("-q", "--dryrun", action="count", default=0)
     cmdline.add_option("-Q", "--shortdesc", action="count", default=SHORTDESC,
@@ -722,15 +730,16 @@ if __name__ == "__main__":
     cmdline.add_option("-U", "--user", metavar="NAME", default=USER,
                        help="filter for user [%default]")
     opt, args = cmdline.parse_args()
-    logging.basicConfig(level=max(0, logging.ERROR - 10 * opt.verbose))
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
     warnings.simplefilter("once", InsecureRequestWarning)
     SHORTDESC = opt.shortdesc
     DRYRUN = opt.dryrun
     DAYS = dayrange(opt.after, opt.before)
     PROJECTS = opt.project
+    FORMAT = opt.format
+    OUTPUT = opt.output
     JSONFILE = opt.jsonfile
-    TEXTFILE = opt.textfile
-    HTMLFILE = opt.htmlfile
+    XLSXFILE = opt.xlsxfile
     TASKDATA = opt.taskdata
     USER = opt.user
     tabWithDateHour()

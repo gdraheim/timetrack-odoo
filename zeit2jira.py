@@ -43,9 +43,7 @@ ONLYZEIT = 0
 
 FORMAT = ""
 OUTPUT = "-"
-TEXTFILE = ""
 JSONFILE = ""
-HTMLFILE = ""
 XLSXFILE = ""
 CSVFILE = ""
 CSVDATA = ""
@@ -314,6 +312,8 @@ def run(arg: str) -> None:
             f.write(csv_text)
         logg.log(DONE, "written %s (%s entries)", csv_file, len(data))
         return
+    # ---------------------------------
+    FMT = FORMAT
     summary = []
     results: JSONList = []
     if arg in ["zz", "zeit"]:
@@ -344,23 +344,15 @@ def run(arg: str) -> None:
                     item["at task"] = strName(item["at task"])
         formats = {"zeit": " %4.2f", "odoo": " %4.2f", "summe": " %4.2f"}
         if OUTPUT in ["-", "CON"]:
-            print(tabtotext.tabToFMT(FORMAT, results, formats=formats, legend=summary))
+            print(tabtotext.tabToFMT(FMT, results, formats=formats, legend=summary))
         elif OUTPUT:
             with open(OUTPUT, "w") as f:
-                f.write(tabtotext.tabToFMT(FORMAT, results, formats=formats, legend=summary))
-            logg.log(DONE, " %s written   %s '%s'", FORMAT, editprog(), OUTPUT)
+                f.write(tabtotext.tabToFMT(FMT, results, formats=formats, legend=summary))
+            logg.log(DONE, " %s written   %s '%s'", FMT, editprog(), OUTPUT)
         if JSONFILE:
             with open(JSONFILE, "w") as f:
                 f.write(tabtotext.tabToJSON(results))
             logg.log(DONE, " json written   %s '%s'", editprog(), JSONFILE)
-        if HTMLFILE:
-            with open(HTMLFILE, "w") as f:
-                f.write(tabtotext.tabToHTML(results))
-            logg.log(DONE, " html written   %s '%s'", htmlprog(), HTMLFILE)
-        if TEXTFILE:
-            with open(TEXTFILE, "w") as f:
-                f.write(tabtotext.tabToGFM(results, formats=formats))
-            logg.log(DONE, " text written   %s '%s'", editprog(), TEXTFILE)
         if XLSXFILE:
             import tabtoxlsx
             tabtoxlsx.saveToXLSX(XLSXFILE, results)
@@ -388,9 +380,7 @@ if __name__ == "__main__":
                        help="present only local zeit data [%default]")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
     cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect to filename")
-    cmdline.add_option("-T", "--textfile", metavar="FILE", default=TEXTFILE)
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE)
-    cmdline.add_option("-H", "--htmlfile", metavar="FILE", default=HTMLFILE)
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE)
     cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE)
     cmdline.add_option("-d", "--csvdata", metavar="FILE", default=CSVDATA)
@@ -412,9 +402,7 @@ if __name__ == "__main__":
     UPDATE = opt.update
     FORMAT = opt.format
     OUTPUT = opt.output
-    TEXTFILE = opt.textfile
     JSONFILE = opt.jsonfile
-    HTMLFILE = opt.htmlfile
     XLSXFILE = opt.xlsxfile
     CSVFILE = opt.csvfile
     CSVDATA = opt.csvdata
