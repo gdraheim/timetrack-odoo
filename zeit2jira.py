@@ -10,6 +10,7 @@ import datetime
 
 import tabtotext
 import zeit2json as zeit_api
+from tabtotext import strHours
 from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
 import jira2data as jira_api
 import netrc
@@ -50,10 +51,6 @@ CSVFILE = ""
 CSVDATA = ""
 XLSXDATA = ""
 
-norm_frac_1_4 = 0x00BC
-norm_frac_1_2 = 0x00BD
-norm_frac_3_4 = 0x00BE
-
 def editprog() -> str:
     return os.environ.get("EDIT", "mcedit")
 def htmlprog() -> str:
@@ -91,31 +88,6 @@ def shorterName(value: JSONItem) -> str:
     if len(val) > 18:
         return val[:8] + "..." + val[-7:]
     return val
-
-def strHours(val: Union[int, float, str]) -> str:
-    numm = float(val)
-    base = int(numm)
-    frac = numm - base
-    indent = ""
-    if base <= 9:
-        indent = " "
-    if -0.02 < frac and frac < 0.02:
-        if not base:
-            return " 0"
-        return "%s%i%c" % (indent, base, "h")
-    if 0.22 < frac and frac < 0.27:
-        if not base:
-            return "%s%s%c" % (indent, " ", norm_frac_1_4)
-        return "%s%i%c" % (indent, base, norm_frac_1_4)
-    if 0.48 < frac and frac < 0.52:
-        if not base:
-            return "%s%s%c" % (indent, " ", norm_frac_1_2)
-        return "%s%i%c" % (indent, base, norm_frac_1_2)
-    if 0.72 < frac and frac < 0.77:
-        if not base:
-            return "%s%s%c" % (indent, " ", norm_frac_3_4)
-        return "%s%i%c" % (indent, base, norm_frac_3_4)
-    return "%s%f" % (indent, numm)
 
 def update_per_days(data: JSONList, user: str = NIX) -> JSONList:
     changes: JSONList = []
