@@ -416,6 +416,7 @@ def run(arg: str) -> None:
     summary = []
     results: JSONList = []
     formats = {"odoo": " %4.2f", "summe": " %4.2f"}
+    FMT = FORMAT
     if ONLYZEIT:
         import zeit2json
         data = json2odoo(zeit2json.read_zeit(DAYS.after, DAYS.before))
@@ -434,6 +435,8 @@ def run(arg: str) -> None:
         results = work_zeit(data)
         if results and not SHORTNAME:
             logg.log(DONE, " ### use -q or -qq to shorten the names for proj and task !!")
+        if not FMT:
+            FMT = "wide"
     elif arg in ["dd", "dsummary", "days"]:
         results = summary_per_day(data)
     elif arg in ["xx", "report"]:
@@ -493,11 +496,11 @@ def run(arg: str) -> None:
                 results.append({"satz": price_vat, "summe": round(summe * price_vat, 2)})
                 results.append({"summe": summe + round(summe * price_vat, 2)})
         if OUTPUT in ["", "-", "CON"]:
-            print(tabtotext.tabToFMT(FORMAT, results, formats=formats, legend=summary))
+            print(tabtotext.tabToFMT(FMT, results, formats=formats, legend=summary))
         elif OUTPUT:
             with open(OUTPUT, "w") as f:
-                f.write(tabtotext.tabToFMT(FORMAT, results, formats=formats, legend=summary))
-            logg.log(DONE, " %s written   %s '%s'", FORMAT, editprog(), OUTPUT)
+                f.write(tabtotext.tabToFMT(FMT, results, formats=formats, legend=summary))
+            logg.log(DONE, " %s written   %s '%s'", FMT, editprog(), OUTPUT)
         if JSONFILE:
             with open(JSONFILE, "w") as f:
                 f.write(tabtotext.tabToJSON(results))
