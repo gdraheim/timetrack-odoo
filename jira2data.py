@@ -13,6 +13,7 @@ import os
 import re
 import sys
 import datetime
+from odootopic import OdooValues, OdooValuesForTopic
 from urllib.parse import quote_plus as qq
 import netrc
 import gitrc
@@ -44,6 +45,7 @@ JIRADEFAULT = "http://jira.host"  # RFC2606
 HTMLFILE = ""
 TEXTFILE = ""
 JSONFILE = ""
+TASKDATA = ""
 SHORTDESC = 0
 DRYRUN = 0
 
@@ -402,16 +404,38 @@ def each_jiraOdooData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
             item["User"] = user
             yield item
 
+jira_odoomap: Optional[OdooValuesForTopic] = None
+
 def jira_project(taskname: str) -> str:
     parts = taskname.split("-", 1)
     return parts[0]
 
 def jira_odoo_project(taskname: str) -> str:
+    if jira_odoomap:
+        values = jira_odoomap.values(taskname)
+        if values:
+            first = sorted(values, key=lambda x: cast(str, x.pref))
+            return cast(str, first[0].proj)
     parts = taskname.split("-", 1)
     return parts[0]
 
 def jira_odoo_task(taskname: str) -> str:
+    if jira_odoomap:
+        values = jira_odoomap.values(taskname)
+        if values:
+            first = sorted(values, key=lambda x: cast(str, x.pref))
+            return cast(str, first[0].task)
     return taskname
+
+def read_odoo_taskdata(filename: str) -> Dict[str, str]:
+    global jira_odoomap
+    jira_odoomap = OdooValuesForTopic()
+    for line in open(filename):
+        if line.startswith(">>"):
+            jira_odoomap.scanline(line)
+    mapping = jira_odoomap.ticket4
+    logg.info("jira odoomap %s", mapping)
+    return mapping
 
 #############################################################################################
 def date2isotime(ondate: Day) -> str:
@@ -562,6 +586,8 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
                 jiraGetUserActivityInDays(remote)) if item["itemAuthor"] == remote.user())
             sortby = ["upcreated"]
         elif report in ["odoo", "data", "d"]:
+            if TASKDATA:
+                read_odoo_taskdata(TASKDATA)
             result = list(jiraOdooData(remote))
         else:
             logg.error("unknown report %s", report)
@@ -596,6 +622,7 @@ if __name__ == "__main__":
     cmdline.add_option("-H", "--htmlfile", metavar="PATH", default=HTMLFILE)
     cmdline.add_option("-T", "--textfile", metavar="PATH", default=TEXTFILE)
     cmdline.add_option("-J", "--jsonfile", metavar="PATH", default=JSONFILE)
+    cmdline.add_option("-m", "--taskdata", metavar="PATH", default=TASKDATA)
     cmdline.add_option("-q", "--dryrun", action="count", default=0)
     cmdline.add_option("-Q", "--shortdesc", action="count", default=SHORTDESC,
                        help="present short lines for description [%default]")
@@ -613,6 +640,7 @@ if __name__ == "__main__":
     JSONFILE = opt.jsonfile
     TEXTFILE = opt.textfile
     HTMLFILE = opt.htmlfile
+    TASKDATA = opt.taskdata
     USER = opt.user
     tabWithDateHour()
     remote = JiraFrontend(opt.restapi)

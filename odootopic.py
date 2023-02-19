@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from typing import List, Dict, Union, Optional, Iterator, Iterable, cast
+from typing import List, Dict, Union, Optional, Tuple, Iterator, Iterable, cast
 
 import logging
 import re
@@ -129,6 +129,16 @@ class OdooValuesForTopic:
             return OdooValues(itemProj, itemTask, itemPref, self.ticket4[proj])
         else:
             return OdooValues(itemProj, itemTask, itemPref, None)
+    def values(self, issue: str) -> List[OdooValues]:
+        data: Dict[Tuple[str, str], OdooValues] = {}
+        for proj, ticket in self.ticket4.items():
+            if ticket == issue:
+                itemProj = self.customer[proj]
+                itemTask = self.projects[proj]
+                value = OdooValues(itemProj, itemTask, proj, None)
+                key = (itemProj, itemTask)
+                data[key] = value
+        return list(data.values())
 
 def mapping(lines: Iterable[str]) -> Iterator[JSONDict]:
     odoomap = OdooValuesForTopic()
