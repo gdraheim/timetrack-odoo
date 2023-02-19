@@ -18,7 +18,7 @@ from urllib.parse import quote_plus as qq
 import netrc
 import gitrc
 from dayrange import get_date, is_dayrange, dayrange, last_sunday, next_sunday
-from tabtotext import tabToJSON, tabToGFM, tabToFMT, JSONDict, JSONList, JSONItem, setNoRight, tabWithDateHour
+from tabtotext import tabToJSON, tabToGFM, tabToFMT, JSONDict, JSONList, JSONItem, viewFMT, setNoRight, tabWithDateHour
 
 logg = logging.getLogger("JIRA2DATA")
 DONE = (logging.WARNING + logging.ERROR) // 2
@@ -695,15 +695,17 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
         elif OUTPUT:
             with open(OUTPUT, "w") as f:
                 f.write(tabToFMT(FMT, result, sorts=sortby, legend=summary, reorder=lastdesc))
-            logg.log(DONE, "written %s '%s'", FMT, OUTPUT)
+            logg.log(DONE, " %s written  %s '%s'", FMT, viewFMT(FMT), OUTPUT)
         if JSONFILE:
+            FMT = "json"
             with open(JSONFILE, "w") as f:
                 print(tabToJSON(result, sorts=sortby), file=f)
-                logg.log(DONE, "written %s", JSONFILE)
+                logg.log(DONE, " %s written  %s %s", FMT, viewFMT(FMT), JSONFILE)
         if XLSXFILE:
+            FMT = "xlsx"
             import tabtoxlsx
             tabtoxlsx.saveToXLSX(XLSXFILE, result, sorts=sortby)
-            logg.log(DONE, "written %s", XLSXFILE)
+            logg.log(DONE, " %s written  %s %s", FMT, viewFMT(FMT), XLSXFILE)
     return 0
 
 if __name__ == "__main__":

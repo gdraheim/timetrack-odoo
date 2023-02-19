@@ -21,7 +21,7 @@ import gitrc
 
 # from math import round
 from fnmatch import fnmatchcase as fnmatch
-from tabtotext import JSONList, JSONDict, JSONBase, JSONItem
+from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, viewFMT
 from odoo_rest import EntryID, ProjID, TaskID
 
 Day = datetime.date
@@ -49,9 +49,7 @@ ONLYZEIT = 0
 
 FORMAT = ""
 OUTPUT = "-"
-TEXTFILE = ""
 JSONFILE = ""
-HTMLFILE = ""
 XLSXFILE = ""
 
 SHORTNAME = True
@@ -231,13 +229,6 @@ def strName(value: JSONItem) -> str:
         if len(val) > 22:
             return val[:12] + "..." + val[-7:]
     return val
-
-def editprog() -> str:
-    return os.environ.get("EDIT", "mcedit")
-def htmlprog() -> str:
-    return os.environ.get("BROWSER", "chrome")
-def xlsxprog() -> str:
-    return os.environ.get("XLSVIEW", "oocalc")
 
 def pref_desc(desc: str) -> str:
     if " " not in desc:
@@ -465,29 +456,24 @@ def run(config: ConfigParser, args: List[str]) -> JSONList:
             logg.error("unknown object type % for  %s - use 'config to check it", typ, arg)
             return [{"error": "unknown object type"}]
     if results:
+        FMT = FORMAT
         formats = {"zeit": " %4.2f", "odoo": " %4.2f", "summe": " %4.2f"}
         if OUTPUT in ["-", "CON"]:
             print(tabtotext.tabToFMT(FORMAT, results, headers, formats=formats, legend=summary))
         elif OUTPUT:
             with open(OUTPUT, "w") as f:
                 f.write(tabtotext.tabToFMT(FORMAT, results, headers, formats=formats, legend=summary))
-            logg.log(DONE, " %s written   %s '%s'", FORMAT, editprog(), OUTPUT)
+            logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), OUTPUT)
         if JSONFILE:
+            FMT = "json"
             with open(JSONFILE, "w") as f:
                 f.write(tabtotext.tabToJSON(results, headers))
-            logg.log(DONE, " json written   %s '%s'", editprog(), JSONFILE)
-        if HTMLFILE:
-            with open(HTMLFILE, "w") as f:
-                f.write(tabtotext.tabToHTML(results, headers))
-            logg.log(DONE, " html written   %s '%s'", htmlprog(), HTMLFILE)
-        if TEXTFILE:
-            with open(TEXTFILE, "w") as f:
-                f.write(tabtotext.tabToGFM(results, headers, formats=formats))
-            logg.log(DONE, " text written   %s '%s'", editprog(), TEXTFILE)
+            logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), JSONFILE)
         if XLSXFILE:
+            FMT = "xlsx"
             import tabtoxlsx
             tabtoxlsx.saveToXLSX(XLSXFILE, results, headers)
-            logg.log(DONE, " xlsx written   %s '%s'", xlsxprog(), XLSXFILE)
+            logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), XLSXFILE)
     return results
 
 if __name__ == "__main__":
@@ -518,9 +504,7 @@ if __name__ == "__main__":
                        help="present only local zeit data [%default]")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
     cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect to filename")
-    cmdline.add_option("-T", "--textfile", metavar="FILE", default=TEXTFILE)
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE)
-    cmdline.add_option("-H", "--htmlfile", metavar="FILE", default=HTMLFILE)
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE)
     cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=netrc.GIT_CREDENTIALS)
     cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=netrc.NET_CREDENTIALS)
@@ -541,9 +525,7 @@ if __name__ == "__main__":
     UPDATE = opt.update
     FORMAT = opt.format
     OUTPUT = opt.output
-    TEXTFILE = opt.textfile
     JSONFILE = opt.jsonfile
-    HTMLFILE = opt.htmlfile
     XLSXFILE = opt.xlsxfile
     ONLYZEIT = opt.onlyzeit
     SHORTDESC = opt.shortdesc

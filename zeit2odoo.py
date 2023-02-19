@@ -10,7 +10,6 @@ import datetime
 
 import tabtotext
 import zeit2json as zeit_api
-from tabtotext import strHours
 from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
 import odoo_rest as odoo_api
 import netrc
@@ -18,7 +17,7 @@ import gitrc
 
 # from math import round
 from fnmatch import fnmatchcase as fnmatch
-from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, str27, str40
+from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, viewFMT, strHours, str27, str40
 from odoo_rest import EntryID, ProjID, TaskID
 
 Day = datetime.date
@@ -52,13 +51,6 @@ XLSXFILE = ""
 CSVFILE = ""
 CSVDATA = ""
 XLSXDATA = ""
-
-def editprog() -> str:
-    return os.environ.get("EDIT", "mcedit")
-def htmlprog() -> str:
-    return os.environ.get("BROWSER", "chrome")
-def xlsxprog() -> str:
-    return os.environ.get("XLSVIEW", "oocalc")
 
 def strDesc(val: str) -> str:
     if SHORTDESC:
@@ -443,15 +435,17 @@ def run(arg: str) -> None:
         elif OUTPUT:
             with open(OUTPUT, "w") as f:
                 f.write(tabtotext.tabToFMT(FMT, results, formats=formats, legend=summary))
-            logg.log(DONE, " %s written   %s '%s'", FMT, editprog(), OUTPUT)
+            logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), OUTPUT)
         if JSONFILE:
+            FMT = "json"
             with open(JSONFILE, "w") as f:
                 f.write(tabtotext.tabToJSON(results))
-            logg.log(DONE, " json written   %s '%s'", editprog(), JSONFILE)
+            logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), JSONFILE)
         if XLSXFILE:
+            FMT = "xlsx"
             import tabtoxlsx
             tabtoxlsx.saveToXLSX(XLSXFILE, results)
-            logg.log(DONE, " xlsx written   %s '%s'", xlsxprog(), XLSXFILE)
+            logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), XLSXFILE)
 
 if __name__ == "__main__":
     from optparse import OptionParser

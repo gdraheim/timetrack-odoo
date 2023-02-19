@@ -10,7 +10,7 @@ import datetime
 import os.path as path
 
 import tabtotext
-from tabtotext import JSONList, JSONDict, JSONItem
+from tabtotext import JSONList, JSONDict, JSONItem, viewFMT
 from dayrange import get_date, Day, is_dayrange, dayrange
 from odootopic import OdooValuesForTopic
 
@@ -472,32 +472,29 @@ def run(arg: str) -> None:
         FMT = FORMAT
         with open(OUTPUT, "w") as f:
             f.write(tabtotext.tabToFMT(FMT, data))
-        logg.log(DONE, " written   %s '%s'", editprog(), OUTPUT)
+        logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), OUTPUT)
     if WRITEJSON or JSONFILE:
+        FMT = "json"
         json_text = tabtotext.tabToJSON(data)
-        json_file = JSONFILE or filename + ".json"
+        json_file = JSONFILE or f"{filename}.{FMT}"
         with open(json_file, "w") as f:
             f.write(json_text)
-        logg.log(DONE, " written   %s '%s'  (%s entries)", editprog(), json_file, len(data))
+        logg.log(DONE, " %s written   %s '%s'  (%s entries)", FMT, viewFMT(FMT), json_file, len(data))
     if WRITECSV or CSVFILE:
+        FMT = "csv"
         csv_text = tabtotext.tabToCSV(data, reorder=order)
-        csv_file = CSVFILE or filename + ".csv"
+        csv_file = CSVFILE or f"{filename}.{FMT}"
         with open(csv_file, "w") as f:
             f.write(csv_text)
-        logg.log(DONE, " written   %s '%s'  (%s entries)", editprog(), csv_file, len(data))
+        logg.log(DONE, " %s written   %s '%s'  (%s entries)", FMT, viewFMT(FMT), csv_file, len(data))
     if WRITEXLSX or XLSXFILE:
-        xlsx_file = XLSXFILE or filename + ".xlsx"
+        FMT = "xlsx"
+        xlsx_file = XLSXFILE or f"{filename}.{FMT}"
         import tabtoxlsx
         tabtoxlsx.saveToXLSX(xlsx_file, data, reorder=order)
-        logg.log(DONE, " written   %s '%s'  (%s entries)", xlsxprog(), xlsx_file, len(data))
+        logg.log(DONE, " %s written   %s '%s'  (%s entries)", FMT, viewFMT(FMT), xlsx_file, len(data))
 
 if __name__ == "__main__":
-    def editprog() -> str:
-        return os.environ.get("EDIT", "mcedit")
-    def htmlprog() -> str:
-        return os.environ.get("BROWSER", "chrome")
-    def xlsxprog() -> str:
-        return os.environ.get("XLSVIEW", "oocalc")
     from optparse import OptionParser
     cmdline = OptionParser("%prog files...")
     cmdline.add_option("-v", "--verbose", action="count", default=0,
