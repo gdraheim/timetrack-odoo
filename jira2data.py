@@ -17,7 +17,7 @@ from odootopic import OdooValues, OdooValuesForTopic
 from urllib.parse import quote_plus as qq
 import netrc
 import gitrc
-from dayrange import get_date, is_dayrange, dayrange
+from dayrange import get_date, is_dayrange, dayrange, last_sunday, next_sunday
 from tabtotext import tabToJSON, tabToGFM, tabToHTML, JSONDict, JSONList, JSONItem, setNoRight, tabWithDateHour
 
 logg = logging.getLogger("JIRA2DATA")
@@ -448,6 +448,57 @@ def read_odoo_taskdata(filename: str) -> Dict[str, str]:
     return mapping
 
 #############################################################################################
+WEEKDAYS = ["so", "mo", "di", "mi", "do", "fr", "sa", "so"]
+
+def jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrange] = None) -> JSONList:
+    return list(each_jiraZeitData(api, user, days))
+def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrange] = None) -> Iterator[JSONDict]:
+    days = days or DAYS
+    later = dayrange(days.after)
+    data: Dict[Tuple[str, str], List[str]] = {}
+    mapping: Dict[str, str] = {}
+    weekstart = None
+    for ticket in jiraGetUserIssuesInDays(api, user, later):
+        user = user or api.user()
+        issue = cast(str, ticket["issue"])
+        for record in jiraGetWorklog(api, issue):
+            if user:
+                author = cast(str, record["authorname"])
+                if user != author:
+                    logg.debug("ignore author %s (we are %s)", author, user)
+                    continue
+            started = get_date(cast(str, record["started"]))
+            if days.after > started or started > days.before:
+                continue
+            hours = cast(int, record["timeSpentSeconds"]) / 3600
+            desc = cast(str, record["comment"])
+            prefix = desc.split(" ", 1)[0]
+            mapping[prefix] = issue
+            key = (started.strftime("%Y-%m-%d"), prefix)
+            if key not in data:
+                data[key] = []
+            sunday = last_sunday(0, started)
+            if weekstart is None or weekstart != sunday:
+                nextsunday = next_sunday(0, sunday)
+                line = "so **** WEEK %s-%s" % (sunday.strftime("%d.%m."), nextsunday.strftime("%d.%m."))
+                data[(sunday.strftime("%Y-%m-%d"), "***")] = [line]
+            weekday = WEEKDAYS[started.weekday()]
+            hh = int(hours)
+            mm = int((hours - hh) * 60)
+            line = f"{weekday} {hh}:{mm:02} {desc}"
+            data[key] += [line]
+    for prefix, issue in mapping.items():
+        yield {"zeit.txt": f">> {prefix} {issue}"}
+    for key in sorted(data):
+        lines = data[key]
+        if len(lines) > 1:
+            logg.warning(" multiple lines for day %s topic %s", *key)
+            for line in lines:
+                logg.warning(" | %s", line)
+        for line in lines:
+            yield {"zeit.txt": line}
+
+#############################################################################################
 def date2isotime(ondate: Day) -> str:
     return ondate.strftime("%Y-%m-%dT20:20:00.000+0000")
 
@@ -558,6 +609,7 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
     result: JSONList = []
     summary: List[str] = []
     sortby: List[str] = []
+    tab = "|"
     for arg in args:
         if is_dayrange(arg):  # "week", "month", "last", "latest"
             DAYS = dayrange(arg)
@@ -599,6 +651,11 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
             if TASKDATA:
                 read_odoo_taskdata(TASKDATA)
             result = list(jiraOdooData(remote))
+        elif report in ["zeit", "text", "z"]:
+            if TASKDATA:
+                read_odoo_taskdata(TASKDATA)
+            result = list(jiraZeitData(remote))
+            tab = ""
         else:
             logg.error("unknown report %s", report)
     def lastdesc(name: str) -> str:
@@ -611,10 +668,10 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
         return name
     if result:
         summary += ["found %s items" % (len(result))]
-        print(tabToGFM(result, sorts=sortby, legend=summary, reorder=lastdesc))
+        print(tabToGFM(result, sorts=sortby, legend=summary, reorder=lastdesc, tab=tab))
         if TEXTFILE:
             with open(TEXTFILE, "w") as f:
-                print(tabToGFM(result, sorts=sortby, legend=summary, reorder=lastdesc), file=f)
+                print(tabToGFM(result, sorts=sortby, legend=summary, reorder=lastdesc, tab=tab), file=f)
                 logg.info("written %s", TEXTFILE)
         if HTMLFILE:
             with open(HTMLFILE, "w") as f:

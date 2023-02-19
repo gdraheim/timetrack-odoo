@@ -273,8 +273,8 @@ def last_of_month_name(name: str, ref: Optional[Day] = None) -> str:
     return f"99.{month}.{year}"
 
 #########################################################
-def last_sunday(diff: int) -> Day:
-    today = Day.today()
+def last_sunday(diff: int, ref: Optional[Day] = None) -> Day:
+    today = ref or Day.today()
     for attempt in range(7):
         diffs = datetime.timedelta(days=diff - attempt)
         day = today + diffs
@@ -282,14 +282,8 @@ def last_sunday(diff: int) -> Day:
             return day
     return today + datetime.timedelta(days=-7)
 
-def next_sunday(diff: int) -> Day:
-    today = Day.today()
-    for attempt in range(7):
-        diffs = datetime.timedelta(days=diff + attempt)
-        day = today + diffs
-        if day.weekday() in [0, 7]:
-            return day
-    return today + datetime.timedelta(days=+7)
+def next_sunday(diff: int, ref: Optional[Day] = None) -> Day:
+    return last_sunday(diff, ref) + datetime.timedelta(days=+7)
 
 def get_datetime(text: str, on_or_before: Optional[Day] = None) -> Hour:
     if isinstance(text, datetime.datetime):
