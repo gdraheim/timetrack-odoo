@@ -394,12 +394,14 @@ def each_jiraOdooData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
             started = get_date(cast(str, record["started"]))
             if days.after > started or started > days.before:
                 continue
+            hours = cast(int, record["timeSpentSeconds"]) / 3600
+            desc = cast(str, record["comment"])
             item: JSONDict = {}
             item["Date"] = started
-            item["Quantity"] = cast(int, record["timeSpentSeconds"]) / 3600
-            item["Description"] = record["comment"]
-            item["Project"] = jira_odoo_project(issue)
-            item["Task"] = jira_odoo_task(issue)
+            item["Quantity"] = hours
+            item["Description"] = desc
+            item["Project"] = jira_odoo_project(issue, desc)
+            item["Task"] = jira_odoo_task(issue, desc)
             item["Ticket"] = issue
             item["User"] = user
             yield item
@@ -410,20 +412,28 @@ def jira_project(taskname: str) -> str:
     parts = taskname.split("-", 1)
     return parts[0]
 
-def jira_odoo_project(taskname: str) -> str:
+def jira_odoo_project(taskname: str, desc: str = "") -> str:
     if jira_odoomap:
         values = jira_odoomap.values(taskname)
+        if desc:
+            for value in sorted(values, key=lambda x: cast(str, x.pref), reverse=True):
+                if desc.startswith(cast(str, value.pref)):
+                    return cast(str, value.proj)
         if values:
-            first = sorted(values, key=lambda x: cast(str, x.pref))
+            first = sorted(values, key=lambda x: cast(str, x.pref), reverse=True)
             return cast(str, first[0].proj)
     parts = taskname.split("-", 1)
     return parts[0]
 
-def jira_odoo_task(taskname: str) -> str:
+def jira_odoo_task(taskname: str, desc: str = "") -> str:
     if jira_odoomap:
         values = jira_odoomap.values(taskname)
+        if desc:
+            for value in sorted(values, key=lambda x: cast(str, x.pref), reverse=True):
+                if desc.startswith(cast(str, value.pref)):
+                    return cast(str, value.proj)
         if values:
-            first = sorted(values, key=lambda x: cast(str, x.pref))
+            first = sorted(values, key=lambda x: cast(str, x.pref), reverse=True)
             return cast(str, first[0].task)
     return taskname
 
