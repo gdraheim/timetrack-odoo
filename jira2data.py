@@ -373,6 +373,47 @@ def each_jiraGetUserActivityInDays(api: JiraFrontend, user: str = NIX, days: Opt
         for item in each_jiraGetIssueActivity(api, cast(str, ticket["issue"])):
             yield item
 
+
+#############################################################################################
+def jiraOdooData(api: JiraFrontend, user: str = NIX, days: Optional[dayrange] = None) -> JSONList:
+    return list(each_jiraOdooData(api, user, days))
+def each_jiraOdooData(api: JiraFrontend, user: str = NIX, days: Optional[dayrange] = None) -> Iterator[JSONDict]:
+    days = days or DAYS
+    later = dayrange(days.after)
+    for ticket in jiraGetUserIssuesInDays(api, user, later):
+        user = user or api.user()
+        issue = cast(str, ticket["issue"])
+        for record in jiraGetWorklog(api, issue):
+            if user:
+                author = cast(str, record["authorname"])
+                if user != author:
+                    logg.debug("ignore author %s (we are %s)", author, user)
+                    continue
+            started = get_date(cast(str, record["started"]))
+            if days.after > started or started > days.before:
+                continue
+            item: JSONDict = {}
+            item["Date"] = started
+            item["Quantity"] = cast(int, record["timeSpentSeconds"]) / 3600
+            item["Description"] = record["comment"]
+            item["Project"] = jira_odoo_project(issue)
+            item["Task"] = jira_odoo_task(issue)
+            item["Ticket"] = issue
+            item["User"] = user
+            yield item
+
+def jira_project(taskname: str) -> str:
+    parts = taskname.split("-", 1)
+    return parts[0]
+
+def jira_odoo_project(taskname: str) -> str:
+    parts = taskname.split("-", 1)
+    return parts[0]
+
+def jira_odoo_task(taskname: str) -> str:
+    return taskname
+
+#############################################################################################
 def date2isotime(ondate: Day) -> str:
     return ondate.strftime("%Y-%m-%dT20:20:00.000+0000")
 
@@ -457,7 +498,7 @@ class Worklogs:
             if user:
                 author = cast(str, record["authorname"])
                 if user != author:
-                    logg.info("ignore author %s (we are %s)", author, user)
+                    logg.debug("ignore author %s (we are %s)", author, user)
                     continue
             logg.debug("jira %s worklog %s", issue, record)
             created = get_date(cast(str, record["created"]))
@@ -520,6 +561,8 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
             result = list(item for item in only_shorterActivity(
                 jiraGetUserActivityInDays(remote)) if item["itemAuthor"] == remote.user())
             sortby = ["upcreated"]
+        elif report in ["odoo", "data", "d"]:
+            result = list(jiraOdooData(remote))
         else:
             logg.error("unknown report %s", report)
     if result:
@@ -574,6 +617,5 @@ if __name__ == "__main__":
     tabWithDateHour()
     remote = JiraFrontend(opt.restapi)
     if not args:
-        args = ["tickets"]
         args = ["projects"]
     run(remote, args)
