@@ -18,7 +18,7 @@ import gitrc
 
 # from math import round
 from fnmatch import fnmatchcase as fnmatch
-from tabtotext import JSONList, JSONDict, JSONBase, JSONItem
+from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, str27, str40
 from odoo_rest import EntryID, ProjID, TaskID
 
 Day = datetime.date
@@ -64,17 +64,14 @@ def xlsxprog() -> str:
 
 def strDesc(val: str) -> str:
     if SHORTDESC:
-        if len(val) > 40:
-            return val[:37] + "..."
+        return str40(val)
     return val
 def strName(value: JSONItem) -> str:
     if value is None:
         return "~"
-    val = str(value)
     if SHORTNAME:
-        if len(val) > 27:
-            return val[:17] + "..." + val[-7:]
-    return val
+        return str27(value)
+    return str(value)
 
 def check_in_sync(data: JSONList) -> JSONList:
     changes: JSONList = []

@@ -10,7 +10,7 @@ import datetime
 
 import tabtotext
 import zeit2json as zeit_api
-from tabtotext import strHours
+from tabtotext import strHours, str18, str27, str40
 from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
 import jira2data as jira_api
 import netrc
@@ -60,34 +60,14 @@ def xlsxprog() -> str:
 
 def strDesc(val: str) -> str:
     if SHORTDESC:
-        return shortDesc(val)
-    return val
-def shortDesc(val: str) -> str:
-    if not val:
-        return val
-    if len(val) > 40:
-        return val[:37] + "..."
+        return str40(val)
     return val
 def strName(value: JSONItem) -> str:
     if value is None:
         return "~"
     if SHORTDESC:
-        return shortName(value)
+        return str27(value)
     return str(value)
-def shortName(value: JSONItem) -> str:
-    if value is None:
-        return "~"
-    val = str(value)
-    if len(val) > 27:
-        return val[:17] + "..." + val[-7:]
-    return val
-def shorterName(value: JSONItem) -> str:
-    if value is None:
-        return "~"
-    val = str(value)
-    if len(val) > 18:
-        return val[:8] + "..." + val[-7:]
-    return val
 
 def update_per_days(data: JSONList, user: str = NIX) -> JSONList:
     changes: JSONList = []
@@ -281,7 +261,7 @@ def withNoTask(data: Iterable[JSONDict]) -> Iterator[JSONDict]:
         if "Task" in item:
             del item["Task"]
         if "Project" in item:
-            item["OdooProject"] = shorterName(item["Project"])
+            item["OdooProject"] = str18(item["Project"])
             del item["Project"]
         if "Description" in item:
             item["ShortDescription"] = strDesc(cast(str, item["Description"]))
