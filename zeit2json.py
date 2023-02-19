@@ -4,6 +4,7 @@ from typing import List, Dict, Union, Optional, Sequence, TextIO, Iterator, cast
 
 import logging
 import re
+import os
 import csv
 import datetime
 import os.path as path
@@ -36,8 +37,13 @@ ZEIT_USER_NAME = ""
 
 DEFAULT_FILENAME = "~/zeit{YEAR}.txt"
 
+WRITEXLSX = False
 WRITEJSON = True
 WRITECSV = True
+JSONFILE = ""
+HTMLFILE = ""
+XLSXFILE = ""
+CSVFILE = ""
 
 NEWFORMAT = True
 TitleID = "ID"
@@ -455,20 +461,37 @@ def run(arg: str) -> None:
         return
     filename = arg
     data = get_data(filename)
-    if WRITEJSON:
+    def order(name: str) -> str:
+        if name in ["Description"]:
+            return f"z.{name}"
+        if name in ["Quantity"]:
+            return f"Day{name}"
+        return name
+    if WRITEJSON or JSONFILE:
         json_text = tabtotext.tabToJSON(data)
-        json_file = filename + ".json"
+        json_file = JSONFILE or filename + ".json"
         with open(json_file, "w") as f:
             f.write(json_text)
-        logg.log(DONE, "written %s (%s entries)", json_file, len(data))
-    if WRITECSV:
-        csv_text = tabtotext.tabToCSV(data)
-        csv_file = filename + ".csv"
+        logg.log(DONE, " written   %s '%s'  (%s entries)", editprog(), json_file, len(data))
+    if WRITECSV or CSVFILE:
+        csv_text = tabtotext.tabToCSV(data, reorder=order)
+        csv_file = CSVFILE or filename + ".csv"
         with open(csv_file, "w") as f:
             f.write(csv_text)
-        logg.log(DONE, "written %s (%s entries)", csv_file, len(data))
+        logg.log(DONE, " written   %s '%s'  (%s entries)", editprog(), csv_file, len(data))
+    if WRITEXLSX or XLSXFILE:
+        xlsx_file = XLSXFILE or filename + ".xlsx"
+        import tabtoxlsx
+        tabtoxlsx.saveToXLSX(xlsx_file, data, reorder=order)
+        logg.log(DONE, " written   %s '%s'  (%s entries)", xlsxprog(), xlsx_file, len(data))
 
 if __name__ == "__main__":
+    def editprog() -> str:
+        return os.environ.get("EDIT", "mcedit")
+    def htmlprog() -> str:
+        return os.environ.get("BROWSER", "chrome")
+    def xlsxprog() -> str:
+        return os.environ.get("XLSVIEW", "oocalc")
     from optparse import OptionParser
     cmdline = OptionParser("%prog files...")
     cmdline.add_option("-v", "--verbose", action="count", default=0,
@@ -481,15 +504,19 @@ if __name__ == "__main__":
                        help="only evaluate entrys on and after [first of year]")
     cmdline.add_option("-b", "--before", metavar="DATE", default=ZEIT_BEFORE,
                        help="only evaluate entrys on and before [last of year]")
-    cmdline.add_option("-f", "--filename", metavar="TEXT", default=ZEIT_FILENAME,
-                       help="choose input filename [%s]" % (ZEIT_FILENAME or DEFAULT_FILENAME))
     cmdline.add_option("-s", "--summary", metavar="TEXT", default=ZEIT_SUMMARY,
                        help="suffix for summary report [%default]")
+    cmdline.add_option("-f", "--filename", metavar="TEXT", default=ZEIT_FILENAME,
+                       help="choose input filename [%s]" % (ZEIT_FILENAME or DEFAULT_FILENAME))
+    cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE)
+    cmdline.add_option("-H", "--htmlfile", metavar="FILE", default=HTMLFILE)
+    cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE)
+    cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE)
     cmdline.add_option("-P", "--projfilter", metavar="TEXT", default=ZEIT_PROJFILTER,
                        help="filter for odoo project [%default]")
     cmdline.add_option("-T", "--taskfilter", metavar="TEXT", default=ZEIT_TASKFILTER,
                        help="filter for odoo task [%default]")
-    cmdline.add_option("-D", "--descfilter", metavar="TEXT", default=ZEIT_DESCFILTER,
+    cmdline.add_option("-E", "--descfilter", metavar="TEXT", default=ZEIT_DESCFILTER,
                        help="filter for some description [%default]")
     cmdline.add_option("-F", "--textfilter", metavar="TEXT", default=ZEIT_TEXTFILTER,
                        help="filter for text project [%default]")
@@ -503,6 +530,10 @@ if __name__ == "__main__":
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose))
     # logg.addHandler(logging.StreamHandler())
+    JSONFILE = opt.jsonfile
+    HTMLFILE = opt.htmlfile
+    XLSXFILE = opt.xlsxfile
+    CSVFILE = opt.csvfile
     if opt.newformat:
         NEWFORMAT = True
     elif opt.oldformat:
