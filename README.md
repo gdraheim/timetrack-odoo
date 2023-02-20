@@ -10,11 +10,11 @@ update different data bases.
 * [Jira Issue Worklogs](https://confluence.atlassian.com/jirasoftwareserver/logging-work-on-issues-939938944.html) via REST API
 * zeit.txt work notes as a local file
 
-It was originally used to push local working notes to Odoo timesheet tracking.
-If all working notes (in the description field) have a symbolic prefix then the
+It was originally used to push local work notes to Odoo timesheet tracking.
+If all work notes (in the description field) have a symbolic prefix then the
 data can also be updated later - for every day the tool assumes that the 
 symbolic prefix is used only once. Here's a mapping definition in two lines
-followed by two lines for the working notes.
+followed by two lines for the work notes.
 
     >> app1 [PRJ Contract 2023]
     >> app1 "App1 Development"
