@@ -39,6 +39,7 @@ check:
 	$(MAKE) odoo
 	$(MAKE) zeit
 	$(MAKE) test
+	$(MAKE) jira
 	$(MAKE) track
 
 tabtotext.tests: tabt
@@ -68,6 +69,10 @@ z_%: ;    $(PYTHON3) $(ZEIT_PROG:.py=.tests.py) $@ -v $V
 zeit2odoo.tests: test
 t test: ; $(PYTHON3) $(MAIN_PROG:.py=.tests.py) -v $V
 t_%: ;    $(PYTHON3) $(MAIN_PROG:.py=.tests.py) $@ -v $V
+
+zeit2jira.tests: jira
+j jira: ; $(PYTHON3) $(JIRA_ZEIT:.py=.tests.py) -v $V
+j_%: ;    $(PYTHON3) $(JIRA_ZEIT:.py=.tests.py) $@ -v $V
 
 timetrack.tests: track
 k track: ; $(PYTHON3) $(TRACKPROG:.py=.tests.py) -v $V
