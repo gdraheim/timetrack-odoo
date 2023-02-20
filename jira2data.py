@@ -18,7 +18,7 @@ from urllib.parse import quote_plus as qq
 from dayrange import get_date, is_dayrange, dayrange, last_sunday, next_sunday
 from tabtotext import tabToJSON, tabToGFM, tabToFMT, JSONDict, JSONList, JSONItem, viewFMT, setNoRight, tabWithDateHour
 
-from jira_rest import JiraFrontend, Worklogs, jiraGetWorklog, setJiraUser, setJiraURL
+from jira_rest import JiraFrontend, jiraGetWorklog, setJiraUser, setJiraURL
 
 logg = logging.getLogger("JIRA2DATA")
 DONE = (logging.WARNING + logging.ERROR) // 2
