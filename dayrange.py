@@ -280,7 +280,7 @@ def last_sunday(diff: int, ref: Optional[Day] = None) -> Day:
     for attempt in range(7):
         diffs = datetime.timedelta(days=diff - attempt)
         day = today + diffs
-        if day.weekday() in [0, 7]:
+        if day.isoweekday() in [0, 7]:
             return day
     return today + datetime.timedelta(days=-7)
 
