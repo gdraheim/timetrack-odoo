@@ -73,6 +73,14 @@ class JiraFrontend:
             if not self.remote:
                 logg.error("either set '-r http://url/to/jira' or add ~/.gitconfig [jira]url=http://url/to/jira")
                 self.remote = JIRADEFAULT
+        if self.remote.isalnum():
+            found = gitrc.git_config_value(self.remote, "url")
+            if not found:
+                logg.error(f"you chose '-r {remote}' but no such ~/.gitconfig [{remote}]url=http://url/to/jira")
+                self.remote = JIRADEFAULT
+            else:
+                logg.debug(f"found '-r {remote}' is {found}")
+                self.remote = found
         if verify is None:
             self.url_verify = url_verify
         else:
@@ -532,6 +540,10 @@ def _jiraGetWorklog(api: JiraFrontend, issue: str) -> Iterator[JSONDict]:
     headers = {"Content-Type": "application/json"}
     r = http.get(url, headers=headers, verify=api.verify)
     if api.error(r):
+        logg.error("%s => %s\n", dir(r), r.text)
+        if r.status_code == 404:
+            logg.info("no such jira ticket: %s", issue)
+            return  # ticket
         logg.error("%s => %s\n", req, r.text)
         logg.warning("    %s", api.pwinfo())
         raise HTTPError(r)
@@ -593,8 +605,8 @@ def jiraUpdateWorklog(api: JiraFrontend, worklog: int, issue: str, ondate: Day, 
         return data
 
 class Worklogs:
-    def __init__(self, user: str = NIX) -> None:
-        self.remote = JiraFrontend()
+    def __init__(self, user: str = NIX, remote: str = NIX) -> None:
+        self.remote = JiraFrontend(remote)
         self.user = user
     def timesheet(self, issue: str, on_or_after: Day, on_or_before: Day) -> Iterator[JSONDict]:
         session = self.remote.session()
@@ -713,6 +725,8 @@ if __name__ == "__main__":
     cmdline = OptionParser("%prog [options] [create|update|upload|parentpage]", epilog=__doc__)
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
+    cmdline.add_option("-r", "--remote", metavar="URL", default="",
+                       help="url to Jira API endpoint (or gitconfig jira.url)")
     cmdline.add_option("-a", "--after", metavar="DATE", default=None,
                        help="only evaluate entrys on and after [first of month]")
     cmdline.add_option("-b", "--before", metavar="DATE", default=None,
@@ -727,8 +741,6 @@ if __name__ == "__main__":
     cmdline.add_option("-q", "--dryrun", action="count", default=0)
     cmdline.add_option("-Q", "--shortdesc", action="count", default=SHORTDESC,
                        help="present short lines for description [%default]")
-    cmdline.add_option("-r", "--restapi", "--remote", metavar="URL", default=None,
-                       help="url to Jira API endpoint (or gitconfig jira.url)")
     cmdline.add_option("-U", "--user", metavar="NAME", default=USER,
                        help="filter for user [%default]")
     opt, args = cmdline.parse_args()
@@ -745,7 +757,7 @@ if __name__ == "__main__":
     TASKDATA = opt.taskdata
     USER = opt.user
     tabWithDateHour()
-    remote = JiraFrontend(opt.restapi)
+    remote = JiraFrontend(opt.remote)
     if not args:
         args = ["projects"]
     run(remote, args)

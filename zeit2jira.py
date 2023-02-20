@@ -28,6 +28,7 @@ logg = logging.getLogger("zeit2jira")
 DONE = (logging.WARNING + logging.ERROR) // 2
 logging.addLevelName(DONE, "DONE")
 NIX = ""
+REMOTE = ""
 
 DAYS = dayrange()
 # [for zeit2json]
@@ -73,7 +74,7 @@ def update_per_days(data: JSONList, user: str = NIX) -> JSONList:
     if ONLYZEIT:
         return changes
     daydata: Dict[str, Dict[Day, JSONList]] = {}
-    jira = jira_api.Worklogs(user=user)
+    jira = jira_api.Worklogs(user=user, remote=REMOTE)
     logg.debug("tickets = %s", tickets)
     for taskname, items in tickets.items():
         for item in jira.timesheet(taskname, DAYS.after, DAYS.before):
@@ -148,7 +149,7 @@ def summary_per_day(data: JSONList, user: str = NIX) -> JSONList:
         tickets[taskname] = True
     if ONLYZEIT:
         return list(daydata.values())
-    jira = jira_api.Worklogs(user=user)
+    jira = jira_api.Worklogs(user=user, remote=REMOTE)
     for taskname, hint in tickets.items():
         for item in jira.timesheet(taskname, DAYS.after, DAYS.before):
             logg.info("............. %s", item)
@@ -181,7 +182,7 @@ def summary_per_project_ticket(data: JSONList, user: str = NIX) -> JSONList:
     if ONLYZEIT:
         return list(sumdata.values())
     dayjira: Dict[Day, JSONList] = {}
-    jira = jira_api.Worklogs(user=user)
+    jira = jira_api.Worklogs(user=user, remote=REMOTE)
     for taskname, projname in tickets.items():
         for item in jira.timesheet(taskname, DAYS.after, DAYS.before):
             old_date: Day = get_date(cast(str, item["entry_date"]))
@@ -234,7 +235,7 @@ def summary_per_topic(data: JSONList, user: str = NIX) -> JSONList:
         tickets[taskname] = new_proj
     if ONLYZEIT:
         return list(sumdata.values())
-    jira = jira_api.Worklogs(user=user)
+    jira = jira_api.Worklogs(user=user, remote=REMOTE)
     for taskname, projname in tickets.items():
         for item in jira.timesheet(taskname, DAYS.after, DAYS.before):
             old_desc: str = cast(str, item["comment"])
@@ -358,6 +359,8 @@ if __name__ == "__main__":
     cmdline = OptionParser("%prog [help|data|check|valid|update|compare|summarize|summary|topics] files...")
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
+    cmdline.add_option("-r", "--remote", metavar="URL", default="",
+                       help="url to Jira API endpoint (or gitconfig jira.url)")
     cmdline.add_option("-a", "--after", metavar="DATE", default=None,
                        help="only evaluate entrys on and after [first of month]")
     cmdline.add_option("-b", "--before", metavar="DATE", default=None,
@@ -394,6 +397,7 @@ if __name__ == "__main__":
         gitrc.git_config_override(value)
     netrc.set_password_filename(opt.gitcredentials)
     netrc.add_password_filename(opt.netcredentials, opt.extracredentials)
+    REMOTE = opt.remote
     UPDATE = opt.update
     FORMAT = opt.format
     OUTPUT = opt.output
