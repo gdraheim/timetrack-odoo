@@ -122,6 +122,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.last_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 10))
+        self.assertEqual(sunday.weekday(), 0)
     def test_102(self) -> None:
         day = zeit.get_date("2020-02-12")
         logg.info("day = %s", day)
@@ -129,6 +130,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.last_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 10))
+        self.assertEqual(sunday.weekday(), 0)
     def test_103(self) -> None:
         day = zeit.get_date("2020-02-13")
         logg.info("day = %s", day)
@@ -136,6 +138,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.last_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 10))
+        self.assertEqual(sunday.weekday(), 0)
     def test_104(self) -> None:
         day = zeit.get_date("2020-02-14")
         logg.info("day = %s", day)
@@ -143,6 +146,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.last_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 10))
+        self.assertEqual(sunday.weekday(), 0)
     def test_105(self) -> None:
         day = zeit.get_date("2020-02-15")
         logg.info("day = %s", day)
@@ -150,6 +154,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.last_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 10))
+        self.assertEqual(sunday.weekday(), 0)
     def test_106(self) -> None:
         day = zeit.get_date("2020-02-16")
         logg.info("day = %s", day)
@@ -157,6 +162,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.last_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 10))
+        self.assertEqual(sunday.weekday(), 0)
     def test_107(self) -> None:
         day = zeit.get_date("2020-02-17")
         logg.info("day = %s", day)
@@ -164,6 +170,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.last_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 17))
+        self.assertEqual(sunday.weekday(), 0)
     def test_111(self) -> None:
         day = zeit.get_date("2020-02-11")
         logg.info("day = %s", day)
@@ -171,6 +178,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.next_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 17))
+        self.assertEqual(sunday.weekday(), 0)
     def test_112(self) -> None:
         day = zeit.get_date("2020-02-12")
         logg.info("day = %s", day)
@@ -178,6 +186,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.next_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 17))
+        self.assertEqual(sunday.weekday(), 0)
     def test_113(self) -> None:
         day = zeit.get_date("2020-02-13")
         logg.info("day = %s", day)
@@ -185,6 +194,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.next_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 17))
+        self.assertEqual(sunday.weekday(), 0)
     def test_114(self) -> None:
         day = zeit.get_date("2020-02-14")
         logg.info("day = %s", day)
@@ -192,6 +202,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.next_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 17))
+        self.assertEqual(sunday.weekday(), 0)
     def test_115(self) -> None:
         day = zeit.get_date("2020-02-15")
         logg.info("day = %s", day)
@@ -199,6 +210,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.next_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 17))
+        self.assertEqual(sunday.weekday(), 0)
     def test_116(self) -> None:
         day = zeit.get_date("2020-02-16")
         logg.info("day = %s", day)
@@ -206,6 +218,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.next_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 17))
+        self.assertEqual(sunday.weekday(), 0)
     def test_117(self) -> None:
         day = zeit.get_date("2020-02-17")
         logg.info("day = %s", day)
@@ -213,6 +226,7 @@ class dayrangeTest(unittest.TestCase):
         sunday = zeit.next_sunday(0, day)
         logg.info("last = %s", sunday)
         self.assertEqual(sunday, Day(2020, 2, 24))
+        self.assertEqual(sunday.weekday(), 0)
     def test_501(self) -> None:
         days = zeit.dayrange("2020-02-01", "2020-02-29")
         self.assertEqual(days.after, Day(2020, 2, 1))
