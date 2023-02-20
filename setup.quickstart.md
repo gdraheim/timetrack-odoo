@@ -213,4 +213,6 @@ Remember that you can save the output to a file for further editing.
 
 The edited data can be used as the source again.
 
-    ./zeit2odoo update -x check.xlsx
+    ./zeit2odoo.py update -x check.xlsx
+
+Note: the excel representation ist based on `pip3 install openpyxl`. 
