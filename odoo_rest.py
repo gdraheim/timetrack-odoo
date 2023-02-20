@@ -585,7 +585,7 @@ class Odoo:
             logg.error("--after=DAY must be --before=DAY")
             raise OdooException("bad timespan for timesheet()")
         timespan = before - after
-        if timespan.days > 33:
+        if timespan.days > 63:
             logg.warning("--after=%s --before=%s is %s days", after.isoformat(), before.isoformat(), timespan.days + 1)
         else:
             logg.info("--after=%s --before=%s is %s days", after.isoformat(), before.isoformat(), timespan.days + 1)
