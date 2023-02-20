@@ -150,25 +150,25 @@ topic will both find the Odoo specification for "app1". However you may override
 "app1-frontend" later with a different value. And after re-update the existing
 Odoo timesheet gets booked to the different account.
 
-   >> app1 [PRJ Contract 2022]
-   >> app1 "App1 Development"
-   >> app2 [PRJ Contract 2022]
-   >> app2 "App2 Development"
-   # comment: each week must start giving the first date
-   so **** WEEK 02.01.-09.01.
-   mo (09:00-17:00) - this line is ignored (like a comment)
-   mo 4:00 app1-frontend extended
-   mo 1:00 app1-backend extende
-   mo 3:00 app2 extended backend
+    >> app1 [PRJ Contract 2022]
+    >> app1 "App1 Development"
+    >> app2 [PRJ Contract 2022]
+    >> app2 "App2 Development"
+    # comment: each week must start giving the first date
+    so **** WEEK 02.01.-09.01.
+    mo (09:00-17:00) - this line is ignored (like a comment)
+    mo 4:00 app1-frontend extended
+    mo 1:00 app1-backend extende
+    mo 3:00 app2 extended backend
 
 So if you have a jira tracker BUGS then you could also make a topic BUGS
 writing a timesheet entry for every bug ticket number on that weekday.
 
-   >> BUGS [PRJ Contract 2022]
-   >> BUGS "App1 Development"
-   so **** WEEK 02.01.-09.01.
-   mo 4:00 BUGS-1777 fixed
-   mo 1:00 BUGS-1842 analyzed
+    >> BUGS [PRJ Contract 2022]
+    >> BUGS "App1 Development"
+    so **** WEEK 02.01.-09.01.
+    mo 4:00 BUGS-1777 fixed
+    mo 1:00 BUGS-1842 analyzed
 
 ### synchronize to jira
 
@@ -192,13 +192,13 @@ and to present it in the zeit.txt format. In order for the synchronisation
 to work, you should have atleast a mapping file that binds Odoo accounts
 and Jira tickets.
 
-   mapping.txt
-   >> app1 [PRJ Contract 2022]
-   >> app1 "App1 Development"
-   >> app1 APP-1234
-   >> app2 [PRJ Contract 2022]
-   >> app2 "App2 Development"
-   >> app2 APP-1456
+    # mapping.txt
+    >> app1 [PRJ Contract 2022]
+    >> app1 "App1 Development"
+    >> app1 APP-1234
+    >> app2 [PRJ Contract 2022]
+    >> app2 "App2 Development"
+    >> app2 APP-1456
  
 Then have it exported.
 
