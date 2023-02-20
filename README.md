@@ -33,7 +33,7 @@ Some readers may recognize tabtotext and gitrc being used in other projects as
 well but actually they were first written for zeit2excel / zeit2json. Later
 extensions outside of timetrack-odoo were merged back however.
 
-* [setup.quickstart](setup.quickstart.md)
+* [setup.quickstart](setup.quickstart.md) - the BASIC SETUP takes about one hour
 
 * [odoo2data.setup](odoo2data.setup.md)
 * [zeit2odoo.setup](zeit2odoo.setup.md)
