@@ -94,7 +94,7 @@ class DateFromWeekday:
         logg.debug("start of week %s", date1)
         offset = 0
         plus2 = date1 + datetime.timedelta(days=2)
-        if "sa" in weekdays and plus2.weekday() == 0:
+        if "sa" in weekdays and plus2.weekday() == 0:  # 0(monday)
             self.sa = date1 + datetime.timedelta(days=0)
             self.so = date1 + datetime.timedelta(days=1)
             self.mo = date1 + datetime.timedelta(days=2)
@@ -104,7 +104,7 @@ class DateFromWeekday:
             self.fr = date1 + datetime.timedelta(days=6)
             logg.debug("accept %s %s as 'sa'", weekdays, date1)
             return True
-        elif "so" in weekdays and plus2.weekday() == 1:
+        elif "so" in weekdays and plus2.weekday() == 1:  # 1(tuesday)
             self.so = date1 + datetime.timedelta(days=0)
             self.mo = date1 + datetime.timedelta(days=1)
             self.di = date1 + datetime.timedelta(days=2)
