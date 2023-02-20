@@ -77,7 +77,7 @@ class JiraFrontend:
             found = gitrc.git_config_value(self.remote, "url")
             if not found:
                 logg.error(f"you chose '-r {remote}' but no such ~/.gitconfig [{remote}]url=http://url/to/jira")
-                self.remote = JIRADEFAULT
+                self.remote = f"https://{remote}.host"
             else:
                 logg.debug(f"found '-r {remote}' is {found}")
                 self.remote = found
