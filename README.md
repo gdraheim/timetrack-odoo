@@ -4,11 +4,11 @@
 ## TIMETRACK ODOO (and JIRA and more)
 
 Timetrack is a synchronisation tool for working hours. It can read, write and
-update different data bases via their REST API.
+update different data bases.
 
-* [Odoo Timesheet](https://www.odoo.com/app/timesheet-features)
-* [Jira Issue Worklogs](https://confluence.atlassian.com/jirasoftwareserver/logging-work-on-issues-939938944.html)
-* local zeit.txt
+* [Odoo Timesheet](https://www.odoo.com/app/timesheet-features) via REST API
+* [Jira Issue Worklogs](https://confluence.atlassian.com/jirasoftwareserver/logging-work-on-issues-939938944.html) via REST API
+* local zeit.txt as a local file
 
 It was originally used to push local working notes to Odoo timesheet tracking.
 If all working notes (in the description field) have a symbolic prefix then the
