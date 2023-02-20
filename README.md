@@ -21,8 +21,10 @@ followed by two lines for the working notes.
     so **** WEEK 02.01.-09.01.
     mo 5:00 app1 extended frontend
 
-This can be pushed to Odoo with `./zeit2odoo.py -f zeit.txt update`.
-
+This can be pushed to Odoo with `./zeit2odoo.py -f zeit.txt update`. It defaults
+to dryrun and the real write operations are done when adding `-y`. And of course,
+it only works when the basic setup was done where you have configured the urls
+and login credentials.
 
 * [setup.quickstart](setup.quickstart.md) - the BASIC SETUP takes about one hour
 
@@ -33,3 +35,5 @@ This can be pushed to Odoo with `./zeit2odoo.py -f zeit.txt update`.
 * [odoo_rest.setup](odoo_rest.setup.md)
 * [tabtotext.setup](tabtotext.setup.md)
 * [netrc.setup](netrc.setup.md)
+
+and some [HISTORY](HISTORY.md)
