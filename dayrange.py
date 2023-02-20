@@ -163,7 +163,7 @@ class Dayrange:
 class dayrange(Dayrange):
     def __init__(self, after: Union[None, str, Day] = None, before: Union[None, str, Day] = None):
         if not after:
-            self.after = firstday_of_month(0)
+            self.after = firstday_of_month(-1)
         elif isinstance(after, str):
             if after in symbolic_dayrange:
                 after, before = get_symbolic_dayrange(after)
