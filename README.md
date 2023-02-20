@@ -16,9 +16,9 @@ data can also be updated later - for every day the tool assumes that the
 symbolic prefix is used only once. Here's a mapping definition in two lines
 followed by two lines for the working notes.
 
-    >> app1 [PRJ Contract 2022]
+    >> app1 [PRJ Contract 2023]
     >> app1 "App1 Development"
-    so **** WEEK 02.01.-09.01.
+    so **** WEEK 08.01.-15.01.
     mo 5:00 app1 extended frontend
 
 This can be pushed to Odoo with `./zeit2odoo.py -f zeit.txt update`. It defaults

@@ -49,6 +49,7 @@ XLSXFILE = ""
 CSVFILE = ""
 CSVDATA = ""
 XLSXDATA = ""
+ZEITDATA = ""
 
 def strDesc(val: str) -> str:
     if SHORTDESC:
@@ -283,7 +284,7 @@ def run(arg: str) -> None:
     zeit_api.ZEIT_BEFORE = DAYS.before.isoformat()
     zeit_api.ZEIT_USER_NAME = ZEIT_USER_NAME
     zeit_api.ZEIT_SUMMARY = ZEIT_SUMMARY
-    conf = zeit_api.ZeitConfig(username=ZEIT_USER_NAME)
+    conf = zeit_api.ZeitConfig(ZEITDATA, username=ZEIT_USER_NAME)
     zeit = zeit_api.Zeit(conf)
     if CSVDATA:
         data = tabtotext.readFromCSV(CSVDATA)
@@ -383,6 +384,7 @@ if __name__ == "__main__":
     cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE)
     cmdline.add_option("-d", "--csvdata", metavar="FILE", default=CSVDATA)
     cmdline.add_option("-x", "--xlsxdata", metavar="FILE", default=XLSXDATA)
+    cmdline.add_option("-f", "--zeitdata", metavar="FILE", default=ZEITDATA)
     cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=netrc.GIT_CREDENTIALS)
     cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=netrc.NET_CREDENTIALS)
     cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=netrc.NETRC_FILENAME)
@@ -406,6 +408,7 @@ if __name__ == "__main__":
     CSVFILE = opt.csvfile
     CSVDATA = opt.csvdata
     XLSXDATA = opt.xlsxdata
+    ZEITDATA = opt.zeitdata
     ONLYZEIT = opt.onlyzeit
     SHORTDESC = opt.shortdesc
     SHORTNAME = opt.shortname
