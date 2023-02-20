@@ -112,11 +112,11 @@ date given after `WEEK`.
 With the zeit2022.txt ready, you can check if there is anything
 to be updated.
 
-   ./zeit2odoo.py M01 topics
-   | at topic   |   odoo |   zeit
-   | ---------- | -----: | -----:
-   | app1       |   0.00 |   5.00
-   | app2       |   0.00 |   3.00
+    ./zeit2odoo.py M01 topics
+    | at topic   |   odoo |   zeit
+    | ---------- | -----: | -----:
+    | app1       |   0.00 |   5.00
+    | app2       |   0.00 |   3.00
 
 The M01 represents a timespan to be checked or synchronized. The
 `M01` is a shorthand for `-a 01.01. -b 99.01.` (where 99 is a 
