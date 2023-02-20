@@ -509,7 +509,8 @@ def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
             mm = int((hours - hh) * 60)
             line = f"{weekday} {hh}:{mm:02} {desc}"
             data[key] += [line]
-    for prefix, issue in mapping.items():
+    for prefix in sorted(mapping):
+        issue = mapping[prefix]
         proj = find_jira_odoo_project(issue, prefix)
         task = find_jira_odoo_task(issue, prefix)
         if proj:

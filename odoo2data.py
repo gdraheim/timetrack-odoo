@@ -190,7 +190,8 @@ def _work_zeit(odoodata: JSONList) -> Iterable[JSONDict]:
         mm = int((hours - hh) * 60)
         line = f"{weekday} {hh}:{mm:02} {desc}"
         data[key] += [line]
-    for prefix, issue in mapping.items():
+    for prefix in sorted(mapping):
+        issue = mapping[prefix]
         proj = projnames[prefix]
         task = tasknames[prefix]
         if proj:
