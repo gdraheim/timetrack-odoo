@@ -509,15 +509,16 @@ def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
             mm = int((hours - hh) * 60)
             line = f"{weekday} {hh}:{mm:02} {desc}"
             data[key] += [line]
+    zeit_txt = "# zeit.txt"
     for prefix in sorted(mapping):
         issue = mapping[prefix]
         proj = find_jira_odoo_project(issue, prefix)
         task = find_jira_odoo_task(issue, prefix)
         if proj:
-            yield {"zeit.txt": f""">> {prefix} [{proj}] """}
+            yield {zeit_txt: f""">> {prefix} [{proj}] """}
         if task:
-            yield {"zeit.txt": f""">> {prefix} "{task}" """}
-        yield {"zeit.txt": f">> {prefix} {issue}"}
+            yield {zeit_txt: f""">> {prefix} "{task}" """}
+        yield {zeit_txt: f">> {prefix} {issue}"}
     for key in sorted(data):
         lines = data[key]
         if len(lines) > 1:
@@ -525,7 +526,7 @@ def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
             for line in lines:
                 logg.warning(" | %s", line)
         for line in lines:
-            yield {"zeit.txt": line}
+            yield {zeit_txt: line}
 
 #############################################################################################
 def date2isotime(ondate: Day) -> str:

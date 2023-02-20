@@ -190,16 +190,17 @@ def _work_zeit(odoodata: JSONList) -> Iterable[JSONDict]:
         mm = int((hours - hh) * 60)
         line = f"{weekday} {hh}:{mm:02} {desc}"
         data[key] += [line]
+    zeit_txt = "# zeit.txt"
     for prefix in sorted(mapping):
         issue = mapping[prefix]
         proj = projnames[prefix]
         task = tasknames[prefix]
         if proj:
-            yield {"zeit.txt": f""">> {prefix} [{proj}] """}
+            yield {zeit_txt: f""">> {prefix} [{proj}] """}
         if task:
-            yield {"zeit.txt": f""">> {prefix} "{task}" """}
+            yield {zeit_txt: f""">> {prefix} "{task}" """}
         if issue:
-            yield {"zeit.txt": f""">> {prefix} {issue} """}
+            yield {zeit_txt: f""">> {prefix} {issue} """}
     for key in sorted(data):
         lines = data[key]
         if len(lines) > 1:
@@ -207,7 +208,7 @@ def _work_zeit(odoodata: JSONList) -> Iterable[JSONDict]:
             for line in lines:
                 logg.warning(" | %s", line)
         for line in lines:
-            yield {"zeit.txt": line}
+            yield {zeit_txt: line}
 
 # ========================================================================
 def summary_per_day(odoodata: Optional[JSONList] = None) -> JSONList:
