@@ -38,6 +38,7 @@ extensions outside of timetrack-odoo were merged back however.
 * [odoo2data.setup](odoo2data.setup.md)
 * [zeit2odoo.setup](zeit2odoo.setup.md)
 * [zeit2json.setup](zeit2json.setup.md)
+* [jira2data.setup](jira2data.setup.md)
 * [odoo_rest.setup](odoo_rest.setup.md)
 * [tabtotext.setup](tabtotext.setup.md)
 * [netrc.setup](netrc.setup.md)
