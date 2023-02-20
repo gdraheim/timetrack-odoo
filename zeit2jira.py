@@ -239,7 +239,7 @@ def summary_per_topic(data: JSONList, user: str = NIX) -> JSONList:
     jira = jira_api.Worklogs(user=user, remote=REMOTE)
     for taskname, projname in tickets.items():
         for item in jira.timesheet(taskname, DAYS.after, DAYS.before):
-            old_desc: str = cast(str, item["comment"])
+            old_desc: str = cast(str, item["entry_desc"])
             old_date: Day = get_date(cast(str, item["entry_date"]))
             old_size: Num = cast(Num, item["entry_size"])
             old_key = taskname
