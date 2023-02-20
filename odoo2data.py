@@ -221,7 +221,7 @@ def _summary_per_day(odoodata: JSONList) -> JSONList:
         odoo_date: Day = get_date(cast(str, item["entry_date"]))
         odoo_size: Num = cast(Num, item["entry_size"])
         weekday = odoo_date.isoweekday()
-        weekday_name = ["so", "mo", "di", "mi", "do", "fr", "sa", "so"][weekday + 1]
+        weekday_name = ["so", "mo", "di", "mi", "do", "fr", "sa", "so", "mo"][weekday + 1]
         if odoo_date not in daydata:
             daydata[odoo_date] = {"date": odoo_date, "day": weekday_name, "odoo": 0}
         daydata[odoo_date]["odoo"] += odoo_size  # type: ignore
