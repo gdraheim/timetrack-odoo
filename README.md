@@ -3,7 +3,7 @@
 
 ## TIMETRACK ODOO (and JIRA and more)
 
-Timetrack is a synchronisation tool for working hours. It can read, write and
+Timetrack is a synchronisation tool for work hours. It can read, write and
 update different data bases.
 
 * [Odoo Timesheet](https://www.odoo.com/app/timesheet-features) via REST API
