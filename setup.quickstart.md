@@ -74,15 +74,15 @@ From the projects-tasks above, you need to define where the topic
 should be booked to. So an initial zeit2022.txt file could look
 like this:
 
-   >> app1 [PRJ Contract 2022]
-   >> app1 "App1 Development"
-   >> app2 [PRJ Contract 2022]
-   >> app2 "App2 Development"
-   # comment: each week must start giving the first date
-   so **** WEEK 02.01.-09.01.
-   mo (09:00-17:00) - this line is ignored (like a comment)
-   mo 5:00 app1 extended frontend
-   mo 3:00 app2 extended backend
+    >> app1 [PRJ Contract 2022]
+    >> app1 "App1 Development"
+    >> app2 [PRJ Contract 2022]
+    >> app2 "App2 Development"
+    # comment: each week must start giving the first date
+    so **** WEEK 02.01.-09.01.
+    mo (09:00-17:00) - this line is ignored (like a comment)
+    mo 5:00 app1 extended frontend
+    mo 3:00 app2 extended backend
 
 The syntax has evolved over time, so it has some special features.
 The Odoo specifications start with `>>`. Each topic should have
