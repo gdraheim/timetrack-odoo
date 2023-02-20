@@ -10,8 +10,10 @@ Edit your ~/.gitconfig
     [zeit]
         filename = ~/my/home/company/zeit{YEAR}.txt
     [odoo]
-        url= https://mycompany.odoo.com
+        url= https://erp.mycompany.corp
         db= prod-mycompany
+    [jira]
+        url= https://jira.host
 
 Make sure that "name" is the full name as used in Odoo. The path for 
 the `zeit*.txt` files is generally different for everyone - be aware
@@ -20,20 +22,31 @@ your home/company folder you have zeit2023.txt zeit2024.txt etcetera.
 
 ### credentials
 
-    ./netrc.py set https://erp.example.com me@example.com Example.2022
+    ./netrc.py set https://erp.mycompany.corp myself@mycompany.corp Example.2022
+    ./netrc.py set https://jira.host myself Example.2022
 
 Or create a file `$HOME/.netrc` with content like
 
-    machine erp.example.com user me@example.com login Example.2022
+    machine erp.mycompany.corp user myself@mycompany.corp login Example.2022
 
 Note that most Odoo services will use your email adress as the login
-user.
+user. For Jira services however the general corporate user directory
+is used.
+
+### optional: check jira
+
+This is optional. If you have a Jira to copy worklogs to.
+
+    ./jira2data.py help
+    ./jira2data.py tickets
+    | SAND-4 | 17863   | Task      | SAND  | testing timetrack
 
 ### look for project and task
 
 With the gitconfig and credentials ready, you can check if you have
 access to Odoo already.
 
+    ./odoo2data.py help
     ./odoo2data.py projects
     1 | PRJ Contract 2022
 
@@ -157,3 +170,47 @@ writing a timesheet entry for every bug ticket number on that weekday.
    mo 4:00 BUGS-1777 fixed
    mo 1:00 BUGS-1842 analyzed
 
+### synchronize to jira
+
+With the zeit2022.txt ready, you can check if there is anything
+to be updated in Jira. This is similar to the synchronisation 
+with Odoo but you can not change the target ticket where the
+worklogs should be added to. You can only change the time and
+description later.
+
+    ./zeit2jira.py M01 update
+    DONE:zeit2jira:M01 -> 2023-01-01 2023-01-31
+
+    | act   | at task | date       | desc                    |  zeit
+    | ----- | ------- | ---------- | ----------------------- | ----:
+    | NEW   | SAND-4  | 2022-01-03 | testing more timetrack  |  1.00
+
+## generating zeit.txt from existing data
+
+Both the Odoo and Jira interface have an option to pull older data
+and to present it in the zeit.txt format. In order for the synchronisation
+to work, you should have atleast a mapping file that binds Odoo accounts
+and Jira tickets.
+
+   mapping.txt
+   >> app1 [PRJ Contract 2022]
+   >> app1 "App1 Development"
+   >> app1 APP-1234
+   >> app2 [PRJ Contract 2022]
+   >> app2 "App2 Development"
+   >> app2 APP-1456
+ 
+Then have it exported.
+
+    ./odoo2data.py zeit -m mapping.txt
+    ./jira2data.py zeit -m mapping.txt
+    ./jira2data.py odoo -m mapping.txt
+
+Remember that you can save the output to a file for further editing.
+
+    ./jira2data.py zeit -m mapping.txt -O check.txt
+    ./jira2data.py odoo -m mapping.txt -X check.xlsx
+
+The edited data can be used as the source again.
+
+    ./zeit2odoo update -x check.xlsx
