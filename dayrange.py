@@ -178,6 +178,8 @@ class dayrange(Dayrange):
             self.before = get_date(before)
         else:
             self.before = before
+        if not after and self.before.year != self.after.year:
+            self.after = firstday_of_month(0)
 
 def date_isoformat(text: str) -> Day:
     return datetime_isoformat(text).date()
