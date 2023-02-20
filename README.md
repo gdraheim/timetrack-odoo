@@ -22,9 +22,15 @@ followed by two lines for the working notes.
     mo 5:00 app1 extended frontend
 
 This can be pushed to Odoo with `./zeit2odoo.py -f zeit.txt update`. It defaults
-to dryrun and the real write operations are done when adding `-y`. And of course,
-it only works when the basic setup was done where you have configured the urls
-and login credentials.
+to dryrun and the real write operations are done when adding `-y`. For Jira you
+need to to configure a ticket number `>> app1 BUG-1234` so that the tool knows
+where to add worklog entries when using `./zeit2jira.py -f zeit.txt update`.
+
+Surley, it only works when the basic setup was done where you have configured 
+the urls and login credentials. However for the biggest part you need to setup
+the mapping of different work topics to their Odoo and Jira accounts. If you
+do already have data in Odoo then you can get a `zeit` summary from it for a
+quick start with `./odoo2data.py lastmonth zeit`.
 
 * [setup.quickstart](setup.quickstart.md) - the BASIC SETUP takes about one hour
 
