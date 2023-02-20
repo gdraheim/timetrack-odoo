@@ -172,6 +172,10 @@ def time2float(time: str) -> float:
     time = time.replace(":15", ".25")
     time = time.replace(":30", ".50")
     time = time.replace(":45", ".75")
+    if len(time) >= 3 and time[-3] == ':' and time[-2].isdigit() and time[-1].isdigit():
+        newtime = time[:-3] + ".{:02n}".format(int(time[-2:]) / 60 * 100)
+        logg.warning(" !! unusual time %s -> %s", time, newtime)
+        return float(newtime)
     return float(time)
 
 def cleandesc(desc: str) -> str:
