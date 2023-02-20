@@ -37,6 +37,9 @@ LIMIT = 1000
 USER = NIX
 JIRADEFAULT = "http://jira.host"  # RFC2606
 
+def reset() -> None:
+    pass  # for the mockup
+
 def setJiraUser(user: str) -> None:
     global USER
     USER = user
