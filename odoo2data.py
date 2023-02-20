@@ -183,7 +183,7 @@ def _work_zeit(odoodata: JSONList) -> Iterable[JSONDict]:
             line = "so **** WEEK %s-%s" % (sunday.strftime("%d.%m."), nextsunday.strftime("%d.%m."))
             data[(sunday.strftime("%Y-%m-%d"), "***")] = [line]
             weekstart = sunday
-        weekday = WEEKDAYS[odoo_date.weekday()]
+        weekday = WEEKDAYS[odoo_date.isoweekday()]
         hours = odoo_size
         desc = odoo_desc.strip()
         hh = int(hours)
@@ -220,7 +220,7 @@ def _summary_per_day(odoodata: JSONList) -> JSONList:
     for item in odoodata:
         odoo_date: Day = get_date(cast(str, item["entry_date"]))
         odoo_size: Num = cast(Num, item["entry_size"])
-        weekday = odoo_date.weekday()
+        weekday = odoo_date.isoweekday()
         weekday_name = ["so", "mo", "di", "mi", "do", "fr", "sa", "so"][weekday + 1]
         if odoo_date not in daydata:
             daydata[odoo_date] = {"date": odoo_date, "day": weekday_name, "odoo": 0}
