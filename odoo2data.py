@@ -417,17 +417,16 @@ def run(arg: str) -> None:
         results = odoo_users()
     elif arg in ["op", "odoo-projects", "projects"]:
         results = odoo_projects()
+        summary += ["# use 'oo' or 'odoo-projects-tasks' to see task details"]
     elif arg in ["oo", "opt", "odoo-projects-tasks", "projects-tasks"]:
         results = odoo_projects_tasks()
         formats["task_name"] = '"{:}"'
     elif arg in ["ww", "data", "worked"]:
         results = work_data(data)
         if results and not SHORTNAME:
-            logg.log(DONE, " ### use -q or -qq to shorten the names for proj and task !!")
+            summary += [" ### use -q or -qq to shorten the names for proj and task !!"]
     elif arg in ["z", "text", "zeit"]:
         results = work_zeit(data)
-        if results and not SHORTNAME:
-            logg.log(DONE, " ### use -q or -qq to shorten the names for proj and task !!")
         if not FMT:
             FMT = "wide"
     elif arg in ["dd", "dsummary", "days"]:
@@ -438,14 +437,14 @@ def run(arg: str) -> None:
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
         if results and not ADDFOOTER:
-            logg.log(DONE, " ### use -Z to add a VAT footer !!")
+            summary += [" ### use -Z to add a VAT footer !!"]
     elif arg in ["xxx", "reports"]:
         results = reports_per_project(data)
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
         if results and not ADDFOOTER:
-            logg.log(DONE, " ### use -Z to add a VAT footer !!")
+            summary += [" ### use -Z to add a VAT footer !!"]
     elif arg in ["mm", "msummarize", "mtasks", "monthlys"]:
         results = monthly_per_project_task(data)
     elif arg in ["sx", "msummary", "monthly"]:
@@ -566,9 +565,11 @@ if __name__ == "__main__":
     ODOO_PROJSKIP = opt.projskip
     PRICES = opt.price
     DAYS = dayrange(opt.after, opt.before)
-    if len(args) == 1 and is_dayrange(args[0]):
-        args += ["data"]
     if not args:
-        args = ["data"]
+        args = ["projects"]
+    elif len(args) == 1 and is_dayrange(args[0]):
+        args += ["projects"]
+    elif len(args) >= 2 and is_dayrange(args[1]):
+        logg.error("a dayrange should come first: %s", args[1])
     for arg in args:
         run(arg)

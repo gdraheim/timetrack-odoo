@@ -427,5 +427,7 @@ if __name__ == "__main__":
     DAYS = dayrange(opt.after, opt.before)
     if not args:
         args = ["make"]
+    elif len(args) >= 2 and is_dayrange(args[1]):
+        logg.error("a dayrange should come first: %s", args[1])
     for arg in args:
         run(arg)
