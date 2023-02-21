@@ -6,7 +6,7 @@ It can load JSONList from zeit2json. See [zeit2json.setup](zeit2json.setup.md).
 
 It can load records from Odoo. See [odoo2data.setup](odoo2data.setup.md).
 
-It can push the data to Odoo with odoo_rest API
+It can push the data to Odoo with [odoo_rest API](odoo_rest.setup.md).
 
 It uses ~/.netrc for storing the login credentials to Odoo.
 
