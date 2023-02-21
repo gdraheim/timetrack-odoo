@@ -1,10 +1,10 @@
 ## ZEIT2ODOO
 
-This is the main program of timetrack-odoo
+This is a synchronisatoin program of timetrack-odoo
 
-It can load JSONList from zeit2json.
+It can load JSONList from zeit2json. See [zeit2json.setup.md].
 
-It can print the data using tabtotext.
+It can load records from Odoo. See [odoo2data.setup.md].
 
 It can push the data to Odoo with odoo_rest.py
 
