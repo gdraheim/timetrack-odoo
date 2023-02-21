@@ -754,7 +754,7 @@ class odootopicTest(unittest.TestCase):
         logg.debug("data %s", data)
         want2 = ("Development", "projects", "dev", None)
         self.assertEqual(want2, _tuple(data))
-    def test_511(self) -> None:
+    def test_510(self) -> None:
         spec = """
         >> dev [Development]
         >> dev "projects"
@@ -791,6 +791,145 @@ class odootopicTest(unittest.TestCase):
         logg.debug("data %s", data)
         want2 = ("Development", "projects", "dev-frontend", None)
         self.assertEqual(want2, _tuple(data))
+    def test_520(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev-frontend [Development]
+        >> dev-frontend "projects"
+        >> dev-frontend MAKE-111 MAKE-122
+        >> dev1 MAKE-11
+        >> dev2 MAKE-12
+        """.splitlines()
+        have = topics.scanning(spec)
+        data = have.lookup("dev2")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev2", "MAKE-12")
+        self.assertEqual(want, _tuple(data))
+        data = have.lookup("dev1")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev1", "MAKE-11")
+        self.assertEqual(want, _tuple(data))
+        data = have.lookup("dev")
+        logg.debug("data %s", data)
+        want2 = ("Development", "projects", "dev", None)
+        self.assertEqual(want2, _tuple(data))
+        #
+        data = have.lookup("dev-frontend2")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev-frontend2", "MAKE-122")
+        self.assertEqual(want, _tuple(data))
+        data = have.lookup("dev-frontend1")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev-frontend1", "MAKE-111")
+        self.assertEqual(want, _tuple(data))
+        data = have.lookup("dev-frontend")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev-frontend", "MAKE-111")
+        self.assertEqual(want, _tuple(data))
+    def test_600(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev MAKE-10: "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev1 MAKE-11
+        >> dev2 [Development]
+        >> dev2 MAKE-12
+        >> dev2 "project2"
+        """.splitlines()
+        have = topics.scanning(spec)
+        data = have.values("MAKE-11")
+        logg.debug("data %s", data)
+        want = ("Development", "project1", "dev1", "MAKE-11")
+        self.assertEqual(want, _tuple(data[0]))
+        data = have.values("MAKE-12")
+        logg.debug("data %s", data)
+        want = ("Development", "project2", "dev2", "MAKE-12")
+        self.assertEqual(want, _tuple(data[0]))
+        data = have.values("MAKE-13")
+        logg.debug("data %s", data)
+        self.assertEqual(len(data), 0)
+    def test_601(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev1 MAKE-11
+        >> dev2 MAKE-12
+        """.splitlines()
+        have = topics.scanning(spec)
+        data = have.values("MAKE-11")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev1", "MAKE-11")
+        self.assertEqual(want, _tuple(data[0]))
+        data = have.values("MAKE-12")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev2", "MAKE-12")
+        self.assertEqual(want, _tuple(data[0]))
+        data = have.values("MAKE-13")
+        logg.debug("data %s", data)
+        self.assertEqual(len(data), 0)
+    def test_610(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev-frontend [Development]
+        >> dev-frontend "projects"
+        >> dev1 MAKE-11
+        >> dev2 MAKE-12
+        >> dev-frontend1 MAKE-111
+        >> dev-frontend2 MAKE-122
+        """.splitlines()
+        have = topics.scanning(spec)
+        data = have.values("MAKE-11")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev1", "MAKE-11")
+        self.assertEqual(want, _tuple(data[0]))
+        data = have.values("MAKE-12")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev2", "MAKE-12")
+        self.assertEqual(want, _tuple(data[0]))
+        data = have.values("MAKE-13")
+        logg.debug("data %s", data)
+        self.assertEqual(len(data), 0)
+        data = have.values("MAKE-111")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev-frontend1", "MAKE-111")
+        self.assertEqual(want, _tuple(data[0]))
+        data = have.values("MAKE-122")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev-frontend2", "MAKE-122")
+        self.assertEqual(want, _tuple(data[0]))
+    def test_620(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev-frontend [Development]
+        >> dev-frontend "projects"
+        >> dev-frontend MAKE-111 MAKE-122
+        >> dev1 MAKE-11
+        >> dev2 MAKE-12
+        """.splitlines()
+        have = topics.scanning(spec)
+        data = have.values("MAKE-11")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev1", "MAKE-11")
+        self.assertEqual(want, _tuple(data[0]))
+        data = have.values("MAKE-12")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev2", "MAKE-12")
+        self.assertEqual(want, _tuple(data[0]))
+        data = have.values("MAKE-13")
+        logg.debug("data %s", data)
+        self.assertEqual(len(data), 0)
+        data = have.values("MAKE-111")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev-frontend", "MAKE-111")
+        self.assertEqual(want, _tuple(data[0]))
+        data = have.values("MAKE-122")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev-frontend", "MAKE-122")
+        self.assertEqual(want, _tuple(data[0]))
 
 if __name__ == "__main__":
     # unittest.main()

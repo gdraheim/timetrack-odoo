@@ -51,12 +51,12 @@ to work, you should have atleast a mapping file that binds Odoo accounts
 and Jira tickets.
 
     # mapping.txt
-    >> app1 [PRJ Contract 2022]
-    >> app1 "App1 Development"
-    >> app1 APP-1234
-    >> app2 [PRJ Contract 2022]
-    >> app2 "App2 Development"
-    >> app2 APP-1456
+    >> frontend [PRJ Contract 2022]
+    >> frontend "Frontend Development"
+    >> frontend MAKE-1234
+    >> backend [PRJ Contract 2022]
+    >> backend "Backend Development"
+    >> backend MAKE-1301 MAKE-1302
  
 Then have it exported.
 
@@ -66,6 +66,5 @@ Then have it exported.
 ## todo
 
 * You can not change a worklog from one ticket to another (like in Odoo booking)
-* You can not assign multiple tickets to a prefix topic
-* Multiple jira instances will provoke problems with non-existant tickets.
+* Handling multiple jira instances will provoke problems with non-existant tickets.
 

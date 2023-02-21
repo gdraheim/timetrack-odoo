@@ -30,7 +30,7 @@ class OdooValuesForTopic:
     proj_ids: Dict[str, str]  # obsolete
     custname: Dict[str, str]
     projname: Dict[str, str]
-    ticket4: Dict[str, str]
+    ticket4: Dict[str, List[str]]
     shortnames: bool
     def __init__(self, shortnames: bool = False) -> None:
         self.shortnames = shortnames
@@ -46,18 +46,21 @@ class OdooValuesForTopic:
         self.as_project0 = re.compile(r'^(\S+)\s+["](AS-(\d+):.*)["](.*)')  # obsolete
         self.as_project1 = re.compile(r'^(\S+)\s+["](.*)["](.*)')
         self.as_project2 = re.compile(r'^(\S+)\s+(\w[\w-]*\w):\s+["](.*)["](.*)')
-        self.as_ticket1 = re.compile(r'^(\S+)\s+(\w[\w-]*\w)')
+        self.as_ticket1 = re.compile(r'^(\S+)\s+(\w[\w-]*\w):?\s*$')
         self.as_ticket2 = re.compile(r'^(\S+)\s+(\w[\w-]*\w):\s+(\w.*)')
+        self.as_ticket3 = re.compile(r'^(\S+)\s+(\w[\w-]*\w)\s+(\w.*)')
 
     def scanline(self, line: str) -> None:
         """ expecting a line with >> first two chars, 
             followed by topic name, then definitions to be stored"""
+        check = False
         m = self.as_prefixed.match(line[2:].strip())
         if m:
             self.prefixed[m.group(1)] = m.group(2)
             return
         m = self.as_customer.match(line[2:].strip())
         if m:
+            if check: logg.error("customer %s", line)
             self.customer[m.group(1)] = m.group(2)
             self.customer[m.group(1).upper()] = m.group(2)
             self.projects[m.group(1)] = ""  # empty is always allowed (as of 2021)
@@ -68,6 +71,7 @@ class OdooValuesForTopic:
             return
         m = self.as_project0.match(line[2:].strip())
         if m:
+            if check: logg.error("project0 %s", line)
             self.projects[m.group(1)] = m.group(2)
             self.proj_ids[m.group(1)] = m.group(3)  # obsolete
             shorthand = m.group(4).strip().replace("#", ":")
@@ -76,6 +80,7 @@ class OdooValuesForTopic:
             return
         m = self.as_project1.match(line[2:].strip())
         if m:
+            if check: logg.error("project1 %s", line)
             self.projects[m.group(1)] = m.group(2)
             shorthand = m.group(3).strip().replace("#", ":")
             if not shorthand: shorthand = m.group(2)
@@ -83,22 +88,32 @@ class OdooValuesForTopic:
             return
         m = self.as_project2.match(line[2:].strip())
         if m:
+            if check: logg.error("project2 %s", line)
             self.projects[m.group(1)] = m.group(3)
             self.proj_ids[m.group(1)] = m.group(2)  # obsolete
             shorthand = m.group(4).strip().replace("#", ":")
             if not shorthand: shorthand = m.group(3)
             self.projname[m.group(1)] = shorthand
-            self.ticket4[m.group(1)] = m.group(2)  # repurpose
+            self.ticket4[m.group(1)] = [m.group(2)]  # repurpose
             return
         m = self.as_ticket1.match(line[2:].strip())
         if m:
-            self.ticket4[m.group(1)] = m.group(2)
+            if check: logg.error("ticket1 %s", line)
+            self.ticket4[m.group(1)] = [m.group(2)]
             return
         m = self.as_ticket2.match(line[2:].strip())
         if m:
-            self.ticket4[m.group(1)] = m.group(2)
+            if check: logg.error("ticket2 %s", line)
+            self.ticket4[m.group(1)] = [m.group(2)]
             self.projname[m.group(1)] = m.group(3)
             return
+        m = self.as_ticket3.match(line[2:].strip())
+        if m:
+            if check: logg.error("ticket3 %s", line)
+            self.ticket4[m.group(1)] = [m.group(2)] + m.group(3).split(" ")
+            return
+        if check:
+            raise Exception("can not parse %s", line.strip())
         logg.error("??? %s", line)
     def lookup(self, topic: str, daydate: Optional[Day] = None) -> Optional[OdooValues]:
         """ from a topic try to find the odoo values to be used. """
@@ -112,16 +127,21 @@ class OdooValuesForTopic:
         ticket = None
         proj = topic
         if proj in self.ticket4:
-            ticket = self.ticket4[proj]
+            ticket = self.ticket4[proj][0]
         if proj not in self.projects and proj[-1] in "0123456789" and proj[:-1] in self.projects:
+            numm = int(proj[-1])
             proj = proj[:-1]
-            numm = proj[-1]
+            if proj[-1] in [".", "-"]:
+                proj = proj[:-1]
             if not ticket and proj in self.ticket4:
-                ticket = self.ticket4[proj]
+                if numm and numm <= len(self.ticket4[proj]):
+                    ticket = self.ticket4[proj][numm - 1]
+                else:
+                    ticket = self.ticket4[proj][0]
         if proj not in self.projects and '-' in proj and proj[:proj.index('-')] in self.projects:
             proj = proj[:proj.index('-')]
             if not ticket and proj in self.ticket4:
-                ticket = self.ticket4[proj]
+                ticket = self.ticket4[proj][0]
         if proj not in self.projects:
             logg.info("can not find odoo values for %s [%s]", topic, proj)
             return None
@@ -136,13 +156,20 @@ class OdooValuesForTopic:
         return OdooValues(itemProj, itemTask, itemPref, ticket)
     def values(self, issue: str) -> List[OdooValues]:
         data: Dict[Tuple[str, str], OdooValues] = {}
-        for proj, ticket in self.ticket4.items():
-            if ticket == issue:
-                itemProj = self.customer[proj]
-                itemTask = self.projects[proj]
-                value = OdooValues(itemProj, itemTask, proj, None)
-                key = (itemProj, itemTask)
-                data[key] = value
+        for proj, tickets in self.ticket4.items():
+            for ticket in tickets:
+                if ticket == issue:
+                    prefix = proj
+                    if proj not in self.projects and proj[-1] in "0123456789" and proj[:-1] in self.projects:
+                        numm = int(proj[-1])
+                        proj = proj[:-1]
+                        if proj[-1] in [".", "-"]:
+                            proj = proj[:-1]
+                    itemProj = self.customer[proj]
+                    itemTask = self.projects[proj]
+                    value = OdooValues(itemProj, itemTask, prefix, ticket)
+                    key = (itemProj, itemTask)
+                    data[key] = value
         return list(data.values())
 
 def scanning(lines: Iterable[str]) -> OdooValuesForTopic:
