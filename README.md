@@ -34,7 +34,7 @@ quick start with `./odoo2data.py lastmonth zeit`. Save it with `-O zeit.txt`.
 
 * [setup.quickstart](setup.quickstart.md) - the BASIC SETUP takes about one hour
 
-| Documentation
+| Documentation                         |
 | ------------------------------------- | ------------------------------
 | [odoo2data.setup](odoo2data.setup.md) | generate reports for Odoo data
 | [jira2data.setup](jira2data.setup.md) | generate reports for Jira data
