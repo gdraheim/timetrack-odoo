@@ -43,6 +43,6 @@ quick start with `./odoo2data.py lastmonth zeit`. Save it with `-O zeit.txt`.
 | [zeit2odoo.setup](zeit2jira.setup.md) | synchronize Zeit to Jira        |
 | [odoo_rest.setup](odoo_rest.setup.md) | Odoo API hints                  |
 | [tabtotext.setup](tabtotext.setup.md) | how report tables are generated |
-| [netrc.setup](netrc.setup.md)         |                                 |
+| [netrc.setup](netrc.setup.md)         | how credentials are stored      |
 
 and some [HISTORY](HISTORY.md)
