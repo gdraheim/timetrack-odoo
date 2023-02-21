@@ -704,6 +704,50 @@ class odootopicTest(unittest.TestCase):
         self.assertEqual(data[3]["task"], "project2")
         self.assertEqual(data[3]["pref"], "dev2-backend")
         self.assertEqual(data[3]["ticket"], "MAKE-123")
+    def test_500(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev MAKE-10: "projects"
+        >> dev1 [Development]
+        >> dev1 "project1"
+        >> dev1 MAKE-11
+        >> dev2 [Development]
+        >> dev2 MAKE-12
+        >> dev2 "project2"
+        """.splitlines()
+        have = topics.scanning(spec)
+        data = have.lookup("dev2")
+        logg.debug("data %s", data)
+        want = ("Development", "project2", "dev2", "MAKE-12")
+        self.assertEqual(want, tuple(data))
+        data = have.lookup("dev1")
+        logg.debug("data %s", data)
+        want = ("Development", "project1", "dev1", "MAKE-11")
+        self.assertEqual(want, tuple(data))
+        data = have.lookup("dev")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev", "MAKE-10")
+        self.assertEqual(want, tuple(data))
+    def test_501(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev1 MAKE-11
+        >> dev2 MAKE-12
+        """.splitlines()
+        have = topics.scanning(spec)
+        data = have.lookup("dev2")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev2", "MAKE-12")
+        self.assertEqual(want, tuple(data))
+        data = have.lookup("dev1")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev1", "MAKE-11")
+        self.assertEqual(want, tuple(data))
+        data = have.lookup("dev")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev", None)
+        self.assertEqual(want, tuple(data))
 
 if __name__ == "__main__":
     # unittest.main()

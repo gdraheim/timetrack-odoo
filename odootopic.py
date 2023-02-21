@@ -109,11 +109,19 @@ class OdooValuesForTopic:
             prefix = topic
         elif topic in self.prefixed:
             prefix = self.prefixed[topic]
+        ticket = None
         proj = topic
+        if proj in self.ticket4:
+           ticket = self.ticket4[proj]
         if proj not in self.projects and proj[-1] in "0123456789" and proj[:-1] in self.projects:
             proj = proj[:-1]
+            numm = proj[-1]
+            if not ticket and proj in self.ticket4:
+                ticket = self.ticket4[proj]
         if proj not in self.projects and '-' in proj and proj[:proj.index('-')] in self.projects:
             proj = proj[:proj.index('-')]
+            if not ticket and proj in self.ticket4:
+                ticket = self.ticket4[proj]
         if proj not in self.projects:
             logg.info("can not find odoo values for %s [%s]", topic, proj)
             return None
@@ -125,10 +133,7 @@ class OdooValuesForTopic:
                 itemProj = self.custname[self.customer[proj]]
             if proj in self.projname:
                 itemTask = self.projname[proj]
-        if proj in self.ticket4:
-            return OdooValues(itemProj, itemTask, itemPref, self.ticket4[proj])
-        else:
-            return OdooValues(itemProj, itemTask, itemPref, None)
+        return OdooValues(itemProj, itemTask, itemPref, ticket)
     def values(self, issue: str) -> List[OdooValues]:
         data: Dict[Tuple[str, str], OdooValues] = {}
         for proj, ticket in self.ticket4.items():
@@ -140,7 +145,25 @@ class OdooValuesForTopic:
                 data[key] = value
         return list(data.values())
 
+def scanning(lines: Iterable[str]) -> Iterator[JSONDict]:
+    """ fast way of topics scanning: `x = scanning(open(filename))` """
+    odoomap = OdooValuesForTopic()
+    for numbered, nextline in enumerate(lines):
+        line = nextline.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith(">>"):
+            odoomap.scanline(line)
+            continue
+        if line.startswith("--"):
+            if line in ["--short", "--nolong"]:
+                odoomap.shortnames = True
+            if line in ["--noshort", "--long"]:
+                odoomap.shortnames = False
+    return odoomap
+
 def mapping(lines: Iterable[str]) -> Iterator[JSONDict]:
+    """ fast way of scan and test - see our.tests.py """
     odoomap = OdooValuesForTopic()
     for numbered, nextline in enumerate(lines):
         line = nextline.strip()
