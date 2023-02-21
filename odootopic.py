@@ -112,7 +112,7 @@ class OdooValuesForTopic:
         ticket = None
         proj = topic
         if proj in self.ticket4:
-           ticket = self.ticket4[proj]
+            ticket = self.ticket4[proj]
         if proj not in self.projects and proj[-1] in "0123456789" and proj[:-1] in self.projects:
             proj = proj[:-1]
             numm = proj[-1]
@@ -145,7 +145,7 @@ class OdooValuesForTopic:
                 data[key] = value
         return list(data.values())
 
-def scanning(lines: Iterable[str]) -> Iterator[JSONDict]:
+def scanning(lines: Iterable[str]) -> OdooValuesForTopic:
     """ fast way of topics scanning: `x = scanning(open(filename))` """
     odoomap = OdooValuesForTopic()
     for numbered, nextline in enumerate(lines):

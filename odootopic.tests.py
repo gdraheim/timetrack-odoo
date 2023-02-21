@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 import odootopic as topics
-from typing import Optional
+from typing import Optional, Tuple, cast
 
 import os
 import sys
@@ -17,6 +17,12 @@ import netrc
 
 import logging
 logg = logging.getLogger("TEST")
+
+OdooValuesTuple = Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]
+def _tuple(val: Optional[topics.OdooValues]) -> Optional[OdooValuesTuple]:
+    if not val:
+        return val
+    return cast(OdooValuesTuple, tuple(val))
 
 
 class odootopicTest(unittest.TestCase):
@@ -719,15 +725,15 @@ class odootopicTest(unittest.TestCase):
         data = have.lookup("dev2")
         logg.debug("data %s", data)
         want = ("Development", "project2", "dev2", "MAKE-12")
-        self.assertEqual(want, tuple(data))
+        self.assertEqual(want, _tuple(data))
         data = have.lookup("dev1")
         logg.debug("data %s", data)
         want = ("Development", "project1", "dev1", "MAKE-11")
-        self.assertEqual(want, tuple(data))
+        self.assertEqual(want, _tuple(data))
         data = have.lookup("dev")
         logg.debug("data %s", data)
         want = ("Development", "projects", "dev", "MAKE-10")
-        self.assertEqual(want, tuple(data))
+        self.assertEqual(want, _tuple(data))
     def test_501(self) -> None:
         spec = """
         >> dev [Development]
@@ -739,15 +745,52 @@ class odootopicTest(unittest.TestCase):
         data = have.lookup("dev2")
         logg.debug("data %s", data)
         want = ("Development", "projects", "dev2", "MAKE-12")
-        self.assertEqual(want, tuple(data))
+        self.assertEqual(want, _tuple(data))
         data = have.lookup("dev1")
         logg.debug("data %s", data)
         want = ("Development", "projects", "dev1", "MAKE-11")
-        self.assertEqual(want, tuple(data))
+        self.assertEqual(want, _tuple(data))
         data = have.lookup("dev")
         logg.debug("data %s", data)
-        want = ("Development", "projects", "dev", None)
-        self.assertEqual(want, tuple(data))
+        want2 = ("Development", "projects", "dev", None)
+        self.assertEqual(want2, _tuple(data))
+    def test_511(self) -> None:
+        spec = """
+        >> dev [Development]
+        >> dev "projects"
+        >> dev-frontend [Development]
+        >> dev-frontend "projects"
+        >> dev1 MAKE-11
+        >> dev2 MAKE-12
+        >> dev-frontend1 MAKE-111
+        >> dev-frontend2 MAKE-122
+        """.splitlines()
+        have = topics.scanning(spec)
+        data = have.lookup("dev2")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev2", "MAKE-12")
+        self.assertEqual(want, _tuple(data))
+        data = have.lookup("dev1")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev1", "MAKE-11")
+        self.assertEqual(want, _tuple(data))
+        data = have.lookup("dev")
+        logg.debug("data %s", data)
+        want2 = ("Development", "projects", "dev", None)
+        self.assertEqual(want2, _tuple(data))
+        #
+        data = have.lookup("dev-frontend2")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev-frontend2", "MAKE-122")
+        self.assertEqual(want, _tuple(data))
+        data = have.lookup("dev-frontend1")
+        logg.debug("data %s", data)
+        want = ("Development", "projects", "dev-frontend1", "MAKE-111")
+        self.assertEqual(want, _tuple(data))
+        data = have.lookup("dev-frontend")
+        logg.debug("data %s", data)
+        want2 = ("Development", "projects", "dev-frontend", None)
+        self.assertEqual(want2, _tuple(data))
 
 if __name__ == "__main__":
     # unittest.main()
