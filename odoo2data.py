@@ -414,25 +414,25 @@ def run(arg: str) -> None:
         import zeit2json
         data = json2odoo(zeit2json.read_zeit(DAYS.after, DAYS.before))
     if arg in ["ou", "odoo-users", "users"]:
-        results = odoo_users()
+        results = odoo_users()  # list all Odoo users
     elif arg in ["op", "odoo-projects", "projects"]:
-        results = odoo_projects()
+        results = odoo_projects()  # list all Odoo projects (including unused)
         summary += ["# use 'oo' or 'odoo-projects-tasks' to see task details"]
     elif arg in ["oo", "opt", "odoo-projects-tasks", "projects-tasks"]:
-        results = odoo_projects_tasks()
+        results = odoo_projects_tasks()  # list all Odoo projects-and-tasks (including unused)
         formats["task_name"] = '"{:}"'
     elif arg in ["ww", "data", "worked"]:
-        results = work_data(data)
+        results = work_data(data)  # list all Odoo entries
         if results and not SHORTNAME:
             summary += [" ### use -q or -qq to shorten the names for proj and task !!"]
     elif arg in ["z", "text", "zeit"]:
-        results = work_zeit(data)
+        results = work_zeit(data)  # list all Odoo entries in Zeit sheet format
         if not FMT:
             FMT = "wide"
     elif arg in ["dd", "dsummary", "days"]:
         results = summary_per_day(data)
     elif arg in ["xx", "report"]:
-        results = report_per_project(data)
+        results = report_per_project(data)  # group by Odoo project, per month and add price column
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
@@ -440,7 +440,7 @@ def run(arg: str) -> None:
             summary += [" ### use -Z to add a VAT footer !!"]
         formats["summe"] = " {:$}"
     elif arg in ["xxx", "reports"]:
-        results = reports_per_project(data)
+        results = reports_per_project(data)  # group by Odoo project, per month and add price column
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
@@ -448,19 +448,19 @@ def run(arg: str) -> None:
             summary += [" ### use -Z to add a VAT footer !!"]
         formats["summe"] = " {:$}"
     elif arg in ["mm", "msummarize", "mtasks", "monthlys"]:
-        results = monthly_per_project_task(data)
+        results = monthly_per_project_task(data)  # group by Odoo project-and-task but keep sums seperate per month
     elif arg in ["sx", "msummary", "monthly"]:
-        results = monthly_per_project(data)
+        results = monthly_per_project(data)  # group by Odoo project but keep sums seperate per month
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_odoo:11.2f} hours odoo"]
     elif arg in ["ee", "summarize", "tasks"]:
-        results = summary_per_project_task(data)
+        results = summary_per_project_task(data)  # group by Odoo project-and-task, across the full given dayrange
     elif arg in ["ss", "summary"]:
-        results = summary_per_project(data)
+        results = summary_per_project(data)  # group by Odoo project, across the full given dayrange
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_odoo:11.2f} hours odoo"]
     elif arg in ["tt", "topics"]:
-        results = summary_per_topic(data)
+        results = summary_per_topic(data)  # group by topic prefix in description, across the full given dayrange
     else:
         logg.error("unknown report '%s'", arg)
         import sys

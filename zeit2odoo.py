@@ -404,22 +404,23 @@ def run(arg: str) -> None:
     summary = []
     results: JSONList = []
     if arg in ["cc", "check"]:
+        # if size and description match, it can update the account relation (adding a prefix is okay)
         results = check_in_sync(data)
     elif arg in ["vv", "valid"]:
-        results = valid_per_days(data)
+        results = valid_per_days(data)  # checks if the day sum is the same across all accounts (mostly obsolete)
     elif arg in ["uu", "update"]:
-        results = update_per_days(data)
+        results = update_per_days(data)  # looks for prefix on a day, perhaps updating time, account and description
     elif arg in ["cc", "compare", "days"]:
-        results = summary_per_day(data)
+        results = summary_per_day(data)   # group by day across all Odoo projects
     elif arg in ["ee", "summarize", "tasks"]:
-        results = summary_per_project_task(data)
+        results = summary_per_project_task(data)  # group by Odoo project-and-task
     elif arg in ["ss", "summary"]:
-        results = summary_per_project(data)
+        results = summary_per_project(data)  # group by Odoo project
         sum_zeit = sum([float(cast(JSONBase, item["zeit"])) for item in results if item["zeit"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_zeit} hours zeit", f"{sum_odoo} hours odoo"]
     elif arg in ["tt", "topics"]:
-        results = summary_per_topic(data)
+        results = summary_per_topic(data)  # group by topic prefix in description
     else:
         logg.error("unknown report '%s'", arg)
         import sys

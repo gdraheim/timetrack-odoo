@@ -355,7 +355,7 @@ def find_jira_odoo_task(taskname: str, desc: str = "") -> Optional[str]:
             return cast(str, first[0].task)
     return None
 
-def read_odoo_taskdata(filename: str) -> Dict[str, str]:
+def read_odoo_taskdata(filename: str) -> Dict[str, List[str]]:
     global jira_odoomap
     jira_odoomap = OdooValuesForTopic()
     for line in open(filename):
@@ -427,6 +427,8 @@ def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
 
 def run(remote: JiraFrontend, args: List[str]) -> int:
     global DAYS
+    if TASKDATA:
+        read_odoo_taskdata(TASKDATA)
     # execute verbs after arguments are scanned
     FMT = FORMAT
     result: JSONList = []
@@ -452,32 +454,28 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
             return 0
         report = arg.lower()
         if report in ["allprojects"]:
-            result = list(jiraGetProjects(remote))
+            result = list(jiraGetProjects(remote))  # list all Jira project trackers (including unused)
         elif report in ["projects", "pp"]:
-            result = list(only_ActiveJiraProjects(jiraGetProjects(remote)))
+            result = list(only_ActiveJiraProjects(jiraGetProjects(remote)))  # list Jira project trackers
         elif report in ["user"]:
-            result = [{"url": remote.url(), "user": remote.user()}]
+            result = [{"url": remote.url(), "user": remote.user()}]  # show Jira connection info
         elif report in ["all", "ll"]:
-            result = list(jiraGetProjectsIssuesInDays(remote, PROJECTS or [PROJECTDEFAULT]))
+            result = list(jiraGetProjectsIssuesInDays(remote, PROJECTS or [PROJECTDEFAULT]))  # projects with updates lately
         elif report in ["tickets", "tt"]:
-            result = list(jiraGetUserIssuesInDays(remote))
+            result = list(jiraGetUserIssuesInDays(remote))  # projects with updates lately
         elif report in ["allactivity", "aaa"]:
-            result = list(jiraGetUserActivityInDays(remote))
+            result = list(jiraGetUserActivityInDays(remote))  # projects with updates lately
         elif report in ["activity", "aa"]:
-            result = list(only_shorterActivity(jiraGetUserActivityInDays(remote)))
+            result = list(only_shorterActivity(jiraGetUserActivityInDays(remote)))  # projects with updates lately
             sortby = ["upcreated"]
         elif report in ["myactivity", "a"]:
             result = list(item for item in only_shorterActivity(
                 jiraGetUserActivityInDays(remote)) if item["itemAuthor"] == remote.user())
             sortby = ["upcreated"]
         elif report in ["odoo", "data", "d"]:
-            if TASKDATA:
-                read_odoo_taskdata(TASKDATA)
-            result = list(jiraOdooData(remote))
+            result = list(jiraOdooData(remote))  # list all Jira entries in Odoo update format
         elif report in ["zeit", "text", "z"]:
-            if TASKDATA:
-                read_odoo_taskdata(TASKDATA)
-            result = list(jiraZeitData(remote))
+            result = list(jiraZeitData(remote))  # list all Jira entries in Zeit sheet format
             if not FMT:
                 FMT = "wide"
         else:

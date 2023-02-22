@@ -313,20 +313,20 @@ def run(arg: str) -> None:
     summary = []
     results: JSONList = []
     if arg in ["zz", "zeit"]:
-        results = list(withNoTask(data))
+        results = list(withNoTask(data))   # list existing Odoo entries and associated Zeit metadata
     elif arg in ["uu", "update"]:
-        results = update_per_days(data, ZEIT_USER_NAME)
+        results = update_per_days(data, ZEIT_USER_NAME)  # looks for prefix on the day, perhaps updating time and description
     elif arg in ["cc", "compare", "days"]:
-        results = summary_per_day(data, ZEIT_USER_NAME)
+        results = summary_per_day(data, ZEIT_USER_NAME)   # group by day across all Odoo projects
     elif arg in ["ee", "summarize", "tasks"]:
-        results = summary_per_project_ticket(data, ZEIT_USER_NAME)
+        results = summary_per_project_ticket(data, ZEIT_USER_NAME)  # group by Odoo project-and-task
     elif arg in ["ss", "summary"]:
-        results = summary_per_project(data, ZEIT_USER_NAME)
+        results = summary_per_project(data, ZEIT_USER_NAME)  # group by Odoo project
         sum_zeit = sum([float(cast(JSONBase, item["zeit"])) for item in results if item["zeit"]])
         sum_jira = sum([float(cast(JSONBase, item["jira"])) for item in results if item["jira"]])
         summary = [f"{sum_zeit} hours zeit", f"{sum_jira} hours jira"]
     elif arg in ["tt", "topics"]:
-        results = summary_per_topic(data, ZEIT_USER_NAME)
+        results = summary_per_topic(data, ZEIT_USER_NAME)  # group by topic prefix in description
     else:
         logg.error("unknown report '%s'", arg)
         import sys
