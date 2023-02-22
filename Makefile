@@ -19,6 +19,7 @@ JIRA_APIS = jira_rest.py
 JIRA_ZEIT = zeit2jira.py
 TRACKPROG = timetrack.py
 
+FRAC_UTIL = fracfloat.py
 DAY_UTILS = dayrange.py
 DAY_TESTS = dayrange.tests.py
 NET_UTILS = netrc.py
@@ -32,6 +33,7 @@ PARALLEL = -j2
 default: help
 
 check:
+	$(MAKE) frac
 	$(MAKE) tabt
 	$(MAKE) nett
 	$(MAKE) dayt
@@ -41,6 +43,10 @@ check:
 	$(MAKE) test
 	$(MAKE) jira
 	$(MAKE) track
+
+fracfloat.tests: frac
+f frac: ; $(PYTHON3) $(FRAC_UTIL:.py=.tests.py) -v $V
+f_%: ;    $(PYTHON3) $(FRAC_UTIL:.py=.tests.py) $@ -v $V
 
 tabtotext.tests: tabt
 x tabt: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V
@@ -178,6 +184,7 @@ type:
 	                 $(MAIN_PROG).type $(MAIN_PROG:.py=.tests.py).type \
 	                 $(ZEIT_PROG).type $(ZEIT_PROG:.py=.tests.py).type \
 	                 $(DATA_PROG).type $(DATA_PROG:.py=.tests.py).type \
+	                 $(FRAC_UTIL).type $(FRAC_UTIL:.py=.tests.py).type \
 	                 $(TAB_UTILS).type $(TAB_UTILS:.py=.tests.py).type \
 	                 $(NET_UTILS).type $(NET_UTILS:.py=.tests.py).type \
 	                 $(DAY_UTILS).type $(DAY_UTILS:.py=.tests.py).type \
@@ -192,6 +199,7 @@ style pep8:
 	                 $(MAIN_PROG).pep8 $(MAIN_PROG:.py=.tests.py).pep8 \
 	                 $(ZEIT_PROG).pep8 $(ZEIT_PROG:.py=.tests.py).pep8 \
 	                 $(DATA_PROG).pep8 $(DATA_PROG:.py=.tests.py).pep8 \
+	                 $(FRAC_UTIL).pep8 $(FRAC_UTIL:.py=.tests.py).pep8 \
 	                 $(TAB_UTILS).pep8 $(TAB_UTILS:.py=.tests.py).pep8 \
 	                 $(NET_UTILS).pep8 $(NET_UTILS:.py=.tests.py).pep8 \
 	                 $(DAY_UTILS).pep8 $(DAY_UTILS:.py=.tests.py).pep8 \

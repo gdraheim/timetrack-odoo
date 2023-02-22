@@ -17,8 +17,9 @@ import gitrc
 
 # from math import round
 from fnmatch import fnmatchcase as fnmatch
-from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, viewFMT, strHours, str27, str40
+from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, viewFMT, str27, str40
 from odoo_rest import EntryID, ProjID, TaskID
+from fracfloat import strHours
 
 Day = datetime.date
 Num = float

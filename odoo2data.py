@@ -438,6 +438,7 @@ def run(arg: str) -> None:
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
         if results and not ADDFOOTER:
             summary += [" ### use -Z to add a VAT footer !!"]
+        formats["summe"] = " {:$}"
     elif arg in ["xxx", "reports"]:
         results = reports_per_project(data)
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
@@ -445,6 +446,7 @@ def run(arg: str) -> None:
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
         if results and not ADDFOOTER:
             summary += [" ### use -Z to add a VAT footer !!"]
+        formats["summe"] = " {:$}"
     elif arg in ["mm", "msummarize", "mtasks", "monthlys"]:
         results = monthly_per_project_task(data)
     elif arg in ["sx", "msummary", "monthly"]:
