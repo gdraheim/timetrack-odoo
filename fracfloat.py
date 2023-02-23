@@ -64,7 +64,7 @@ class Frac4:
             else:
                 res += ch
             return res
-        if fmt.endswith("H"):
+        if fmt.endswith("q"):
             base = int(value)
             frac = value - base
             if frac < 0.124:

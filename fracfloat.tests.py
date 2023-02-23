@@ -172,7 +172,7 @@ class zeit2jiraTest(unittest.TestCase):
     # ..............................
     def test_200(self) -> None:
         numm = Frac4(0)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("0")
         self.assertEqual(want, data)
@@ -180,7 +180,7 @@ class zeit2jiraTest(unittest.TestCase):
         self.assertEqual(back, 0)
     def test_201(self) -> None:
         numm = Frac4(0.25)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("1/4")
         self.assertEqual(want, data)
@@ -188,85 +188,85 @@ class zeit2jiraTest(unittest.TestCase):
         self.assertEqual(back, 0.25)
     def test_202(self) -> None:
         numm = Frac4(0.50)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("1/2")
         self.assertEqual(want, data)
     def test_203(self) -> None:
         numm = Frac4(0.75)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("3/4")
         self.assertEqual(want, data)
     def test_204(self) -> None:
         numm = Frac4(0.9)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("1.")
         self.assertEqual(want, data)
     def test_210(self) -> None:
         numm = Frac4(1)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("1.")
         self.assertEqual(want, data)
     def test_211(self) -> None:
         numm = Frac4(1.25)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("11/4")
         self.assertEqual(want, data)
     def test_212(self) -> None:
         numm = Frac4(1.50)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("11/2")
         self.assertEqual(want, data)
     def test_213(self) -> None:
         numm = Frac4(1.75)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("13/4")
         self.assertEqual(want, data)
     def test_214(self) -> None:
         numm = Frac4(1.9)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("2.")
         self.assertEqual(want, data)
     def test_220(self) -> None:
         numm = Frac4(12)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("12.")
         self.assertEqual(want, data)
     def test_221(self) -> None:
         numm = Frac4(12.25)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("121/4")
         self.assertEqual(want, data)
     def test_222(self) -> None:
         numm = Frac4(12.50)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("121/2")
         self.assertEqual(want, data)
     def test_223(self) -> None:
         numm = Frac4(12.75)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("123/4")
         self.assertEqual(want, data)
     def test_224(self) -> None:
         numm = Frac4(12.9)
-        data = "{:H}".format(numm)  # type: ignore[str-format]
+        data = "{:q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("13.")
         self.assertEqual(want, data)
     def test_273(self) -> None:
         numm = Frac4(12.75)
-        data = "{:04H}".format(numm)  # type: ignore[str-format]
+        data = "{:04q}".format(numm)  # type: ignore[str-format]
         logg.info("data = %s", data)
         want = rep("00123/4")
         self.assertEqual(want, data)
