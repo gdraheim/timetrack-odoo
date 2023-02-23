@@ -503,7 +503,7 @@ def run(arg: str) -> None:
         if XLSXFILE:
             FMT = "xlsx"
             import tabtoxlsx
-            tabtoxlsx.saveToXLSX(XLSXFILE, results)
+            tabtoxlsx.saveToXLSX(XLSXFILE, results, formats=formats)
             logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), XLSXFILE)
 
 if __name__ == "__main__":
