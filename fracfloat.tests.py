@@ -41,6 +41,135 @@ def rep(val: str) -> str:
     return val
 
 class zeit2jiraTest(unittest.TestCase):
+    def test_100(self) -> None:
+        numm = Frac4(0)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("0:00")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 0.0)
+    def test_101(self) -> None:
+        numm = Frac4(0.25)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("0:15")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 0.25)
+    def test_102(self) -> None:
+        numm = Frac4(0.50)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("0:30")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 0.50)
+    def test_103(self) -> None:
+        numm = Frac4(0.75)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("0:45")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 0.75)
+    def test_104(self) -> None:
+        numm = Frac4(0.99)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("1:00")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 1.0)
+    def test_110(self) -> None:
+        numm = Frac4(1)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("1:00")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 1.0)
+    def test_111(self) -> None:
+        numm = Frac4(1.25)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("1:15")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 1.25)
+    def test_112(self) -> None:
+        numm = Frac4(1.50)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("1:30")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 1.50)
+    def test_113(self) -> None:
+        numm = Frac4(1.75)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("1:45")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 1.75)
+    def test_114(self) -> None:
+        numm = Frac4(1.99)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("2:00")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 2)
+    def test_120(self) -> None:
+        numm = Frac4(12)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("12:00")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 12)
+    def test_121(self) -> None:
+        numm = Frac4(12.25)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("12:15")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 12.25)
+    def test_122(self) -> None:
+        numm = Frac4(12.50)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("12:30")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 12.50)
+    def test_123(self) -> None:
+        numm = Frac4(12.75)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("12:45")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 12.75)
+    def test_124(self) -> None:
+        numm = Frac4(12.99)
+        data = "{:H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("13:00")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 13.00)
+    def test_173(self) -> None:
+        numm = Frac4(12.75)
+        data = "{:04H}".format(numm)  # type: ignore[str-format]
+        logg.info("data = %s", data)
+        want = rep("0012:45")
+        self.assertEqual(want, data)
+        back = fracfloat(data)
+        self.assertEqual(back, 12.75)
+    # ..............................
     def test_200(self) -> None:
         numm = Frac4(0)
         data = "{:h}".format(numm)  # type: ignore[str-format]

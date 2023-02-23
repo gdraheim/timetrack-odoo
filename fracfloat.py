@@ -6,6 +6,9 @@ implements frac formatting
 from typing import Any, cast, Union
 import string
 import re
+import logging
+
+logg = logging.getLogger("fracfloat")
 
 norm_frac_1_4 = 0x00BC
 norm_frac_1_2 = 0x00BD
@@ -42,6 +45,16 @@ class Frac4:
     # @override
     def __format__(self, fmt: str) -> str:
         value = self.value
+        if fmt.endswith("H"):
+            base = int(value)
+            frac = value - base
+            f60 = frac * 60 + 0.8  # (100 / 60.) / 2 = 0.833
+            if f60 >= 60:
+                f60 = 0
+                base += 1
+            num = "{:" + fmt[:-1] + "d}"
+            res = num.format(base)
+            return res + ":{:02d}".format(int(f60))
         if fmt.endswith("h"):
             base = int(value)
             frac = value - base
@@ -180,7 +193,7 @@ class Frac4:
         return num.format(value)
 
 def is_float_with_frac(value: str) -> bool:
-    pattern = "[+-]?[0-9]*[.h%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c][hM$%c%c%c]?$" % (  # ...
+    pattern = "[+-]?\\d*[.h%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c][hM$%c%c%c]?$" % (  # ...
         norm_frac_1_4, norm_frac_1_2, norm_frac_3_4,  # ...
         norm_frac_1_5, norm_frac_2_5, norm_frac_3_5,  # ...
         norm_frac_4_5, norm_frac_1_8, norm_frac_3_8,  # ...
@@ -189,10 +202,17 @@ def is_float_with_frac(value: str) -> bool:
         currency_euro, currency_yen, currency_pound)  # ...
     if re.match(pattern, value):
         return True
+    hours = "\\d*[:hH]\\d\\d$"
+    if re.match(hours, value):
+        return True
     return False
 
 def fracfloat(value: str) -> float:
     if value and is_float_with_frac(value):
+        if len(value) >= 3 and value[-3] in ":hH":
+            numms = value[:-3]
+            fracs = value[-2:]
+            return float(numms) + float(fracs) / 60
         scale = 1
         if value[-1] in "h$":
             value = value[:-1]
