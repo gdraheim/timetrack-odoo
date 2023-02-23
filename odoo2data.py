@@ -400,8 +400,9 @@ def run(arg: str) -> None:
                 continue
             elif line.strip().startswith("results = "):
                 report_call = line.split("results = ", 1)[1].strip()
+                report_func = report_call.replace("(data", ".").replace("(", " ").replace(")", "").strip()
                 if report_name:
-                    print(f"{report_name} {report_call}")
+                    print(f"{report_name} {report_func}")
             report_name = None
         return
     ###########################################################
@@ -440,7 +441,7 @@ def run(arg: str) -> None:
             summary += [" ### use -Z to add a VAT footer !!"]
         formats["summe"] = " {:$}"
     elif arg in ["xxx", "reports"]:
-        results = reports_per_project(data)  # group by Odoo project, per month and add price column
+        results = reports_per_project(data)  # group by Odoo project, per month, add price and m column
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
@@ -448,7 +449,7 @@ def run(arg: str) -> None:
             summary += [" ### use -Z to add a VAT footer !!"]
         formats["summe"] = " {:$}"
     elif arg in ["mm", "msummarize", "mtasks", "monthlys"]:
-        results = monthly_per_project_task(data)  # group by Odoo project-and-task but keep sums seperate per month
+        results = monthly_per_project_task(data)  # group by Odoo project-and-task, seperate per month
     elif arg in ["sx", "msummary", "monthly"]:
         results = monthly_per_project(data)  # group by Odoo project but keep sums seperate per month
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])

@@ -276,8 +276,9 @@ def run(arg: str) -> None:
                 continue
             elif line.strip().startswith("results = "):
                 report_call = line.split("results = ", 1)[1].strip()
+                report_func = report_call.replace("(data", ".").replace("(", " ").replace(")", "").strip()
                 if report_name:
-                    print(f"{report_name} {report_call}")
+                    print(f"{report_name} {report_func}")
             report_name = None
         return
     ###########################################################

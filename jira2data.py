@@ -448,8 +448,10 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
                     continue
                 elif line.strip().startswith("result = "):
                     report_call = line.split("result = ", 1)[1].strip()
+                    report_func = report_call.replace("(remote)", ".").replace(
+                        "(data)", ".").replace("(", " ").replace(")", "").strip()
                     if report_name:
-                        print(f"{report_name} {report_call}")
+                        print(f"{report_name} {report_func}")
                 report_name = None
             return 0
         report = arg.lower()
