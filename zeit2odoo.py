@@ -193,12 +193,15 @@ def __update_per_days(data: JSONList, daydata: Dict[Day, JSONList]) -> JSONList:
                 if old_entry_desc.startswith(f"{pref_id} "):
                     matching.append(old)
             if not matching:
-                logg.info("NEW: (%s) [%s] %s", new_date, strHours(new_size), strDesc(new_desc))
-                if UPDATE:
-                    done = odoo.timesheet_create(proj_id, task_id, new_date, new_size, new_desc)
-                    logg.info("-->: %s", done)
-                changes.append({"act": "NEW", "at proj": proj_id, "at task": task_id,
-                                "date": new_date, "desc": new_desc, "zeit": new_size})
+                if not new_size:
+                    logg.info(" no: (%s) [%s] %s", new_date, strHours(new_size), strDesc(new_desc))
+                else:
+                    logg.info("NEW: (%s) [%s] %s", new_date, strHours(new_size), strDesc(new_desc))
+                    if UPDATE:
+                        done = odoo.timesheet_create(proj_id, task_id, new_date, new_size, new_desc)
+                        logg.info("-->: %s", done)
+                    changes.append({"act": "NEW", "at proj": proj_id, "at task": task_id,
+                                    "date": new_date, "desc": new_desc, "zeit": new_size})
             elif len(matching) > 1:
                 logg.info(" *multiple: (%s) [%s] %s", new_date, strHours(new_size), strDesc(new_desc))
                 for matched in matching:
@@ -212,7 +215,17 @@ def __update_per_days(data: JSONList, daydata: Dict[Day, JSONList]) -> JSONList:
                 old_desc: str = cast(str, matched["entry_desc"])
                 old_proj: str = cast(str, matched["proj_name"])
                 old_task: str = cast(str, matched["task_name"])
-                if old_size != new_size or old_desc != new_desc or old_proj != proj_id or old_task != task_id:
+                if new_size == 0:
+                    logg.info("old: (%s) [%s] %s", old_date, strHours(old_size), strDesc(old_desc))
+                    logg.info("del: (%s) [%s] %s", new_date, strHours(new_size), strDesc(new_desc))
+                    if UPDATE:
+                        old_id = cast(EntryID, matched["entry_id"])
+                        # done = odoo.timesheet_write(old_id, proj_id, task_id, new_date, new_size, new_desc)
+                        done = odoo.timesheet_delete(old_id)
+                        logg.info("-->: %s", done)
+                    changes.append({"act": "DEL", "at proj": proj_id, "at task": task_id,
+                                    "date": new_date, "desc": new_desc, "zeit": new_size})
+                elif old_size != new_size or old_desc != new_desc or old_proj != proj_id or old_task != task_id:
                     logg.info("old: (%s) [%s] %s", old_date, strHours(old_size), strDesc(old_desc))
                     logg.info("new: (%s) [%s] %s", new_date, strHours(new_size), strDesc(new_desc))
                     if proj_id != proj_id or old_task != task_id:

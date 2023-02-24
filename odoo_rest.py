@@ -346,6 +346,35 @@ def odoo_write_timesheet_record(url: str, cookies: Cookies, uid: UserID, entry_i
 
     return response.json()['result']  # type: ignore
 
+def odoo_delete_timesheet_record(url: str, cookies: Cookies, uid: UserID, entry_id: EntryID) -> bool:
+    request_json = {
+        "jsonrpc": "2.0",
+        "method": "call",
+        "params": {
+            "args": [[entry_id],  # ids=
+                     ],
+            "model": "account.analytic.line",
+            "method": "unlink",
+            "kwargs": {
+                "context": {
+                    "uid": uid,
+                }
+            }
+        }
+    }
+
+    response = requests.post(f"{url}/web/dataset/call_kw/account.analytic.line/unlink", json=request_json,
+                             cookies=cookies)
+
+    if response.status_code != 200 or 'result' not in response.json():
+        logg.error("ERROR SET TIMESHEET")
+        logg.debug("%s", response.json())
+        if "error" in response.json():
+            logg.error("  %s", response.json()['error']['data']['message'])
+        return False
+
+    return response.json()['result']  # type: ignore
+
 def odoo_get_users(url: str, cookies: Cookies) -> JSONList:
     request_json = {
         "jsonrpc": "2.0",
@@ -553,6 +582,12 @@ class Odoo:
                  "entry_size": item["unit_amount"], "entry_desc": item["name"],  # type: ignore
                  "entry_id": item["id"], "entry_date": item["date"],
                  } for item in found]
+    def timesheet_delete(self, entry_id: EntryID) -> bool:
+        uid = self.from_login()
+        found = odoo_delete_timesheet_record(self.url, self.cookies(), uid,  #
+                                             entry_id)
+        logg.info("deleted %s", found)
+        return found  # bool
     def timesheet_write(self, entry_id: EntryID, proj: ProjREF, task: TaskREF, date: Day, time: Num, desc: str) -> bool:
         uid = self.from_login()
         proj_id = self.proj_id(proj)

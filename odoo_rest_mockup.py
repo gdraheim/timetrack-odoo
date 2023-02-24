@@ -28,7 +28,7 @@ URL = mock_url
 
 db_projlist = [mock_proj_1, mock_proj_2]
 db_tasklist = {mock_proj_1: [mock_task_1], mock_proj_2: [mock_task_2]}
-db_records: JSONList = []
+db_records: List[Optional[JSONDict]] = []
 
 def reset() -> None:
     global DB, URL
@@ -105,16 +105,24 @@ class Odoo:
         return list(self.each_timesheet_records(date))
     def each_timesheet_records(self, date: Optional[Date] = None) -> Generator[JSONDict, None, None]:
         for record in db_records:
+            if not record:
+                continue  # deleted
             if not date or record["entry_date"] == date:
                 yield record
     def timesheet_record(self, proj: str, task: str, date: Optional[Date] = None) -> JSONList:
         return list(self.each_timesheet_record(proj, task, date))
     def each_timesheet_record(self, proj: str, task: str, date: Optional[Date] = None) -> Generator[JSONDict, None, None]:
         for record in db_records:
+            if not record:
+                continue  # deleted
             if record["proj_id"] == proj or record["proj_name"] == proj:
                 if record["task_id"] == task or record["task_name"] == task:
                     if not date or record["entry_date"] == date:
                         yield record
+    def timesheet_delete(self, entry_id: EntryID) -> bool:
+        old = db_records[entry_id]
+        db_records[entry_id] = None
+        return old is not None
     def timesheet_write(self, entry_id: EntryID, proj: ProjREF, task: TaskREF, date: Day, time: Num, desc: str) -> bool:
         proj_id = self.proj_id(proj)
         task_id = self.task_id(proj_id, task)
@@ -144,6 +152,8 @@ class Odoo:
     def timesheet_update(self, proj: ProjREF, task: TaskREF, date: Day, time: Num, desc: str) -> bool:
         done = 0
         for record in db_records:
+            if not record:
+                continue  # deleted
             if record["proj_id"] == proj or record["proj_name"] == proj:
                 if record["task_id"] == task or record["task_name"] == task:
                     if not date or record["entry_date"] == date:
