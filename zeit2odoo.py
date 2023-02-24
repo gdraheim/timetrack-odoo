@@ -241,6 +241,91 @@ def __update_per_days(data: JSONList, daydata: Dict[Day, JSONList]) -> JSONList:
                     logg.info(" ok: (%s) [%s] %s", new_date, strHours(new_size), strDesc(new_desc))
     return changes
 
+def replace_per_days(data: JSONList) -> JSONList:
+    daydata: Dict[Day, JSONList] = {}
+    for item in data:
+        proj_id: str = cast(str, item["Project"])
+        task_id: str = cast(str, item["Task"])
+        new_desc: str = cast(str, item["Description"])
+        new_date: Day = cast(Day, item["Date"])
+        new_size: Num = cast(Num, item["Quantity"])
+        if new_date not in daydata:
+            daydata[new_date] = []
+        daydata[new_date].append(item)
+    return __replace_per_days(data, daydata)
+def __replace_per_days(data: JSONList, daydata: Dict[Day, JSONList]) -> JSONList:
+    changes: JSONList = []
+    odoo = odoo_api.Odoo()
+    for day in sorted(daydata.keys()):
+        items = daydata[day]
+        found = odoo.timesheet_records(day)
+        if not found:
+            logg.info("---: (%s) ----- no data from odoo", day)
+        reuse: Dict[EntryID, JSONDict] = {}
+        creat: List[JSONDict] = []
+        for item in items:
+            proj_id: str = cast(str, item["Project"])
+            task_id: str = cast(str, item["Task"])
+            pref_id: str = cast(str, item.get("Topic", ""))
+            desc_id: str = cast(str, item["Description"])
+            if not pref_id:
+                pref_id = desc_id.split(" ", 1)[0]
+            reused = False
+            for old in found:
+                old_entry_desc = cast(str, old["entry_desc"])
+                if old_entry_desc.startswith(f"{pref_id} "):
+                    entry_id = cast(EntryID, old["entry_id"])
+                    if entry_id not in reuse:
+                        reuse[entry_id] = item
+                        reused = True
+                        break
+        for old in found:
+            old_id = cast(EntryID, old["entry_id"])
+            old_date: str = cast(str, old["entry_date"])
+            old_size: Num = cast(Num, old["entry_size"])
+            old_desc: str = cast(str, old["entry_desc"])
+            old_proj: str = cast(str, old["proj_name"])
+            old_task: str = cast(str, old["task_name"])
+            if old_id not in reuse:
+                logg.info("DEL: (%s) [%s] %s", old_date, strHours(old_size), strDesc(old_desc))
+                if UPDATE:
+                    done = odoo.timesheet_delete(old_id)
+                    logg.info("-->: %s", done)
+                changes.append({"act": "DEL", "at proj": proj_id, "at task": task_id,
+                                "date": new_date, "desc": new_desc, "zeit": new_size})
+            else:
+                item = reuse[old_id]
+                new_proj: str = cast(str, item["Project"])
+                new_task: str = cast(str, item["Task"])
+                new_desc: str = cast(str, item["Description"])
+                new_date: Day = cast(Day, item["Date"])
+                new_size: Num = cast(Num, item["Quantity"])
+                if old_desc == new_desc and old_task == new_task and old_proj == new_proj:
+                    logg.info(" ok: (%s) [%s] %s", new_date, strHours(new_size), strDesc(new_desc))
+                else:
+                    logg.info("old: (%s) [%s] %s", old_date, strHours(old_size), strDesc(old_desc))
+                    logg.info("new: (%s) [%s] %s", new_date, strHours(new_size), strDesc(new_desc))
+                    if old_proj != new_proj or old_task != task_id:
+                        logg.info("REF: (%s)       [%s] \"%s\"", new_date, old_proj, old_task)
+                        logg.info("UPD: (%s)       [%s] \"%s\"", new_date, new_proj, new_task)
+                    if UPDATE:
+                        done = odoo.timesheet_write(old_id, new_proj, new_task, new_date, new_size, new_desc)
+                        logg.info("-->: %s", done)
+                    changes.append({"act": "UPD", "at proj": new_proj, "at task": new_task,
+                                    "date": new_date, "desc": new_desc, "zeit": new_size})
+        for item in creat:
+            mk_proj: str = cast(str, item["Project"])
+            mk_task: str = cast(str, item["Task"])
+            mk_desc: str = cast(str, item["Description"])
+            mk_date: Day = cast(Day, item["Date"])
+            mk_size: Num = cast(Num, item["Quantity"])
+            if UPDATE:
+                done = odoo.timesheet_create(mk_proj, mk_task, mk_date, mk_size, mk_desc)
+                logg.info("-->: %s", done)
+            changes.append({"act": "NEW", "at proj": mk_proj, "at task": mk_task,
+                            "date": mk_date, "desc": mk_desc, "zeit": mk_size})
+    return changes
+
 def summary_per_day(data: JSONList, odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
         if ONLYZEIT:
@@ -424,6 +509,8 @@ def run(arg: str) -> None:
         results = valid_per_days(data)  # checks if the day sum is the same across all accounts (mostly obsolete)
     elif arg in ["uu", "update"]:
         results = update_per_days(data)  # looks for prefix on a day, perhaps updating time, account and description
+    elif arg in ["rr", "replace"]:
+        results = replace_per_days(data)  # deletes odoo records on a day, and creates new if not reusable based on prefix
     elif arg in ["cc", "compare", "days"]:
         results = summary_per_day(data)   # group by day across all Odoo projects
     elif arg in ["ee", "summarize", "tasks"]:
