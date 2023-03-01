@@ -321,38 +321,26 @@ def jira_project(taskname: str) -> str:
     return parts[0]
 
 def jira_odoo_project(taskname: str, desc: str = "") -> str:
-    found = find_jira_odoo_project(taskname, desc)
+    found = find_jira_odoo_values(taskname, desc)
     if found:
-        return found
+        return cast(str, found.proj)
     parts = taskname.split("-", 1)
     return parts[0]
-def find_jira_odoo_project(taskname: str, desc: str = "") -> Optional[str]:
-    if jira_odoomap:
-        values = jira_odoomap.values(taskname)
-        if desc:
-            for value in sorted(values, key=lambda x: cast(str, x.pref), reverse=True):
-                if desc.startswith(cast(str, value.pref)):
-                    return cast(str, value.proj)
-        if values:
-            first = sorted(values, key=lambda x: cast(str, x.pref), reverse=True)
-            return cast(str, first[0].proj)
-    return None
-
 def jira_odoo_task(taskname: str, desc: str = "") -> str:
-    found = find_jira_odoo_task(taskname, desc)
+    found = find_jira_odoo_values(taskname, desc)
     if found:
-        return found
+        return cast(str, found.task)
     return taskname
-def find_jira_odoo_task(taskname: str, desc: str = "") -> Optional[str]:
+def find_jira_odoo_values(taskname: str, desc: str = "") -> Optional[OdooValues]:
     if jira_odoomap:
         values = jira_odoomap.values(taskname)
         if desc:
             for value in sorted(values, key=lambda x: cast(str, x.pref), reverse=True):
                 if desc.startswith(cast(str, value.pref)):
-                    return cast(str, value.task)
+                    return value
         if values:
             first = sorted(values, key=lambda x: cast(str, x.pref), reverse=True)
-            return cast(str, first[0].task)
+            return first[0]
     return None
 
 def read_odoo_taskdata(filename: str) -> Dict[str, List[str]]:
@@ -409,11 +397,11 @@ def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
     zeit_txt = "# zeit.txt"
     for prefix in sorted(mapping):
         issue = mapping[prefix]
-        proj = find_jira_odoo_project(issue, prefix)
-        task = find_jira_odoo_task(issue, prefix)
-        if proj:
+        values = find_jira_odoo_values(issue, prefix)
+        if values:
+            proj = cast(str, values.proj)
+            task = cast(str, values.task)
             yield {zeit_txt: f""">> {prefix} [{proj}] """}
-        if task:
             yield {zeit_txt: f""">> {prefix} "{task}" """}
         yield {zeit_txt: f">> {prefix} {issue}"}
     for key in sorted(data):
