@@ -362,7 +362,7 @@ def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
     days = days or DAYS
     later = dayrange(days.after)
     data: Dict[Tuple[str, str], List[str]] = {}
-    mapping: Dict[str, str] = {}
+    mapping: Dict[str, Dict[str, Optional[OdooValues]]] = {}
     weekstart = None
     for ticket in jiraGetUserIssuesInDays(api, user, later):
         user = user or api.user()
@@ -379,7 +379,9 @@ def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
             hours = cast(int, record["timeSpentSeconds"]) / 3600
             desc = cast(str, record["comment"])
             prefix = desc.split(" ", 1)[0]
-            mapping[prefix] = issue
+            if prefix not in mapping:
+                mapping[prefix] = {}
+            mapping[prefix][issue] = find_jira_odoo_values(issue, prefix)
             key = (started.strftime("%Y-%m-%d"), prefix)
             if key not in data:
                 data[key] = []
@@ -396,14 +398,16 @@ def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
             data[key] += [line]
     zeit_txt = "# zeit.txt"
     for prefix in sorted(mapping):
-        issue = mapping[prefix]
-        values = find_jira_odoo_values(issue, prefix)
-        if values:
-            proj = cast(str, values.proj)
-            task = cast(str, values.task)
-            yield {zeit_txt: f""">> {prefix} [{proj}] """}
-            yield {zeit_txt: f""">> {prefix} "{task}" """}
-        yield {zeit_txt: f">> {prefix} {issue}"}
+        for issue in sorted(mapping[prefix]):
+            values = mapping[prefix][issue]
+            if values:
+                proj = cast(str, values.proj)
+                task = cast(str, values.task)
+                yield {zeit_txt: f""">> {prefix} [{proj}] """}
+                yield {zeit_txt: f""">> {prefix} "{task}" """}
+                break
+        issues = " ".join(sorted(mapping[prefix]))
+        yield {zeit_txt: f">> {prefix} {issues}"}
     for key in sorted(data):
         lines = data[key]
         if len(lines) > 1:
