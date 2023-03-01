@@ -99,6 +99,28 @@ format then this allows to update the records with the Odoo API instead. The
 "-D" and "-d" option are equally used for csv-style data meant originally for
 the Odoo import button in the Odoo web UI.
 
+### daysrange specifications
+
+The zeit2odoo script can take a while to query the existing Odoo database.
+
+Instead of comparing all data (actually the current year) one should try
+to limit the days that may get summarized or updated.
+
+* use "M01" ... "M12" for single months
+* use "M01-M03" .... "M10-M12" for quarters
+* use "lastweek" for the last week
+* use "last" for beforelastweek up to the current day
+* use "latest" for lastweek up to the current day
+
+These are actually shorthands for "-a 12.01." beginning to "-b 30.01." for
+the last day to be synchronized. Using "-b 99.01." is a shorthand for the
+last day in that month. (Note that "-a 01.01. -b 01.02." is a dayrange of
+32 days and may not do the expected thing).
+
+* jira2data.py M01 -m ~/mapping.zeit.txt odoo
+
+
+
 
 
 
