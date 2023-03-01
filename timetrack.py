@@ -457,7 +457,7 @@ def run(config: ConfigParser, args: List[str]) -> JSONList:
             return [{"error": "unknown object type"}]
     if results:
         FMT = FORMAT
-        formats = {"zeit": " %4.2f", "odoo": " %4.2f", "summe": " %4.2f"}
+        formats = {"zeit": "{:4.2f}", "odoo": "{:4.2f}", "summe": "{:4.2f}"}
         if OUTPUT in ["-", "CON"]:
             print(tabtotext.tabToFMT(FORMAT, results, headers, formats=formats, legend=summary))
         elif OUTPUT:

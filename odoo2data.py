@@ -409,7 +409,7 @@ def run(arg: str) -> None:
     data: Optional[JSONList] = None
     summary = []
     results: JSONList = []
-    formats = {"odoo": " {:4.2f}", "summe": " %4.2f"}
+    formats = {"odoo": "{:4.2f}", "summe": "{:4.2f}"}
     FMT = FORMAT
     if ONLYZEIT:
         import zeit2json

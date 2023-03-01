@@ -533,7 +533,7 @@ def run(arg: str) -> None:
                     item["at proj"] = strName(item["at proj"])
                 if "at task" in item:
                     item["at task"] = strName(item["at task"])
-        formats = {"zeit": " %4.2f", "odoo": " %4.2f", "summe": " %4.2f"}
+        formats = {"zeit": "{:4.2f}", "odoo": "{:4.2f}", "summe": "{:4.2f}"}
         if OUTPUT in ["-", "CON"]:
             print(tabtotext.tabToFMT(FMT, results, formats=formats, legend=summary))
         elif OUTPUT:
