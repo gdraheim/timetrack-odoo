@@ -119,21 +119,14 @@ last day in that month. (Note that "-a 01.01. -b 01.02." is a dayrange of
 
 * jira2data.py M01 -m ~/mapping.zeit.txt odoo
 
+### account mapping
 
+The account mapping file has this format
 
+    >> topic [Odoo Project Name]
+    >> topic "Odoo Task Name"
+    >> topic BUGS-1 MAKE-3 JIRAISSUES-4
 
+In the Zeit format the topic is the first word in the description of a day.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    mo 2:00 topic updated
