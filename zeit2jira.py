@@ -429,7 +429,10 @@ if __name__ == "__main__":
     DAYS = dayrange(opt.after, opt.before)
     if not args:
         args = ["make"]
+    elif len(args) == 1 and is_dayrange(args[0]):
+        args += ["compare"]
     elif len(args) >= 2 and is_dayrange(args[1]):
-        logg.error("a dayrange should come first: %s", args[1])
+        logg.warning("a dayrange should come first: '%s' (reordering now)", args[1])
+        args = [args[1], args[0]] + args[2:]
     for arg in args:
         run(arg)

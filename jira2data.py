@@ -542,6 +542,9 @@ if __name__ == "__main__":
     remote = JiraFrontend(opt.remote)
     if not args:
         args = ["projects"]
+    elif len(args) == 1 and is_dayrange(args[0]):
+        args += ["odoo"]
     elif len(args) >= 2 and is_dayrange(args[1]):
-        logg.error("a dayrange should come first: %s", args[1])
+        logg.warning("a dayrange should come first: '%s' (reordering now)", args[1])
+        args = [args[1], args[0]] + args[2:]
     run(remote, args)

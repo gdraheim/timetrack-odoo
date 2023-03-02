@@ -587,8 +587,9 @@ if __name__ == "__main__":
     if not args:
         args = ["projects"]
     elif len(args) == 1 and is_dayrange(args[0]):
-        args += ["projects"]
+        args += ["odoo"]
     elif len(args) >= 2 and is_dayrange(args[1]):
-        logg.error("a dayrange should come first: %s", args[1])
+        logg.warning("a dayrange should come first: '%s' (reordering now)", args[1])
+        args = [args[1], args[0]] + args[2:]
     for arg in args:
         run(arg)
