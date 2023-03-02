@@ -132,6 +132,55 @@ def each_odoo_projects_tasks() -> Iterator[JSONDict]:
             if fnmatches(name, ODOO_PROJSKIP): continue
         yield item
 
+def umlaute(name: str) -> str:
+    name = name.replace(chr(0xC4), "AE")
+    name = name.replace(chr(0xD6), "OE")
+    name = name.replace(chr(0xDC), "UE")
+    name = name.replace(chr(0xDF), "sz")
+    name = name.replace(chr(0xE4), "ae")
+    name = name.replace(chr(0xF6), "oe")
+    name = name.replace(chr(0xFC), "ue")
+    return name
+
+def guess_mapping(projectdata: JSONList) -> JSONList:
+    return list(_guess_mapping(projectdata))
+def _guess_mapping(projectdata: JSONList) -> Iterator[JSONDict]:
+    for mapping in guess_project_mapping(projectdata):
+        yield {"# mapping.txt": """>> %s [%s] """ % (mapping["pref"], mapping["proj_name"])}
+        yield {"# mapping.txt": """>> %s "%s" """ % (mapping["pref"], mapping["task_name"])}
+
+def guess_project_mapping(projectdata: JSONList) -> JSONList:
+    found: Dict[str, List[JSONDict]] = {}
+    namecuts = re.compile("([A-Za-z]+) ?[:-].*")
+    namename = re.compile("([A-Za-z]+\d* [A-Za-z]+).*")
+    nameonly = re.compile("([A-Za-z]+) *$")
+    for item in projectdata:
+        proj_name = umlaute(cast(str, item["proj_name"]))
+        m1 = namecuts.match(proj_name)
+        m2 = namename.match(proj_name)
+        m3 = nameonly.match(proj_name)
+        m = m1 or m2
+        if m:
+            name = m.group(1).replace(" ", "")
+            if name.endswith("Intern"):
+                name = "Intern"
+            if name.endswith("AddOns"):
+                name = "AddOns"
+            pref = name.lower()
+            if pref not in found:
+                found[pref] = []
+            found[pref].append(item)
+            continue
+        logg.info("unmapped '%s'", proj_name)
+    result = []
+    for pref in sorted(found):
+        task: JSONDict = found[pref][0]
+        for item in found[pref]:
+            if int(item["task_id"]) > int(task["task_id"]):  # type: ignore[arg-type]
+                task = item
+        result += [{"pref": pref, "proj_name": task["proj_name"], "task_name": task["task_name"]}]
+    return result
+
 # ========================================================================
 def as_odoo(odoodata: Iterable[JSONDict]) -> List[JSONDict]:
     return list(_as_odoo(odoodata))
@@ -431,9 +480,14 @@ def run(arg: str) -> None:
     elif arg in ["op", "odoo-projects", "projects"]:
         results = odoo_projects()  # list all Odoo projects (including unused)
         summary += ["# use 'oo' or 'odoo-projects-tasks' to see task details"]
-    elif arg in ["oo", "opt", "odoo-projects-tasks", "projects-tasks"]:
+    elif arg in ["oo", "opt", "odoo-projects-tasks", "projects-tasks", "projects-and-task", "tasks"]:
         results = odoo_projects_tasks()  # list all Odoo projects-and-tasks (including unused)
         formats["task_name"] = '"{:}"'
+    elif arg in ["om", "odoo-mapping", "mapping"]:
+        results = guess_mapping(odoo_projects_tasks())  # Odoo projects-and-tasks in Zeit mapping format
+        formats["task_name"] = '"{:}"'
+        if not FMT:
+            FMT = "wide"
     elif arg in ["ww", "data", "worked"]:
         results = work_data(data)  # list all Odoo entries
         if results and not SHORTNAME:
