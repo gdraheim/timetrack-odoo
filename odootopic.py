@@ -144,10 +144,22 @@ class OdooValuesForTopic:
                 ticket = self.ticket4[proj][0]
         if proj not in self.projects:
             logg.info("can not find odoo values for %s [%s]", topic, proj)
-            return None
-        itemPref = prefix
-        itemProj = self.customer[proj]
-        itemTask = self.projects[proj]
+            if not ticket and proj[-1] in "0123456789" and proj[:-1] in self.ticket4:
+                numm = int(proj[-1])
+                proj = proj[:-1]
+                if numm and numm <= len(self.ticket4[proj]):
+                    ticket = self.ticket4[proj][numm - 1]
+                else:
+                    ticket = self.ticket4[proj][0]
+            if not ticket:
+                return None
+            itemPref = prefix
+            itemTask = ticket
+            itemProj = ticket.split("-", 1)[0]
+        else:
+            itemPref = prefix
+            itemProj = self.customer[proj]
+            itemTask = self.projects[proj]
         if self.shortnames:
             if self.customer[proj] in self.custname:
                 itemProj = self.custname[self.customer[proj]]
