@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from typing import Optional, Union, Dict, List, Tuple, cast, Iterable
+from typing import Optional, Union, Dict, List, Tuple, cast, Iterable, Iterator
 
 import logging
 import re
@@ -101,7 +101,7 @@ def odoo_all_projects_tasks() -> JSONList:
 
 def odoo_users() -> JSONList:
     return list(each_odoo_users())
-def each_odoo_users() -> Iterable[JSONDict]:
+def each_odoo_users() -> Iterator[JSONDict]:
     for item in odoo_all_users():
         name = cast(str, item["user_email"]).lower() + "|" + cast(str, item["user_fullname"]).lower()
         if ODOO_PROJONLY:
@@ -112,7 +112,7 @@ def each_odoo_users() -> Iterable[JSONDict]:
 
 def odoo_projects() -> JSONList:
     return list(each_odoo_projects())
-def each_odoo_projects() -> Iterable[JSONDict]:
+def each_odoo_projects() -> Iterator[JSONDict]:
     for item in odoo_all_projects():
         name = cast(str, item["proj_name"]).lower()
         if ODOO_PROJONLY:
@@ -123,7 +123,7 @@ def each_odoo_projects() -> Iterable[JSONDict]:
 
 def odoo_projects_tasks() -> JSONList:
     return list(each_odoo_projects_tasks())
-def each_odoo_projects_tasks() -> Iterable[JSONDict]:
+def each_odoo_projects_tasks() -> Iterator[JSONDict]:
     for item in odoo_all_projects_tasks():
         name = cast(str, item["proj_name"]).lower()
         if ODOO_PROJONLY:
@@ -133,6 +133,18 @@ def each_odoo_projects_tasks() -> Iterable[JSONDict]:
         yield item
 
 # ========================================================================
+def as_odoo(odoodata: Iterable[JSONDict]) -> List[JSONDict]:
+    return list(_as_odoo(odoodata))
+def _as_odoo(odoodata: Iterable[JSONDict]) -> Iterator[JSONDict]:
+    for item in odoodata:
+        info: JSONDict = {}
+        info["Project"] = item["at proj"]
+        info["Task"] = item["at task"]
+        info["Date"] = item["at date"]
+        info["Quantity"] = item["odoo"]
+        info["Description"] = item["worked on"]
+        info["User"] = (FOR_USER[0] if FOR_USER else "")
+        yield info
 
 def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
@@ -140,7 +152,7 @@ def work_data(odoodata: Optional[JSONList] = None) -> JSONList:
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     # return list(odoodata)
     return list(_work_data(odoodata))
-def _work_data(odoodata: JSONList) -> Iterable[JSONDict]:
+def _work_data(odoodata: JSONList) -> Iterator[JSONDict]:
     for item in odoodata:
         proj_name: str = cast(str, item["proj_name"])
         task_name: str = cast(str, item["task_name"])
@@ -158,7 +170,7 @@ def work_zeit(odoodata: Optional[JSONList] = None) -> JSONList:
         odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     # return list(odoodata)
     return list(_work_zeit(odoodata))
-def _work_zeit(odoodata: JSONList) -> Iterable[JSONDict]:
+def _work_zeit(odoodata: JSONList) -> Iterator[JSONDict]:
     data: Dict[Tuple[str, str], List[str]] = {}
     mapping: Dict[str, str] = {}
     projnames: Dict[str, str] = {}
@@ -375,7 +387,7 @@ def _summary_per_topic(odoodata: JSONList) -> JSONList:
 
 def json2odoo(data: JSONList) -> JSONList:
     return list(_json2odoo(data))
-def _json2odoo(data: JSONList) -> Iterable[JSONDict]:
+def _json2odoo(data: JSONList) -> Iterator[JSONDict]:
     for item in data:
         info: JSONDict = {}
         info["proj_name"] = item["Project"]
@@ -424,6 +436,10 @@ def run(arg: str) -> None:
         formats["task_name"] = '"{:}"'
     elif arg in ["ww", "data", "worked"]:
         results = work_data(data)  # list all Odoo entries
+        if results and not SHORTNAME:
+            summary += [" ### use -q or -qq to shorten the names for proj and task !!"]
+    elif arg in ["wo", "odoo"]:
+        results = as_odoo(work_data(data))  # list all Odoo entries
         if results and not SHORTNAME:
             summary += [" ### use -q or -qq to shorten the names for proj and task !!"]
     elif arg in ["z", "text", "zeit"]:

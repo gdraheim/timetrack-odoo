@@ -65,14 +65,26 @@ def strName(value: JSONItem) -> str:
         return str27(value)
     return str(value)
 
+def cast_str_get_ID(item: JSONDict) -> str:
+    if "ID" in item:
+        return cast(str, item["ID"])
+    date = cast(Day, item["Date"])
+    pref = cast_str_get_Topic(item)
+    return date.strftime("%Y%m%d") + pref
+def cast_str_get_Topic(item: JSONDict) -> str:
+    if "Topic" in item:
+        return cast(str, item["Topic"])
+    desc = cast(str, item["Description"])
+    return desc.split(" ", 1)[0]
+
 def check_in_sync(data: JSONList) -> JSONList:
     changes: JSONList = []
     odoo = odoo_api.Odoo()
     for item in data:
-        orig_id = cast(str, item["ID"])
+        orig_id = cast_str_get_ID(item)
         proj_id = cast(str, item["Project"])
         task_id = cast(str, item["Task"])
-        pref_id = cast(str, item["Topic"])
+        pref_id = cast_str_get_Topic(item)
         new_desc = cast(str, item["Description"])
         new_date = cast(Day, item["Date"])
         new_size = cast(Num, item["Quantity"])
@@ -126,10 +138,10 @@ def check_in_sync(data: JSONList) -> JSONList:
 def valid_per_days(data: JSONList) -> JSONList:
     daysum: Dict[Day, Num] = {}
     for item in data:
-        orig_id = cast(str, item["ID"])
+        orig_id = cast_str_get_ID(item)
+        pref_id = cast_str_get_Topic(item)
         proj_id = cast(str, item["Project"])
         task_id = cast(str, item["Task"])
-        pref_id = cast(str, item["Topic"])
         new_desc = cast(str, item["Description"])
         new_date = cast(Day, item["Date"])
         new_size = cast(Num, item["Quantity"])
@@ -160,10 +172,10 @@ def __valid_per_days(data: JSONList, daysum: Dict[Day, Num]) -> JSONList:
 def update_per_days(data: JSONList) -> JSONList:
     daydata: Dict[Day, JSONList] = {}
     for item in data:
-        orig_id: str = cast(str, item["ID"])
+        orig_id: str = cast_str_get_ID(item)
+        pref_id: str = cast_str_get_Topic(item)
         proj_id: str = cast(str, item["Project"])
         task_id: str = cast(str, item["Task"])
-        pref_id: str = cast(str, item["Topic"])
         new_desc: str = cast(str, item["Description"])
         new_date: Day = cast(Day, item["Date"])
         new_size: Num = cast(Num, item["Quantity"])
@@ -180,10 +192,10 @@ def __update_per_days(data: JSONList, daydata: Dict[Day, JSONList]) -> JSONList:
         if not found:
             logg.info("---: (%s) ----- no data from odoo", day)
         for item in items:
-            orig_id: str = cast(str, item["ID"])
+            orig_id: str = cast_str_get_ID(item)
+            pref_id: str = cast_str_get_Topic(item)
             proj_id: str = cast(str, item["Project"])
             task_id: str = cast(str, item["Task"])
-            pref_id: str = cast(str, item["Topic"])
             new_desc: str = cast(str, item["Description"])
             new_date: Day = cast(Day, item["Date"])
             new_size: Num = cast(Num, item["Quantity"])
@@ -264,12 +276,10 @@ def __replace_per_days(data: JSONList, daydata: Dict[Day, JSONList]) -> JSONList
         reuse: Dict[EntryID, JSONDict] = {}
         creat: List[JSONDict] = []
         for item in items:
+            pref_id: str = cast_str_get_Topic(item)
             proj_id: str = cast(str, item["Project"])
             task_id: str = cast(str, item["Task"])
-            pref_id: str = cast(str, item.get("Topic", ""))
             desc_id: str = cast(str, item["Description"])
-            if not pref_id:
-                pref_id = desc_id.split(" ", 1)[0]
             reused = False
             for old in found:
                 old_entry_desc = cast(str, old["entry_desc"])
