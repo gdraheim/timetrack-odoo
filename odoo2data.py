@@ -500,6 +500,17 @@ def run(arg: str) -> None:
         results = work_zeit(data)  # list all Odoo entries in Zeit sheet format
         if not FMT:
             FMT = "wide"
+    elif arg in ["init", "zeit.txt"]:
+        results = work_zeit(data)  # and write Zeit sheet to default location if not exists
+        import zeit2json
+        conf = zeit2json.ZeitConfig()
+        filename = conf.filename(DAYS.after)
+        if not os.path.exists(filename):
+            with open(filename, "w") as f:
+                f.write(tabtotext.tabToFMT("wide", results))
+            summary += ["zeit.txt data written to %s" % filename]
+        else:
+            summary += ["file did already exist: %s" % filename]
     elif arg in ["dd", "dsummary", "days"]:
         results = summary_per_day(data)
     elif arg in ["xx", "report"]:
