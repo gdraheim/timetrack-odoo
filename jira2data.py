@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
 """
 interface to Jira as a method to read and store worklog entries
 """

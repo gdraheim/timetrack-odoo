@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
 """ This function can store username/password tuples either as default or specific
 for a root url. It follows in style the dot-netc model from BSD and actually the
 code does inspect ~/.netrc for matching entries if a url is specified. The script

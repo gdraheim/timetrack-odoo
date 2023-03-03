@@ -157,8 +157,8 @@ tar:
 	tar czvf ../timetrack-odoo-`date -I`.tgz *.py *.md *.cfg LICENSE
 	@ ls -sh ../timetrack-odoo-`date -I`.tgz
 
-txt:
-	for i in *.py; do cp -v $$i ../tmp.$$i.txt; done
+txt: ; for i in *.py; do cp -v $$i ../tmp.$$i.txt; done
+tab: ; for i in tab*.py frac*.py; do cp -v $$i ../tmp.$$i.txt; done
 # ------------------------------------------------------------
 
 mypy:

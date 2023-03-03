@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
 """ This is a wrapper around netrc.py which can read the git-credentials store,
     adding functions to read the generation gitconfig settings. """
 

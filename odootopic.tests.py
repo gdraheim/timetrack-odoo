@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
 
 import odootopic as topics
 from typing import Optional, Tuple, cast

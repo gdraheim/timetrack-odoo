@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
 from typing import Dict, List, Optional, Generator, cast
 from odoo_rest import Cookies, UserID, ProjID, ProjREF, TaskID, TaskREF, EntryID, OdooException
 
