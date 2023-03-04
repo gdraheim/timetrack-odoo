@@ -1051,7 +1051,7 @@ if __name__ == "__main__":
     cmdline = OptionParser("%prog [t_]test...")
     cmdline.add_option("-v", "--verbose", action="count", default=0)
     cmdline.add_option("--xmlresults", metavar="FILE", default=None,
-        help="capture results as a junit xml file [%default]")
+                       help="capture results as a junit xml file [%default]")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
     sync.logg.setLevel(max(0, logging.INFO - 10 * opt.verbose))
