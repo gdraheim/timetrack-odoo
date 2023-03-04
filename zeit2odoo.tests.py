@@ -25,6 +25,13 @@ SCRIPT = "./zeit2odoo.py"
 
 sync.odoo_api = odoo_rest_mockup
 
+zeit2020 = """
+>> dev1 [Development]
+>> dev1 "project1"
+** **** WEEK 05.01.-11.01.
+so 1:15 dev1 started
+"""
+
 class zeit2odooTest(unittest.TestCase):
     def last_sunday(self) -> datetime.date:
         today = datetime.date.today()
@@ -38,18 +45,34 @@ class zeit2odooTest(unittest.TestCase):
     def setUp(self) -> None:
         sync.odoo_api.reset()
         sync.UPDATE = False
+    def mk_zeit2020_txt(self, text: str = None) -> str:
+        filename = "tmp.zeit2020.txt"
+        if not text: text = zeit2020
+        with open(filename, "w") as f:
+            f.write(text+"\n")
+        return filename
+    def rm_zeit2020_txt(self):
+        filename = "tmp.zeit2020.txt"
+        if os.path.exists(filename):
+           os.remove(filename)
     def test_001_check(self) -> None:
-        cmd = f"{SCRIPT} -a 01.01. -b 10.01. -v check"
+        txt = self.mk_zeit2020_txt()
+        cmd = f"{SCRIPT} -a 01.01.2020 -b 10.01.2020 -v check --mockup -f {txt}"
         subprocess.call(cmd, shell=True)
         logg.info("you need to add -y to update Odoo")
+        self.rm_zeit2020_txt()
     def test_002_valid(self) -> None:
-        cmd = f"{SCRIPT} -a 01.01. -b 10.01. -v valid"
+        txt = self.mk_zeit2020_txt()
+        cmd = f"{SCRIPT} -a 01.01.2020 -b 10.01.2020 -v valid --mockup -f {txt}"
         subprocess.call(cmd, shell=True)
         logg.info("it summarizes the hours per day")
+        self.rm_zeit2020_txt()
     def test_003_update(self) -> None:
-        cmd = f"{SCRIPT} -a 01.01. -b 10.01. -v update"
+        txt = self.mk_zeit2020_txt()
+        cmd = f"{SCRIPT} -a 01.01.2020 -b 10.01.2020 -v update --mockup -f {txt}"
         subprocess.call(cmd, shell=True)
         logg.info("you need to add -y to update Odoo")
+        self.rm_zeit2020_txt()
     def test_131(self) -> None:
         weekago = datetime.date.today() - datetime.timedelta(days=10)
         nextweek = datetime.date.today() + datetime.timedelta(days=10)

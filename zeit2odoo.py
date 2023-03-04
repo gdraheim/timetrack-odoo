@@ -580,7 +580,7 @@ if __name__ == "__main__":
                        help="filter for odoo project [%default]")
     cmdline.add_option("-U", "--user-name", metavar="TEXT", default=ZEIT_USER_NAME,
                        help="user name for the output report (not for login)")
-    # ..............
+    cmdline.add_option("--mockup", action="count", default=0, help="with dummy Odoo API")
     cmdline.add_option("-q", "--shortname", action="count", default=SHORTNAME,
                        help="present short names for proj+task [%default]")
     cmdline.add_option("-Q", "--shortdesc", action="count", default=SHORTDESC,
@@ -609,6 +609,8 @@ if __name__ == "__main__":
         gitrc.git_config_override(value)
     netrc.set_password_filename(opt.gitcredentials)
     netrc.add_password_filename(opt.netcredentials, opt.extracredentials)
+    if opt.mockup:
+        import odoo_rest_mockup as odoo_api  # type: ignore[no-redef]
     UPDATE = opt.update
     FORMAT = opt.format
     OUTPUT = opt.output
