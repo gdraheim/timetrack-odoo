@@ -45,16 +45,16 @@ class zeit2odooTest(unittest.TestCase):
     def setUp(self) -> None:
         sync.odoo_api.reset()
         sync.UPDATE = False
-    def mk_zeit2020_txt(self, text: str = None) -> str:
+    def mk_zeit2020_txt(self, text: Optional[str] = None) -> str:
+        text = text or zeit2020
         filename = "tmp.zeit2020.txt"
-        if not text: text = zeit2020
         with open(filename, "w") as f:
-            f.write(text+"\n")
+            f.write(text + "\n")
         return filename
-    def rm_zeit2020_txt(self):
+    def rm_zeit2020_txt(self) -> None:
         filename = "tmp.zeit2020.txt"
         if os.path.exists(filename):
-           os.remove(filename)
+            os.remove(filename)
     def test_001_check(self) -> None:
         txt = self.mk_zeit2020_txt()
         cmd = f"{SCRIPT} -a 01.01.2020 -b 10.01.2020 -v check --mockup -f {txt}"
