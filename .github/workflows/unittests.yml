@@ -44,7 +44,7 @@ jobs:
       with:
         artifact: test-results
         name: test-results
-        path: '**/TEST-*.xml'
+        path: '**/TEST-*.*.xml'
         reporter: java-junit
     - name: 'attach testresults'
       if: ${{ github.event_name == 'pull_request' && success() }}
