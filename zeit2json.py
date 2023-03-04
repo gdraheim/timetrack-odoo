@@ -1,4 +1,16 @@
 #! /usr/bin/env python3
+"""
+Read zeit.txt files and format as odoo-import data. The resulting csv or xlsx
+can imported via the Odoo web UI. Here it is a helper module generating json
+data (list of dict) in the odoo-import format which get synchronized to Odoo
+or Jira via their Rest APIs. See zeit2odoo.py and zeit2jira.py.
+
+(this module was initially developed as zeit2excel.py and retains some of the
+older optins)
+"""
+
+__copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "0.6.2096"
 
 from typing import List, Dict, Union, Optional, Sequence, TextIO, Iterator, cast
 
@@ -500,7 +512,7 @@ def run(arg: str) -> None:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    cmdline = OptionParser("%prog files...")
+    cmdline = OptionParser("%prog files...", epilog=__doc__)
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
     cmdline.add_option("-1", "--oldformat", action="store_true", default=False,

@@ -1,5 +1,8 @@
 #! /usr/bin/env python3
 
+__copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "0.3.2096"
+
 from xmlrpc import client as odoo
 from netrc import *
 import sys
@@ -9,8 +12,8 @@ import json
 import logging
 logg = logging.getLogger(__name__ == "__main__" and path.basename(sys.argv[0]) or __name__)
 
-URL = "https://erp.aservo.com"
-DB = "prod-aservo" # https://o2sheet.com/docs/retrieve-odoo-database-name/
+URL = "https://odoo.host"
+DB = "prod-db" # https://o2sheet.com/docs/retrieve-odoo-database-name/
 
 def odoo_version():
     common = odoo.ServerProxy(f'{URL}/xmlrpc/2/common')

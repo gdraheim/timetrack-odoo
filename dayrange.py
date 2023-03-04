@@ -1,4 +1,11 @@
 #! /usr/bin/env python3
+"""
+Cut out from zeit2excel for after/before time ranges in days.
+Added a number of symbolic names for nearby months and weeks.
+"""
+
+__copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "0.8.2096"
 
 from typing import Union, Optional, Tuple
 
@@ -329,7 +336,7 @@ def check_days(days: dayrange) -> None:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    cmdline = OptionParser("%prog files...")
+    cmdline = OptionParser("%prog files...", epilog=__doc__)
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
     cmdline.add_option("-a", "--after", metavar="DATE", default=None,

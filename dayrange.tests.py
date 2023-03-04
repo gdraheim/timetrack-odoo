@@ -1,5 +1,8 @@
 #! /usr/bin/env python3
 
+__copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "0.8.2096"
+
 import dayrange as zeit
 from typing import Optional, cast
 

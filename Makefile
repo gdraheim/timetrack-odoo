@@ -1,6 +1,6 @@
 #! /usr/bin/make -f
 
-BASEYEAR= 2021
+BASEYEAR=2021
 FOR=today
 
 FILES = *.py *.cfg
@@ -108,9 +108,8 @@ k track: ; $(PYTHON3) $(TRACKPROG:.py=.tests.py) -v $V
 k_%: ;     $(PYTHON3) $(TRACKPROG:.py=.tests.py) $@ -v $V
 
 ####################################################################################
-
-version1:
-	@ grep -l __version__ $(FILES) | { while read f; do echo $$f; done; } 
+verfiles:
+	@ grep -l __version__ $(FILES) | grep -v .tests.py | { while read f; do echo $$f; done; } 
 
 version:
 	@ grep -l __version__ $(FILES) | { while read f; do : \
@@ -122,7 +121,9 @@ version:
 	-e "/^ *__copyright__/s/(C) [0123456789]*-[0123456789]*/(C) $(BASEYEAR)-$$THISYEAR/" \
 	-e "/^ *__copyright__/s/(C) [0123456789]* /(C) $$THISYEAR /" \
 	$$f; done; }
-	@ grep ^__version__ $(FILES)
+	@ grep ^__version__ $(FILES) | grep -v .tests.py
+	@ ver=`cat $(MAIN_PROG) | sed -e '/__version__/!d' -e 's/.*= *"//' -e 's/".*//' -e q` \
+	; echo "# $(GIT) commit -m v$$ver"
 
 TESTSUITE = $(MAIN_PROG:.py=.tests.py)
 
@@ -149,6 +150,8 @@ clean:
 	- rm TEST-*.xml
 	- rm setup.py README
 	- rm -rf build dist *.egg-info
+
+
 
 ############## https://pypi.org/...
 

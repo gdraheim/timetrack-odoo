@@ -2,6 +2,9 @@
 """ This is a wrapper around netrc.py which can read the git-credentials store,
     adding functions to read the generation gitconfig settings. """
 
+__copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "1.0.2096"
+
 from typing import List, Dict, Tuple, Optional
 
 import logging

@@ -1,7 +1,10 @@
 #! /usr/bin/env python3
 """
-interface to Jira as a method to read and store worklog entries
+Read and format Jira worklog entries. Provides additional reports.
 """
+
+__copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "0.3.2096"
 
 from typing import Union, Dict, List, Any, Optional, Tuple, Iterable, Iterator, cast
 from requests import Session, Response, HTTPError
@@ -504,7 +507,7 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    cmdline = OptionParser("%prog [options] [create|update|upload|parentpage]", epilog=__doc__)
+    cmdline = OptionParser("%prog [options] [help|zeit|odoo|summary|projects|tickets]", epilog=__doc__)
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
     cmdline.add_option("-r", "--remote", metavar="URL", default="",

@@ -1,7 +1,10 @@
 #! /usr/bin/env python3
 """
-interface to Jira as a method to read and store worklog entries
+Mockup interface to Jira as a method to read and store worklog entries
 """
+
+__copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "0.3.2096"
 
 from typing import Union, Dict, List, Any, Optional, Tuple, Iterable, Iterator, cast
 from requests import Session, Response, HTTPError

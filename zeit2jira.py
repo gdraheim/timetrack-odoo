@@ -1,4 +1,10 @@
 #! /usr/bin/env python3
+"""
+Synchronize odoo-import data (from zeit.txt) with Jira worklog entries.
+"""
+
+__copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "0.3.2096"
 
 from typing import Optional, Union, Dict, List, Tuple, Iterable, Iterator, cast
 
@@ -359,7 +365,7 @@ def run(arg: str) -> None:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    cmdline = OptionParser("%prog [help|data|check|valid|update|compare|summarize|summary|topics] files...")
+    cmdline = OptionParser("%prog [help|data|check|valid|update|compare|summarize|summary|topics]", epilog=__doc__)
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
     cmdline.add_option("-r", "--remote", metavar="URL", default="",
