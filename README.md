@@ -1,6 +1,6 @@
 [![Style Check](https://github.com/gdraheim/timetrack-odoo/actions/workflows/stylecheck.yml/badge.svg?event=push&branch=main)](https://github.com/gdraheim/timetrack-odoo/actions/workflows/stylecheck.yml)
 [![Type Check](https://github.com/gdraheim/timetrack-odoo/actions/workflows/typecheck.yml/badge.svg?event=push&branch=main)](https://github.com/gdraheim/timetrack-odoo/actions/workflows/typecheck.yml)
-[![Unit Tests](https://img.shields.io/badge/basic%20unit%20tests-582%20tests-brightgreen)](https://github.com/gdraheim/timetrack-odoo/actions/workflows/unittests.yml)
+[![Unit Tests](https://img.shields.io/badge/basic%20unit%20tests-578%20tests-brightgreen)](https://github.com/gdraheim/timetrack-odoo/actions/workflows/unittests.yml)
 
 
 ## TIMETRACK ODOO (and JIRA and more)
