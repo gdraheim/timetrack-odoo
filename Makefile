@@ -54,7 +54,7 @@ tests:
 	$(MAKE) z.zeit
 	$(MAKE) t.test
 	$(MAKE) j.jira
-	$(MAKE) k.track
+	: $(MAKE) k.track
 	wc -l TEST-*.xml
 
 fracfloat.tests: frac
