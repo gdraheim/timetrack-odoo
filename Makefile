@@ -44,43 +44,66 @@ check:
 	$(MAKE) jira
 	$(MAKE) track
 
+tests:
+	$(MAKE) f.frac
+	$(MAKE) x.tabt
+	$(MAKE) n.nett
+	$(MAKE) d.dayt
+	$(MAKE) r.topt
+	$(MAKE) o.odoo
+	$(MAKE) z.zeit
+	$(MAKE) t.test
+	$(MAKE) j.jira
+	$(MAKE) k.track
+	wc -l TEST-*.xml
+
 fracfloat.tests: frac
+f.frac: ; $(PYTHON3) $(FRAC_UTIL:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 f frac: ; $(PYTHON3) $(FRAC_UTIL:.py=.tests.py) -v $V
 f_%: ;    $(PYTHON3) $(FRAC_UTIL:.py=.tests.py) $@ -v $V
 
 tabtotext.tests: tabt
+x.tabt: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 x tabt: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V
 x_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) $@ -v $V
 
 netrc.tests: nett
+n.nett: ; $(PYTHON3) $(NET_UTILS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 n nett: ; $(PYTHON3) $(NET_UTILS:.py=.tests.py) -v $V
 n_%: ;    $(PYTHON3) $(NET_UTILS:.py=.tests.py) $@ -v $V
 
 dayrange.tests: dayt
+d.dayt: ; $(PYTHON3) $(DAY_UTILS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 d dayt: ; $(PYTHON3) $(DAY_UTILS:.py=.tests.py) -v $V
 d_%: ;    $(PYTHON3) $(DAY_UTILS:.py=.tests.py) $@ -v $V
 
 odootopic.tests: topt
+r.topt: ; $(PYTHON3) $(ODOOTOPIC:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 r topt: ; $(PYTHON3) $(ODOOTOPIC:.py=.tests.py) -v $V
 r_%: ;    $(PYTHON3) $(ODOOTOPIC:.py=.tests.py) $@ -v $V
 
 odoo2data.tests: odoo
+o.odoo: ; $(PYTHON3) $(DATA_PROG:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 o odoo: ; $(PYTHON3) $(DATA_PROG:.py=.tests.py) -v $V
 o_%: ;    $(PYTHON3) $(DATA_PROG:.py=.tests.py) $@ -v $V
 
 zeit2json.tests: zeit
+z.zeit: ; $(PYTHON3) $(ZEIT_PROG:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 z zeit: ; $(PYTHON3) $(ZEIT_PROG:.py=.tests.py) -v $V
 z_%: ;    $(PYTHON3) $(ZEIT_PROG:.py=.tests.py) $@ -v $V
 
 zeit2odoo.tests: test
+t.test: ; $(PYTHON3) $(MAIN_PROG:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 t test: ; $(PYTHON3) $(MAIN_PROG:.py=.tests.py) -v $V
 t_%: ;    $(PYTHON3) $(MAIN_PROG:.py=.tests.py) $@ -v $V
 
 zeit2jira.tests: jira
+j.jira: ; $(PYTHON3) $(JIRA_ZEIT:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 j jira: ; $(PYTHON3) $(JIRA_ZEIT:.py=.tests.py) -v $V
 j_%: ;    $(PYTHON3) $(JIRA_ZEIT:.py=.tests.py) $@ -v $V
 
 timetrack.tests: track
+k.track: ; $(PYTHON3) $(TRACKPROG:.py=.tests.py) -v $V --xmlresults=TEST-$@.xml
 k track: ; $(PYTHON3) $(TRACKPROG:.py=.tests.py) -v $V
 k_%: ;     $(PYTHON3) $(TRACKPROG:.py=.tests.py) $@ -v $V
 
@@ -105,9 +128,6 @@ TESTSUITE = $(MAIN_PROG:.py=.tests.py)
 
 help:
 	$(PYTHON3) $(SCRIPT) --help
-
-tests: ;  $(PYTHON3) $(TESTSUITE) -vvv $(TESTFLAGS)
-test_%: ; $(PYTHON3) $(TESTSUITE) -vvv $(TESTFLAGS) $@
 
 ests: ;  $(COVERAGE3) run $(TESTSUITE) -vvv $(TESTFLAGS)
 est_%: ; $(COVERAGE3) run $(TESTSUITE) -vvv $(TESTFLAGS) t$@
