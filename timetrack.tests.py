@@ -9,7 +9,6 @@ import os.path as path
 import sys
 from configparser import ConfigParser
 from fnmatch import fnmatchcase as fnmatch
-import subprocess
 
 import logging
 logg = logging.getLogger("TEST")

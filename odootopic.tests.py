@@ -9,7 +9,6 @@ import unittest
 import tempfile
 import os.path as path
 from fnmatch import fnmatchcase as fnmatch
-import subprocess
 from datetime import date as Date
 from datetime import timedelta as Delta
 
