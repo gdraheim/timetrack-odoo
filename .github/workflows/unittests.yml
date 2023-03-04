@@ -38,22 +38,7 @@ jobs:
       with:
         name: test-results
         path: '**/TEST-*.xml'
-    # https://github.com/test-summary/action
-    - name: Test Summary
-      uses: test-summary/action@v2
-      if: always()
-      with:
-        paths: "**/TEST-*.xml"
-#    - name: 'publish testresults'
-#      if: ${{ github.event_name == 'push' && success() }}
-#      uses: dorny/test-reporter@v1
-#      with:
-#        artifact: test-results
-#        name: test-results
-#        path: '**/TEST-*.xml'
-#        reporter: java-junit
     - name: 'attach testresults'
-      # if: ${{ github.event_name == 'pull_request' && success() }}
       if: always()
       uses: EnricoMi/publish-unit-test-result-action@v2
       with:
