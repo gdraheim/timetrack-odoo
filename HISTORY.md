@@ -1,6 +1,3 @@
-[![Style Check](https://github.com/gdraheim/timetrack-odoo/actions/workflows/stylecheck.yml/badge.svg?event=push&branch=main)](https://github.com/gdraheim/timetrack-odoo/actions/workflows/stylecheck.yml)
-[![Type Check](https://github.com/gdraheim/timetrack-odoo/actions/workflows/typecheck.yml/badge.svg?event=push&branch=main)](https://github.com/gdraheim/timetrack-odoo/actions/workflows/typecheck.yml)
-
 ## TIMETRACK HISTORY
 
 The project has three different sources. One was an odoo-import script, which was 
