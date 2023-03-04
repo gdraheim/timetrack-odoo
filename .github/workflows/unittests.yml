@@ -38,6 +38,7 @@ jobs:
       with:
         name: test-results
         path: '**/TEST-*.xml'
+    # https://github.com/test-summary/action
     - name: Test Summary
       uses: test-summary/action@v2
       if: always()
@@ -52,8 +53,9 @@ jobs:
 #        path: '**/TEST-*.xml'
 #        reporter: java-junit
     - name: 'attach testresults'
-      if: ${{ github.event_name == 'pull_request' && success() }}
-      uses: EnricoMi/publish-unit-test-result-action@v1
+      # if: ${{ github.event_name == 'pull_request' && success() }}
+      if: always()
+      uses: EnricoMi/publish-unit-test-result-action@v2
       with:
         commit: ${{ github.event.workflow_run.head_sha }}
         files: '**/TEST-*.xml'
