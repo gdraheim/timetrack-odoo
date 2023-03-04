@@ -27,6 +27,9 @@ jobs:
     - name: 'install openpyxl'
       run: |
         pip3 install openpyxl
+    - name: 'install toml'
+      run: |
+        pip3 install toml
     - name: 'install unittest-xml-reporting'
       run: |
         pip3 install unittest-xml-reporting
