@@ -3,7 +3,8 @@
 for a root url. It follows in style the dot-netc model from BSD and actually the
 code does inspect ~/.netrc for matching entries if a url is specified. The script
 can also read the ~/.git-credentials format. Even a mix of entries is possible
-where extensions should only be used in a ~/.net-credentials filename."""
+where extensions should only be used in a ~/.net-credentials filename. ////
+Use command './netrc.py set <url> <name> <pass>' to write entries."""
 
 # dot git-credentials format:
 #   https://<username>:<password>@<hostname>
@@ -378,18 +379,19 @@ def erase_username_password(url: str) -> str:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    o = OptionParser("%prog [-u username] [-p password] url...")
+    o = OptionParser("%prog [-u username] [-p password] url | SET url name pass", epilog=__doc__)
+    o.formatter.max_help_position = 36
     o.add_option("-v", "--verbose", action="count", default=0)
-    o.add_option("-u", "--username", metavar="NAME", default=NETRC_USERNAME)
-    o.add_option("-p", "--password", metavar="PASS", default=NETRC_PASSWORD)
-    o.add_option("-f", "--fromcredentials", metavar="FILE", default="")
-    o.add_option("-N", "--netcredentials", metavar="FILE", default=NET_CREDENTIALS)
-    o.add_option("-g", "--gitcredentials", metavar="FILE", default=GIT_CREDENTIALS)
-    o.add_option("-G", "--extracredentials", metavar="FILE", default=NETRC_FILENAME)
+    o.add_option("-u", "--username", metavar="NAME", default=NETRC_USERNAME, help="fallback to default user")
+    o.add_option("-p", "--password", metavar="PASS", default=NETRC_PASSWORD, help="fallback to default pass")
+    o.add_option("-f", "--fromcredentials", metavar="FILE", default="", help="scan this instead of:")
+    o.add_option("-N", "--netcredentials", metavar="FILE", default=NET_CREDENTIALS, help="[%default]")
+    o.add_option("-g", "--gitcredentials", metavar="FILE", default=GIT_CREDENTIALS, help="[%default]")
+    o.add_option("-G", "--extracredentials", metavar="FILE", default=NETRC_FILENAME, help="[%default]")
     o.add_option("-e", "--extrafile", metavar="NAME", default="")
     o.add_option("-y", "--cleartext", action="store_true", default=NETRC_CLEARTEXT)
-    o.add_option("--as-ac", action="store_true")
-    o.add_option("--as-up", action="store_true")
+    o.add_option("--as-ac", action="store_true", help="show as '-a user -c pass'")
+    o.add_option("--as-up", action="store_true", help="show as '-u user -p pass'")
     opt, args = o.parse_args()
     logging.basicConfig(level=logging.WARNING - 10 * opt.verbose)
     if opt.fromcredentials:
@@ -411,7 +413,7 @@ if __name__ == "__main__":
     cmd = args[0]
     if cmd in ["help"]:
         print(__doc__)
-    elif cmd in ["get", "find", "for"]:
+    elif cmd in ["get", "find", "for", "GET"]:
         uselogin = get_username_password(args[1])
         if not uselogin: sys.exit(1)
         hostpath = _target(args[1]).split("/", 1) + [""]
@@ -426,10 +428,10 @@ if __name__ == "__main__":
             if uselogin[0]: print("username=" + uselogin[0])
             if uselogin[1]: print("password=" + uselogin[1])
         print("")
-    elif cmd in ["store", "write", "set"]:
+    elif cmd in ["store", "write", "set", "SET"]:
         references = store_username_password(args[1], args[2], args[3])
         print("written to", references)
-    elif cmd in ["erase", "delete", "del"]:
+    elif cmd in ["erase", "delete", "del", "DEL"]:
         references = erase_username_password(args[1])
         print("erased in", references)
     else:

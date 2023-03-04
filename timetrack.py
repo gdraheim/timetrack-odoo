@@ -482,14 +482,15 @@ def run(config: ConfigParser, args: List[str]) -> JSONList:
 if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog [help|data|check|valid|update|compare|summarize|summary|topics] files...")
+    cmdline.formatter.max_help_position = 30
     cmdline.add_option("--quiet", action="count", default=0,
                        help="less verbose logging")
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
     cmdline.add_option("-a", "--after", metavar="DATE", default=None,
-                       help="only evaluate entrys on and after [first of month]")
+                       help="only evaluate entrys on and after data")
     cmdline.add_option("-b", "--before", metavar="DATE", default=None,
-                       help="only evaluate entrys on and before [last of month]")
+                       help="only evaluate entrys on and before date")
     cmdline.add_option("-p", "--price", metavar="TEXT", action="append", default=PRICES,
                        help="pattern:price per hour [%default]")
     cmdline.add_option("--projskip", metavar="TEXT", default=PROJSKIP,
@@ -506,9 +507,9 @@ if __name__ == "__main__":
     cmdline.add_option("-z", "--onlyzeit", action="count", default=ONLYZEIT,
                        help="present only local zeit data [%default]")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
-    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect to filename")
-    cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE)
-    cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE)
+    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
+    cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
+    cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also xslx data file")
     cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=netrc.GIT_CREDENTIALS)
     cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=netrc.NET_CREDENTIALS)
     cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=netrc.NETRC_FILENAME)

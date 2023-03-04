@@ -366,14 +366,15 @@ def run(arg: str) -> None:
 if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog [help|data|check|valid|update|compare|summarize|summary|topics]", epilog=__doc__)
+    cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
     cmdline.add_option("-r", "--remote", metavar="URL", default="",
                        help="url to Jira API endpoint (or gitconfig jira.url)")
     cmdline.add_option("-a", "--after", metavar="DATE", default=None,
-                       help="only evaluate entrys on and after [first of month]")
+                       help="only evaluate entrys on and after date")
     cmdline.add_option("-b", "--before", metavar="DATE", default=None,
-                       help="only evaluate entrys on and before [last of month]")
+                       help="only evaluate entrys on and before date")
     cmdline.add_option("-s", "--summary", metavar="TEXT", default=ZEIT_SUMMARY,
                        help="suffix for summary report [%default]")
     cmdline.add_option("-U", "--user-name", metavar="TEXT", default=ZEIT_USER_NAME,
@@ -386,13 +387,13 @@ if __name__ == "__main__":
     cmdline.add_option("-z", "--onlyzeit", action="count", default=ONLYZEIT,
                        help="present only local zeit data [%default]")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
-    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect to filename")
-    cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE)
-    cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE)
-    cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE)
-    cmdline.add_option("-d", "--csvdata", metavar="FILE", default=CSVDATA)
-    cmdline.add_option("-x", "--xlsxdata", metavar="FILE", default=XLSXDATA)
-    cmdline.add_option("-f", "--zeitdata", metavar="FILE", default=ZEITDATA)
+    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
+    cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
+    cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also xlsx data file")
+    cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE, help="write also sCSV data file")
+    cmdline.add_option("-d", "--csvdata", metavar="FILE", default=CSVDATA, help="use data from semicolonCSV file")
+    cmdline.add_option("-x", "--xlsxdata", metavar="FILE", default=XLSXDATA, help="use data from xlsx data file")
+    cmdline.add_option("-f", "--zeitdata", metavar="FILE", default=ZEITDATA, help="use data from this zeit.txt")
     cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=netrc.GIT_CREDENTIALS)
     cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=netrc.NET_CREDENTIALS)
     cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=netrc.NETRC_FILENAME)

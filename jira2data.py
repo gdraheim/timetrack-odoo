@@ -508,6 +508,7 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
 if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog [options] [help|zeit|odoo|summary|projects|tickets]", epilog=__doc__)
+    cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
     cmdline.add_option("-r", "--remote", metavar="URL", default="",
@@ -519,10 +520,10 @@ if __name__ == "__main__":
     cmdline.add_option("-j", "--project", metavar="JIRA", action="append", default=PROJECTS,
                        help="jira projects (%default) or " + PROJECTDEFAULT)
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
-    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect to filename")
-    cmdline.add_option("-J", "--jsonfile", metavar="PATH", default=JSONFILE)
-    cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE)
-    cmdline.add_option("-m", "--taskdata", metavar="PATH", default=TASKDATA)
+    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
+    cmdline.add_option("-J", "--jsonfile", metavar="PATH", default=JSONFILE, help="write also json data file")
+    cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also xmlx data file")
+    cmdline.add_option("-m", "--taskdata", metavar="PATH", default=TASKDATA, help="use odootopic mapping file")
     cmdline.add_option("-q", "--dryrun", action="count", default=0)
     cmdline.add_option("-Q", "--shortdesc", action="count", default=SHORTDESC,
                        help="present short lines for description [%default]")

@@ -513,6 +513,7 @@ def run(arg: str) -> None:
 if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog files...", epilog=__doc__)
+    cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
     cmdline.add_option("-1", "--oldformat", action="store_true", default=False,
@@ -528,10 +529,10 @@ if __name__ == "__main__":
     cmdline.add_option("-f", "--filename", metavar="TEXT", default=ZEIT_FILENAME,
                        help="choose input filename [%s]" % (ZEIT_FILENAME or DEFAULT_FILENAME))
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
-    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect to filename")
-    cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE)
-    cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE)
-    cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE)
+    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
+    cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also to json data file")
+    cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also to xlsx data file")
+    cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE, help="write also to sCSV data file")
     cmdline.add_option("-P", "--projfilter", metavar="TEXT", default=ZEIT_PROJFILTER,
                        help="filter for odoo project [%default]")
     cmdline.add_option("-T", "--taskfilter", metavar="TEXT", default=ZEIT_TASKFILTER,

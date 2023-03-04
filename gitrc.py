@@ -99,6 +99,7 @@ def git_config_override(line: str) -> None:
 if __name__ == "__main__":
     from optparse import OptionParser
     o = OptionParser("%prog [-u username] [-p password] url...")
+    o.formatter.max_help_position = 30
     o.add_option("-v", "--verbose", action="count", default=0)
     o.add_option("-u", "--username", metavar="NAME", default=GITRC_USERNAME)
     o.add_option("-p", "--password", metavar="PASS", default=GITRC_PASSWORD)

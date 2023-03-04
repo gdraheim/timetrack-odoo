@@ -247,6 +247,7 @@ def run(filename: str) -> None:
 if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog files...")
+    cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
     cmdline.add_option("-a", "--after", metavar="DATE", default="",
