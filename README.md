@@ -10,9 +10,9 @@ update different data bases.
 
 * [Odoo Timesheet](https://www.odoo.com/app/timesheet-features) via REST API
 * [Jira Issue Worklogs](https://confluence.atlassian.com/jirasoftwareserver/logging-work-on-issues-939938944.html) via REST API
-* zeit.txt work notes as a local file
+* zeit.txt timetrack notes as a local file
 
-It was originally used to push local work notes to Odoo timesheet tracking.
+It was originally used to push local timetrack notes to Odoo timesheet tracking.
 If all work notes (in the description field) have a symbolic prefix then the
 data can also be updated later - for every day the tool assumes that the 
 symbolic prefix is used only once. Here's a mapping definition in two lines
