@@ -4,7 +4,7 @@ Read and format Jira worklog entries. Provides additional reports.
 """
 
 __copyright__ = "(C) 2022-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.3.2096"
+__version__ = "0.3.2097"
 
 from typing import Union, Dict, List, Any, Optional, Tuple, Iterable, Iterator, cast
 from requests import Session, Response, HTTPError

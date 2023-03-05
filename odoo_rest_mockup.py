@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 __copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.9.2096"
+__version__ = "0.9.2097"
 
 from typing import Dict, List, Optional, Generator, cast
 from odoo_rest import Cookies, UserID, ProjID, ProjREF, TaskID, TaskREF, EntryID, OdooException
