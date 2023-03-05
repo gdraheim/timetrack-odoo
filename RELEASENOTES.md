@@ -27,13 +27,13 @@ The odooproject prefix logic has been refactored:
 
 The commandline interface has been harmonized. All the tools
 use the tabtotext variant formatting with "-o wide" format
-and "-O output" redirection. The excel support is excluded
-from the format (so that openpyxl is an optional dependency),
-so each tool has an "-X file.xlsx" option. This works also
-in parallel with output redirection. Otherwise "-J data.json"
-is recommended to save away results for further processing.
-The zeit2x tools allow to read such a data file processing
-its content instead of using the implicit zeit2json parser.
+and "-O output" redirection. The excel support works only
+with a redirection (needs the openpyxl optional dependency),
+but each tool has an "-X file.xlsx" option for parallel
+saving of the data. Otherwise "-J data.json" is recommended 
+to save away results for further processing. The zeit2x 
+tools allow to read such a data file processing its 
+content instead of using the implicit zeit2json parser.
 Here the "-x file.xlsx" and "-d file.csv" options are 
 supported as input overrides.
 

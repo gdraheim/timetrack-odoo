@@ -51,6 +51,7 @@ SHORTNAME = 0
 SHORTDESC = 0
 ONLYZEIT = 0
 
+LABELS = ""
 FORMAT = ""
 OUTPUT = "-"
 JSONFILE = ""
@@ -550,12 +551,10 @@ def run(arg: str) -> None:
                 if "at task" in item:
                     item["at task"] = strName(item["at task"])
         formats = {"zeit": "{:4.2f}", "odoo": "{:4.2f}", "summe": "{:4.2f}"}
-        if OUTPUT in ["-", "CON"]:
-            print(tabtotext.tabToFMT(FMT, results, formats=formats, legend=summary))
-        elif OUTPUT:
-            with open(OUTPUT, "w") as f:
-                f.write(tabtotext.tabToFMT(FMT, results, formats=formats, legend=summary))
-            logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), OUTPUT)
+        done = tabtotext.tabToPrintWithFormats(results, OUTPUT, FMT,  # ..
+                                               selects=LABELS, formats=formats, legend=summary)
+        if done:
+            logg.log(DONE, " %s", done)
         if JSONFILE:
             FMT = "json"
             with open(JSONFILE, "w") as f:
@@ -594,6 +593,7 @@ if __name__ == "__main__":
                        help="present short lines for description [%default]")
     cmdline.add_option("-z", "--onlyzeit", action="count", default=ONLYZEIT,
                        help="present only local zeit data [%default]")
+    cmdline.add_option("-L", "--labels", metavar="LIST", action="append", default=[], help="select and rename columns")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
     cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
@@ -619,6 +619,7 @@ if __name__ == "__main__":
     if opt.mockup:
         import odoo2data_api_mockup as odoo_api  # type: ignore[no-redef]
     UPDATE = opt.update
+    LABELS = ",".join(opt.labels)
     FORMAT = opt.format
     OUTPUT = opt.output
     JSONFILE = opt.jsonfile

@@ -49,6 +49,7 @@ ODOO_SUMMARY = ""
 
 FOR_USER: List[str] = []
 
+LABELS = ""
 FORMAT = ""
 OUTPUT = ""
 JSONFILE = ""
@@ -577,12 +578,10 @@ def run(arg: str) -> None:
                 price_vat = get_price_vat()
                 results.append({"satz": price_vat, "summe": round(summe * price_vat, 2)})
                 results.append({"summe": summe + round(summe * price_vat, 2)})
-        if OUTPUT in ["", "-", "CON"]:
-            print(tabtotext.tabToFMT(FMT, results, formats=formats, legend=summary))
-        elif OUTPUT:
-            with open(OUTPUT, "w") as f:
-                f.write(tabtotext.tabToFMT(FMT, results, formats=formats, legend=summary))
-            logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), OUTPUT)
+        done = tabtotext.tabToPrintWithFormats(results, OUTPUT, FMT,  # ..
+                                               selects=LABELS, formats=formats, legend=summary)
+        if done:
+            logg.log(DONE, " %s", done)
         if JSONFILE:
             FMT = "json"
             with open(JSONFILE, "w") as f:
@@ -617,6 +616,7 @@ if __name__ == "__main__":
                        help="present only local zeit data [%default]")
     cmdline.add_option("-Z", "--addfooter", action="count", default=ADDFOOTER,
                        help="present sum as lines in data [%default]")
+    cmdline.add_option("-L", "--labels", metavar="LIST", action="append", default=[], help="select and rename columns")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
     cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
@@ -636,6 +636,7 @@ if __name__ == "__main__":
     netrc.set_password_filename(opt.gitcredentials)
     netrc.add_password_filename(opt.netcredentials, opt.extracredentials)
     FOR_USER = opt.user
+    LABELS = ",".join(opt.labels)
     FORMAT = opt.format
     OUTPUT = opt.output
     JSONFILE = opt.jsonfile
