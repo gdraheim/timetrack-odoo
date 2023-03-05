@@ -47,4 +47,4 @@ quick start with `./odoo2data.py lastmonth zeit`. Save it with `-O zeit.txt`.
 | [tabtotext.setup](tabtotext.setup.md) | how report tables are generated |
 | [netrc.setup](netrc.setup.md)         | how credentials are stored      |
 
-and some [HISTORY](HISTORY.md)
+and some [HISTORY](HISTORY.md) / overview of  [FEATURES](FEATURES.md) / latest [RELEASENOTES](RELEASENOTES.md)
