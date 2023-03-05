@@ -3,7 +3,7 @@
 [![Unit Tests](https://img.shields.io/badge/basic%20unit%20tests-578%20tests-brightgreen)](https://github.com/gdraheim/timetrack-odoo/actions/workflows/unittests.yml)
 
 
-## TIMETRACK ODOO (and JIRA and more)
+## TIMETRACK ODOO (and JIRA Worklogs and more)
 
 Timetrack is a synchronisation tool for work hours. It can read, write and
 update different data bases.

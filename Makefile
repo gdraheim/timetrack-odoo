@@ -155,7 +155,7 @@ clean:
 ############## https://pypi.org/...
 
 README: README.md Makefile
-	cat README.md | sed -e "/\\/badge/d" > README
+	cat README.md | sed -e "/\\/badge/d" -e /^---/q > README
 setup.py: Makefile
 	{ echo '#!/usr/bin/env python3' \
 	; echo 'import setuptools' \
