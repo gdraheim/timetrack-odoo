@@ -8,7 +8,7 @@ import jira2data_api_mockup as jira_api_mockup
 import zeit2jira as sync
 from typing import Optional
 from tabtotext import JSONList, JSONDict
-from dayrange import dayrange
+from timerange import dayrange
 import datetime
 
 import os

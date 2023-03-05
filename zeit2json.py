@@ -23,7 +23,7 @@ import os.path as path
 
 import tabtotext
 from tabtotext import JSONList, JSONDict, JSONItem, viewFMT
-from dayrange import get_date, Day, is_dayrange, dayrange
+from timerange import get_date, Day, is_dayrange, dayrange
 from odootopic import OdooValuesForTopic
 
 logg = logging.getLogger("zeit2json")

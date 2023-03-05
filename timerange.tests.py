@@ -3,7 +3,7 @@
 __copyright__ = "(C) 2022-2023 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "0.8.2097"
 
-import dayrange as zeit
+import timerange as zeit
 from typing import Optional, cast
 
 import os
@@ -25,7 +25,7 @@ class Day2020(Day):
     def today(cls) -> "Day2020":
         return Day2020(2020, 8, 8)
 
-class dayrangeTest(unittest.TestCase):
+class timerangeTest(unittest.TestCase):
     def last_sunday(self) -> Day:
         today = Day.today()
         for earlier in range(8):

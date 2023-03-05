@@ -16,7 +16,7 @@ import datetime
 
 import tabtotext
 import zeit2json as zeit_api
-from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
+from timerange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
 import odoo2data_api as odoo_api
 import netrc
 import gitrc

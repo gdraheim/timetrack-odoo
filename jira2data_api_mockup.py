@@ -18,7 +18,7 @@ import datetime
 from urllib.parse import quote_plus as qq
 import netrc
 import gitrc
-from dayrange import get_date
+from timerange import get_date
 from tabtotext import JSONDict, JSONList, JSONItem
 
 logg = logging.getLogger(__name__ == "__main__" and os.path.basename(sys.argv[0]) or __name__)

@@ -13,7 +13,7 @@ import os.path as path
 
 import tabtotext
 from tabtotext import JSONList, JSONDict, JSONItem
-from dayrange import get_date, Day
+from timerange import get_date, Day
 from collections import namedtuple
 
 OdooValues = namedtuple("OdooValues", ["proj", "task", "pref", "ticket"])

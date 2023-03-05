@@ -21,7 +21,7 @@ JIRA_ZEIT = zeit2jira.py
 TRACKPROG = timetrack.py
 
 TAB_TOOLS = tabtools.py
-DAY_UTILS = dayrange.py
+DAY_UTILS = timerange.py
 NET_UTILS = netrc.py
 TAB_TOOLS = tabtools.py
 TAB_UTILS = tabtotext.py
