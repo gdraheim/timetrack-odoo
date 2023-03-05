@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 __copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.9.2097"
+__version__ = "1.0.2101"
 
 import tabtotext
 import odoo2data_api_mockup as odoo_api_mockup
