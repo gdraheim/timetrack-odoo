@@ -25,7 +25,7 @@ import gitrc
 from fnmatch import fnmatchcase as fnmatch
 from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, viewFMT, str27, str40
 from odoo_rest import EntryID, ProjID, TaskID
-from fracfloat import strHours
+from tabtools import strHours
 
 Day = datetime.date
 Num = float

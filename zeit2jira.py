@@ -17,7 +17,7 @@ import datetime
 import tabtotext
 import zeit2json as zeit_api
 from tabtotext import viewFMT, str18, str27, str40
-from fracfloat import strHours
+from tabtools import strHours
 from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
 import jira_rest as jira_api
 import netrc

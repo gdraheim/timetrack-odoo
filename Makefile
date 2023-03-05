@@ -19,14 +19,12 @@ JIRA_APIS = jira_rest.py
 JIRA_ZEIT = zeit2jira.py
 TRACKPROG = timetrack.py
 
-FRAC_UTIL = fracfloat.py
+TAB_TOOLS = tabtools.py
 DAY_UTILS = dayrange.py
-DAY_TESTS = dayrange.tests.py
 NET_UTILS = netrc.py
-NET_TESTS = netrc.tests.py
+TAB_TOOLS = tabtools.py
 TAB_UTILS = tabtotext.py
-TAB_TESTS = tabtotext.tests.py
-TAB_XLSX = tabtoxlsx.py
+TAB_2XLSX = tabtoxlsx.py
 
 PARALLEL = -j2
 
@@ -57,10 +55,10 @@ tests:
 	: $(MAKE) k.track
 	wc -l TEST-*.xml
 
-fracfloat.tests: frac
-f.frac: ; $(PYTHON3) $(FRAC_UTIL:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
-f frac: ; $(PYTHON3) $(FRAC_UTIL:.py=.tests.py) -v $V
-f_%: ;    $(PYTHON3) $(FRAC_UTIL:.py=.tests.py) $@ -v $V
+tabtools.tests: frac
+f.frac: ; $(PYTHON3) $(TAB_TOOLS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
+f frac: ; $(PYTHON3) $(TAB_TOOLS:.py=.tests.py) -v $V
+f_%: ;    $(PYTHON3) $(TAB_TOOLS:.py=.tests.py) $@ -v $V
 
 tabtotext.tests: tabt
 x.tabt: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
@@ -207,8 +205,9 @@ type:
 	                 $(MAIN_PROG).type $(MAIN_PROG:.py=.tests.py).type \
 	                 $(ZEIT_PROG).type $(ZEIT_PROG:.py=.tests.py).type \
 	                 $(DATA_PROG).type $(DATA_PROG:.py=.tests.py).type \
-	                 $(FRAC_UTIL).type $(FRAC_UTIL:.py=.tests.py).type \
+	                 $(TAB_TOOLS).type $(TAB_TOOLS:.py=.tests.py).type \
 	                 $(TAB_UTILS).type $(TAB_UTILS:.py=.tests.py).type \
+	                 $(TAB_2XLSX).type \
 	                 $(NET_UTILS).type $(NET_UTILS:.py=.tests.py).type \
 	                 $(DAY_UTILS).type $(DAY_UTILS:.py=.tests.py).type \
 	                 $(JIRA_PROG).type $(JIRA_APIS).type \
@@ -222,8 +221,9 @@ style pep8:
 	                 $(MAIN_PROG).pep8 $(MAIN_PROG:.py=.tests.py).pep8 \
 	                 $(ZEIT_PROG).pep8 $(ZEIT_PROG:.py=.tests.py).pep8 \
 	                 $(DATA_PROG).pep8 $(DATA_PROG:.py=.tests.py).pep8 \
-	                 $(FRAC_UTIL).pep8 $(FRAC_UTIL:.py=.tests.py).pep8 \
+	                 $(TAB_TOOLS).pep8 $(TAB_TOOLS:.py=.tests.py).pep8 \
 	                 $(TAB_UTILS).pep8 $(TAB_UTILS:.py=.tests.py).pep8 \
+	                 $(TAB_2XLSX).pep8 \
 	                 $(NET_UTILS).pep8 $(NET_UTILS:.py=.tests.py).pep8 \
 	                 $(DAY_UTILS).pep8 $(DAY_UTILS:.py=.tests.py).pep8 \
 	                 $(JIRA_PROG).pep8 $(JIRA_APIS).pep8 \
