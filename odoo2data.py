@@ -17,14 +17,14 @@ import datetime
 import tabtotext
 import zeit2json
 from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
-import odoo_rest as odoo_api
+import odoo2data_api as odoo_api
 import netrc
 import gitrc
 
 # from math import round
 from fnmatch import fnmatchcase as fnmatch
 from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, viewFMT
-from odoo_rest import EntryID, ProjID, TaskID
+from odoo2data_api import EntryID, ProjID, TaskID
 
 Day = datetime.date
 Num = float

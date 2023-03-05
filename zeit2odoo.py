@@ -17,14 +17,14 @@ import datetime
 import tabtotext
 import zeit2json as zeit_api
 from dayrange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
-import odoo_rest as odoo_api
+import odoo2data_api as odoo_api
 import netrc
 import gitrc
 
 # from math import round
 from fnmatch import fnmatchcase as fnmatch
 from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, viewFMT, str27, str40
-from odoo_rest import EntryID, ProjID, TaskID
+from odoo2data_api import EntryID, ProjID, TaskID
 from tabtools import strHours
 
 Day = datetime.date
@@ -617,7 +617,7 @@ if __name__ == "__main__":
     netrc.set_password_filename(opt.gitcredentials)
     netrc.add_password_filename(opt.netcredentials, opt.extracredentials)
     if opt.mockup:
-        import odoo_rest_mockup as odoo_api  # type: ignore[no-redef]
+        import odoo2data_api_mockup as odoo_api  # type: ignore[no-redef]
     UPDATE = opt.update
     FORMAT = opt.format
     OUTPUT = opt.output

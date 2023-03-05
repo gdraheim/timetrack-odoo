@@ -4,7 +4,7 @@ __copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 
 __version__ = "0.9.2097"
 
 import tabtotext
-import odoo_rest_mockup
+import odoo2data_api_mockup as odoo_api_mockup
 import odoo2data as sync
 from typing import Optional
 from tabtotext import JSONList
@@ -21,7 +21,7 @@ import netrc
 import logging
 logg = logging.getLogger("TEST")
 
-sync.odoo_api = odoo_rest_mockup
+sync.odoo_api = odoo_api_mockup
 
 class odoo2dataTest(unittest.TestCase):
     def last_sunday(self) -> datetime.date:

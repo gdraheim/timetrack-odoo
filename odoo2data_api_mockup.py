@@ -4,7 +4,7 @@ __copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 
 __version__ = "0.9.2097"
 
 from typing import Dict, List, Optional, Generator, cast
-from odoo_rest import Cookies, UserID, ProjID, ProjREF, TaskID, TaskREF, EntryID, OdooException
+from odoo2data_api import Cookies, UserID, ProjID, ProjREF, TaskID, TaskREF, EntryID, OdooException
 
 from tabtotext import JSONList, JSONDict, JSONItem, Date, Time
 
