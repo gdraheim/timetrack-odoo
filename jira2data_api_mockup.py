@@ -16,8 +16,6 @@ import re
 import sys
 import datetime
 from urllib.parse import quote_plus as qq
-import netrc
-import gitrc
 from timerange import get_date
 from tabtotext import JSONDict, JSONList, JSONItem
 

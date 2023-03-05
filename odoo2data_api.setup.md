@@ -1,6 +1,6 @@
-## ODOO_REST
+## ODOO API
 
-The odoo_rest implementation uses examples taken from Patrick Hobusch's project
+The odoo2data_api implementation uses examples taken from Patrick Hobusch's project
 
 * https://packagegalaxy.com/python/odoo-otter
 * https://github.com/pathob/odoo-otter
@@ -24,4 +24,4 @@ The easiest way is to edit your ~/.gitconfig
 
 The run
 
-    ./odoo_rest.py projects
+    ./odoo2data_api.py projects

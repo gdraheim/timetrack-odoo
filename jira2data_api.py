@@ -16,8 +16,8 @@ import re
 import sys
 import datetime
 from urllib.parse import quote_plus as qq
-import netrc
-import gitrc
+from dotnetrc import get_username_password, str_get_username_password
+from dotgitconfig import git_config_value
 from timerange import get_date
 from tabtotext import JSONDict, JSONList, JSONItem
 
@@ -56,12 +56,12 @@ class JiraFrontend:
     def __init__(self, remote: Optional[FrontendUrl] = None, verify: Optional[Verify] = None, timeout: Optional[int] = None):
         self.remote = remote
         if not self.remote:
-            self.remote = gitrc.git_config_value("jira.url")
+            self.remote = git_config_value("jira.url")
             if not self.remote:
                 logg.error("either set '-r http://url/to/jira' or add ~/.gitconfig [jira]url=http://url/to/jira")
                 self.remote = JIRADEFAULT
         if self.remote.isalnum():
-            found = gitrc.git_config_value(self.remote, "url")
+            found = git_config_value(self.remote, "url")
             if not found:
                 logg.error(f"you chose '-r {remote}' but no such ~/.gitconfig [{remote}]url=http://url/to/jira")
                 self.remote = f"https://{remote}.host"
@@ -76,7 +76,7 @@ class JiraFrontend:
             if url_timeout and url_timeout < 900:
                 self.url_timeout = int(url_timeout)
             else:
-                self.url_timeout = int(gitrc.git_config_value("jira.timeout") or "20")
+                self.url_timeout = int(git_config_value("jira.timeout") or "20")
         else:
             self.url_timeout = timeout
         #
@@ -110,11 +110,11 @@ class JiraFrontend:
         url = url or self.url()
         if url not in self._sessions:
             session = Session()
-            session.auth = netrc.get_username_password(url)
+            session.auth = get_username_password(url)
             self._sessions[url] = session
         return self._sessions[url]
     def pwinfo(self) -> str:
-        return netrc.str_get_username_password(self.url()) + " for " + self.url()
+        return str_get_username_password(self.url()) + " for " + self.url()
     def user(self, url: Optional[str] = None) -> str:
         if self._user:
             return self._user
@@ -122,20 +122,20 @@ class JiraFrontend:
             self._user = USER
             if self._user:
                 return self._user
-        jira_user = gitrc.git_config_value("jira.user")
+        jira_user = git_config_value("jira.user")
         if jira_user:
             logg.info("user: using gitconfig jira.user")
             self._user = jira_user
             if self._user:
                 return self._user
-        user_name = gitrc.git_config_value("user.name")
+        user_name = git_config_value("user.name")
         # search jira users by name?
-        user_mail = gitrc.git_config_value("user.email")
+        user_mail = git_config_value("user.email")
         # search jira users by email?
         url = url or self.url()
-        auth = netrc.get_username_password(url)
+        auth = get_username_password(url)
         if auth:
-            logg.info("user: using netrc authuser")
+            logg.info("user: using dotnetrc authuser")
             self._user = auth[0]
             if self._user:
                 return self._user

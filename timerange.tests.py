@@ -15,8 +15,6 @@ from fnmatch import fnmatchcase as fnmatch
 from datetime import date as Day
 from datetime import timedelta as Delta
 
-import netrc
-
 import logging
 logg = logging.getLogger("TEST")
 

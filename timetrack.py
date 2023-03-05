@@ -15,12 +15,12 @@ import os.path as path
 from contextlib import closing
 from configparser import ConfigParser
 
+import dotnetrc
 import tabtotext
 import zeit2json as zeit_api
 from timerange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
+from dotgitconfig import git_config_value, git_config_override
 import odoo2data_api as odoo_api
-import netrc
-import gitrc
 
 # from math import round
 from fnmatch import fnmatchcase as fnmatch
@@ -60,14 +60,14 @@ SHORTNAME = True
 
 
 def default_config(warn: bool = True) -> str:
-    user_name = gitrc.git_config_value("user.name")
-    user_mail = gitrc.git_config_value("user.email")
-    odoo_url = gitrc.git_config_value("odoo.url")
-    odoo_db = gitrc.git_config_value("odoo.db")
-    odoo_email = gitrc.git_config_value("odoo.email")
-    zeit_filename = gitrc.git_config_value("zeit.filename")
-    jira_url = gitrc.git_config_value("jira.url")
-    jira_user = gitrc.git_config_value("jira.user")
+    user_name = git_config_value("user.name")
+    user_mail = git_config_value("user.email")
+    odoo_url = git_config_value("odoo.url")
+    odoo_db = git_config_value("odoo.db")
+    odoo_email = git_config_value("odoo.email")
+    zeit_filename = git_config_value("zeit.filename")
+    jira_url = git_config_value("jira.url")
+    jira_user = git_config_value("jira.user")
     if not user_name and warn:
         logg.error("~/.gitconfig [user] name= (missing)")
     if not user_mail and warn:
@@ -121,8 +121,8 @@ url = {jira_url}
 user = {jira_user}
 """
     for num in range(1, 9):
-        next_url = gitrc.git_config_value(f"jira{num}.url")
-        next_user = gitrc.git_config_value(f"jira{num}.user")
+        next_url = git_config_value(f"jira{num}.url")
+        next_user = git_config_value(f"jira{num}.user")
         if next_url or next_user:
             if not next_url: next_url = jira_url
             if not next_user: next_user = jira_user
@@ -143,16 +143,14 @@ class TimeConfig:
         global USER_NAME
         if USER_NAME:
             return USER_NAME
-        import gitrc
-        return gitrc.git_config_value("user.name")
+        return git_config_value("user.name")
     def filespec(self) -> str:
         if self.pathspec:
             return self.pathspec
         global TIME_FILENAME
         if TIME_FILENAME:
             return TIME_FILENAME
-        import gitrc
-        found = gitrc.git_config_value("timetrack.filename")
+        found = git_config_value("timetrack.filename")
         if found:
             return found
         return "~/timetrack{YEAR}.db3"
@@ -168,11 +166,10 @@ class TimeConfig:
         global TIME_SITENAME
         if TIME_SITENAME:
             return TIME_SITENAME
-        import gitrc
-        found = gitrc.git_config_value("timetrack.sitename")
+        found = git_config_value("timetrack.sitename")
         if found:
             return found
-        found = gitrc.git_config_value("odoo.db")
+        found = git_config_value("odoo.db")
         if found:
             return found
         return "moon"
@@ -510,9 +507,9 @@ if __name__ == "__main__":
     cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also xslx data file")
-    cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=netrc.GIT_CREDENTIALS)
-    cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=netrc.NET_CREDENTIALS)
-    cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=netrc.NETRC_FILENAME)
+    cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=dotnetrc.GIT_CREDENTIALS)
+    cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=dotnetrc.NET_CREDENTIALS)
+    cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=dotnetrc.NETRC_FILENAME)
     cmdline.add_option("-c", "--config", metavar="NAME=VALUE", action="append", default=[])
     cmdline.add_option("-y", "--update", action="store_true", default=UPDATE,
                        help="actually update odoo")
@@ -521,9 +518,9 @@ if __name__ == "__main__":
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose))
     # logg.addHandler(logging.StreamHandler())
     for value in opt.config:
-        gitrc.git_config_override(value)
-    netrc.set_password_filename(opt.gitcredentials)
-    netrc.add_password_filename(opt.netcredentials, opt.extracredentials)
+        git_config_override(value)
+    dotnetrc.set_password_filename(opt.gitcredentials)
+    dotnetrc.add_password_filename(opt.netcredentials, opt.extracredentials)
     config = ConfigParser()
     config.read_string(default_config(False))
     UPDATE = opt.update

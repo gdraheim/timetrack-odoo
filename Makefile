@@ -22,7 +22,8 @@ TRACKPROG = timetrack.py
 
 TAB_TOOLS = tabtools.py
 DAY_UTILS = timerange.py
-NET_UTILS = netrc.py
+NET_UTILS = dotnetrc.py
+GIT_UTILS = dotgitconfig.py
 TAB_TOOLS = tabtools.py
 TAB_UTILS = tabtotext.py
 TAB_2XLSX = tabtoxlsx.py
@@ -208,7 +209,7 @@ type:
 	                 $(DATA_PROG).type $(DATA_PROG:.py=.tests.py).type \
 	                 $(TAB_TOOLS).type $(TAB_TOOLS:.py=.tests.py).type \
 	                 $(TAB_UTILS).type $(TAB_UTILS:.py=.tests.py).type \
-	                 $(TAB_2XLSX).type \
+	                 $(TAB_2XLSX).type $(GIT_UTILS).type \
 	                 $(NET_UTILS).type $(NET_UTILS:.py=.tests.py).type \
 	                 $(DAY_UTILS).type $(DAY_UTILS:.py=.tests.py).type \
 	                 $(JIRA_PROG).type $(JIRA_APIS).type $(JIRA_MOCK).type \
@@ -224,7 +225,7 @@ style pep8:
 	                 $(DATA_PROG).pep8 $(DATA_PROG:.py=.tests.py).pep8 \
 	                 $(TAB_TOOLS).pep8 $(TAB_TOOLS:.py=.tests.py).pep8 \
 	                 $(TAB_UTILS).pep8 $(TAB_UTILS:.py=.tests.py).pep8 \
-	                 $(TAB_2XLSX).pep8 \
+	                 $(TAB_2XLSX).pep8 $(GIT_UTILS).pep8 \
 	                 $(NET_UTILS).pep8 $(NET_UTILS:.py=.tests.py).pep8 \
 	                 $(DAY_UTILS).pep8 $(DAY_UTILS:.py=.tests.py).pep8 \
 	                 $(JIRA_PROG).pep8 $(JIRA_APIS).pep8 \

@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
-""" This is a wrapper around netrc.py which can read the git-credentials store,
-    adding functions to read the generation gitconfig settings. """
+""" This is a wrapper around dotnetrc.py which can read the git-credentials store,
+    adding functions to read the the gitconfig settings alternativly. """
 
 __copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.0.2097"
@@ -28,25 +28,25 @@ GITRC_CLEARTEXT = False
 GIT_CREDENTIALS = "~/.git-credentials"
 NETRC_FILENAME = "~/.netrc"
 
-import netrc
+import dotnetrc
 
 def _target(url: str) -> str:
-    return netrc._target(url)
+    return dotnetrc._target(url)
 
 def get_username_password(url: str = "") -> Tuple[str, str]:
-    return netrc.get_username_password(url)
+    return dotnetrc.get_username_password(url)
 def get_username(url: str = "") -> str:
-    return netrc.get_username(url)
+    return dotnetrc.get_username(url)
 def str_get_username_password(url: str) -> str:
-    return netrc.str_get_username_password(url)
+    return dotnetrc.str_get_username_password(url)
 def str_username_password(username: str, password: str) -> str:
-    return netrc.str_username_password(username, password)
+    return dotnetrc.str_username_password(username, password)
 def set_password_filename(*filename: str) -> None:
-    netrc.set_password_filename(*filename)
+    dotnetrc.set_password_filename(*filename)
 def add_password_filename(*filename: str) -> None:
-    netrc.add_password_filename(*filename)
+    dotnetrc.add_password_filename(*filename)
 def set_password_cleartext(show: bool) -> None:
-    netrc.set_password_cleartext(show)
+    dotnetrc.set_password_cleartext(show)
 
 git_config_overrides : Dict[str, Dict[str, str]] = {}
 
@@ -113,16 +113,16 @@ if __name__ == "__main__":
     GIT_CONFIG = opt.gitconfig
     for value in opt.config:
         git_config_override(value)
-    netrc.GIT_CREDENTIALS = opt.gitcredentials
+    dotnetrc.GIT_CREDENTIALS = opt.gitcredentials
     add_password_filename(opt.extracredentials)
-    netrc.NETRC_USERNAME = opt.username
-    netrc.NETRC_PASSWORD = opt.password
-    netrc.NETRC_CLEARTEXT = opt.cleartext
+    dotnetrc.NETRC_USERNAME = opt.username
+    dotnetrc.NETRC_PASSWORD = opt.password
+    dotnetrc.NETRC_CLEARTEXT = opt.cleartext
     if not args:
         args = ["help"]
     cmd = args[0]
     if cmd in ["help"]:
-        print(netrc.__doc__)
+        print(dotnetrc.__doc__)
         print(__doc__)
     elif cmd in ["get", "find", "for"]:
         uselogin = get_username_password(args[1])

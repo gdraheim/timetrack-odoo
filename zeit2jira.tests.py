@@ -17,7 +17,6 @@ import unittest
 import tempfile
 import os.path as path
 from fnmatch import fnmatchcase as fnmatch
-import netrc
 
 import logging
 logg = logging.getLogger("TEST")

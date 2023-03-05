@@ -18,7 +18,7 @@ and select a different `--remote` with each script.
 
 ### credentials
 
-    ./netrc.py set https://jira.host myself Example.2022
+    ./dotnetrc.py set https://jira.host myself Example.2022
 
 ### check jira
 

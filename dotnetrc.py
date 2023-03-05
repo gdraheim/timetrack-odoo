@@ -4,7 +4,7 @@ for a root url. It follows in style the dot-netc model from BSD and actually the
 code does inspect ~/.netrc for matching entries if a url is specified. The script
 can also read the ~/.git-credentials format. Even a mix of entries is possible
 where extensions should only be used in a ~/.net-credentials filename. ////
-Use command './netrc.py set <url> <name> <pass>' to write entries."""
+Use command './dotnetrc.py set <url> <name> <pass>' to write entries."""
 
 # dot git-credentials format:
 #   https://<username>:<password>@<hostname>

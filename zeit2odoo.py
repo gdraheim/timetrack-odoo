@@ -14,12 +14,12 @@ import os
 import csv
 import datetime
 
+import dotnetrc
+from dotgitconfig import git_config_value, git_config_override
 import tabtotext
 import zeit2json as zeit_api
 from timerange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
 import odoo2data_api as odoo_api
-import netrc
-import gitrc
 
 # from math import round
 from fnmatch import fnmatchcase as fnmatch
@@ -602,9 +602,9 @@ if __name__ == "__main__":
     cmdline.add_option("-d", "--csvdata", metavar="FILE", default=CSVDATA, help="use data from semicolonCSV file")
     cmdline.add_option("-x", "--xlsxdata", metavar="FILE", default=XLSXDATA, help="use data from xlsx data file")
     cmdline.add_option("-f", "--zeitdata", metavar="FILE", default=ZEITDATA, help="use data from this zeit.txt")
-    cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=netrc.GIT_CREDENTIALS)
-    cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=netrc.NET_CREDENTIALS)
-    cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=netrc.NETRC_FILENAME)
+    cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=dotnetrc.GIT_CREDENTIALS)
+    cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=dotnetrc.NET_CREDENTIALS)
+    cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=dotnetrc.NETRC_FILENAME)
     cmdline.add_option("-c", "--config", metavar="NAME=VALUE", action="append", default=[])
     cmdline.add_option("-y", "--update", action="store_true", default=UPDATE,
                        help="actually update odoo")
@@ -613,9 +613,9 @@ if __name__ == "__main__":
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose))
     # logg.addHandler(logging.StreamHandler())
     for value in opt.config:
-        gitrc.git_config_override(value)
-    netrc.set_password_filename(opt.gitcredentials)
-    netrc.add_password_filename(opt.netcredentials, opt.extracredentials)
+        git_config_override(value)
+    dotnetrc.set_password_filename(opt.gitcredentials)
+    dotnetrc.add_password_filename(opt.netcredentials, opt.extracredentials)
     if opt.mockup:
         import odoo2data_api_mockup as odoo_api  # type: ignore[no-redef]
     UPDATE = opt.update

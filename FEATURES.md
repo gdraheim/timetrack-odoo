@@ -30,11 +30,11 @@ and then becoming a seperate Odoo Project/Task.
 
 ### zeit2odoo
 
-There are files like "odoo_rest.py" and "odoo_rest_mockup.py" which access the
-Odoo timesheet database via its API.
+There are files like "odoo2data_api.py" and "odoo2data_api_mockup.py" which access 
+the Odoo timesheet database via its API.
 
 * zeit2odoo.py calls a function from zeit2json.py to get the json data in-memory
-* zeit2odoo.py then calls functions from odoo_rest.py to read/write Odoo records
+* zeit2odoo.py then calls functions from odoo2data_api.py to read/write Odoo records
 * using an existing "Topic" in an Odoo record it can update it with new data
 
 Note that "update" is in dryrun mode by default, and "-y" is need to actually
@@ -48,7 +48,7 @@ Odoo data.
 
 The odoo2data has "topics" and "summary" statistics as well, but it only has
 the column for "odoo". (However there is a simulation mode "-z" where the
-input records come from zeit2json instead of the odoo_rest API).
+input records come from zeit2json instead of the odoo API).
 
 The commands "report" and "reports" is used to build an excel file that can
 be used for invoices by freelancers.
@@ -76,10 +76,10 @@ the worklogs to.
 The original file "zeit2excel.py" has a number of hardcoded values in it.
 These were removed for timetrack-odoo and "zeit2json" uses helper scripts.
 
-* netrc.py is used to retrieve username/password files in ~/.netrc
-* netrc.py can be used used to write username/password into ~/.net-credentials
-* gitconfig.py is used to retrieve user name and email from ~/.gitconfig
-* gitconfig.py is used to get connection information for Odoo and Jira
+* dotnetrc.py is used to retrieve username/password files in ~/.netrc
+* dotnetrc.py can be used used to write username/password into ~/.net-credentials
+* dotgitconfig.py is used to retrieve user name and email from ~/.gitconfig
+* dotgitconfig.py is used to get connection information for Odoo and Jira
 
 ### output formats
 

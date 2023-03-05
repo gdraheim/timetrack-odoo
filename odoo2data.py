@@ -17,9 +17,9 @@ import datetime
 import tabtotext
 import zeit2json
 from timerange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
+from dotgitconfig import git_config_value, git_config_override
 import odoo2data_api as odoo_api
-import netrc
-import gitrc
+import dotnetrc
 
 # from math import round
 from fnmatch import fnmatchcase as fnmatch
@@ -77,7 +77,7 @@ def get_proj_price_rate(proj: str) -> int:
         else:
             rate = int(price)
     if not rate:
-        gitrc_price = gitrc.git_config_value("zeit.price")
+        gitrc_price = git_config_value("zeit.price")
         if gitrc_price:
             rate = int(gitrc_price)
     if not rate:
@@ -85,7 +85,7 @@ def get_proj_price_rate(proj: str) -> int:
     return rate
 
 def get_price_vat() -> float:
-    gitrc_vat = gitrc.git_config_value("zeit.vat")
+    gitrc_vat = git_config_value("zeit.vat")
     if gitrc_vat:
         return float(gitrc_vat)
     else:
@@ -621,9 +621,9 @@ if __name__ == "__main__":
     cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also xslx data file")
-    cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=netrc.GIT_CREDENTIALS)
-    cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=netrc.NET_CREDENTIALS)
-    cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=netrc.NETRC_FILENAME)
+    cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=dotnetrc.GIT_CREDENTIALS)
+    cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=dotnetrc.NET_CREDENTIALS)
+    cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=dotnetrc.NETRC_FILENAME)
     cmdline.add_option("-c", "--config", metavar="NAME=VALUE", action="append", default=[])
     cmdline.add_option("-u", "--user", metavar="NAME", action="append", default=[],
                        help="show data for other users than the login user (use full name or email)")
@@ -632,9 +632,9 @@ if __name__ == "__main__":
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose))
     # logg.addHandler(logging.StreamHandler())
     for value in opt.config:
-        gitrc.git_config_override(value)
-    netrc.set_password_filename(opt.gitcredentials)
-    netrc.add_password_filename(opt.netcredentials, opt.extracredentials)
+        git_config_override(value)
+    dotnetrc.set_password_filename(opt.gitcredentials)
+    dotnetrc.add_password_filename(opt.netcredentials, opt.extracredentials)
     FOR_USER = opt.user
     LABELS = ",".join(opt.labels)
     FORMAT = opt.format

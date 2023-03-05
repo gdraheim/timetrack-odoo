@@ -4,7 +4,7 @@ __copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 
 __version__ = "0.3.2097"
 
 from xmlrpc import client as odoo
-from netrc import *
+from dotnetrc import set_password_filename, get_username_password, str_get_username_password
 import sys
 import os.path as path
 import json

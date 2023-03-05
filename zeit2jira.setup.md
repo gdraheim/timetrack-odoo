@@ -6,9 +6,9 @@ It can load JSONList from zeit2json. See [zeit2json.setup]([zeit2json.setup.md).
 
 It can load records from Jira. See [jira2data.setup](jira2data.setup.md).
 
-It can push the data to Jira with the [jira_rest API](jira_rest.setup.md)
+It can push the data to Jira with the [jira API setup](jira2data_api.setup.md).
 
-It uses ~/.netrc for storing the login credentials to Jira.
+It uses ~/.netrc for storing the login credentials to Jira. See [dotnetrc setup](dotnetrc.setup.md).
 
 ### FIRST STEPS
 

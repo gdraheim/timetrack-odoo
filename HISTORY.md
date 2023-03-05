@@ -9,8 +9,8 @@ script - with json being an intermediate data representation for zeit2odoo.py
 * the zeit2excel.py script was started in 2017
 
 The second source comes from the odoo-otter project which allowed to push timesheet
-entries to Odoo using its ResT API. The odoo_rest.py part has the API interface 
-along with a class wrapper. The zeit2odoo.py combines odoo_rest.py with zeit2json.py
+entries to Odoo using its ResT API. The odoo2data_api.py part has the API interface 
+along with a class wrapper. The zeit2odoo.py combines odoo2data_api.py with zeit2json.py
 so that zeit.txt entries can be synchronized to Odoo via its ResT API.
 
 * the odoo-otter project was started in 2021

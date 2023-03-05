@@ -247,16 +247,16 @@ class ZeitConfig:
         global ZEIT_USER_NAME
         if ZEIT_USER_NAME:
             return ZEIT_USER_NAME
-        import gitrc
-        return gitrc.git_config_value("user.name")
+        import dotgitconfig
+        return dotgitconfig.git_config_value("user.name")
     def filespec(self) -> str:
         if self.pathspec:
             return self.pathspec
         global ZEIT_FILENAME
         if ZEIT_FILENAME:
             return ZEIT_FILENAME
-        import gitrc
-        found = gitrc.git_config_value("zeit.filename")
+        import dotgitconfig
+        found = dotgitconfig.git_config_value("zeit.filename")
         if found:
             return found
         return DEFAULT_FILENAME

@@ -1,15 +1,18 @@
 ## NETRC
 
-The netrc util is a password storage utility that handles the formats 
+The dotnetrc util is a password storage utility that handles the formats 
 of dot-netrc ($HOME/.netrc) and dot-gitcredentials ($HOME/.git-credentials).
 
 ### dot-netrc
 
-The dot-netrc seems to have been born on BSD systems and it is implicitly
-read by both "git" and "curl" tools to get login information for remote
-sites.
+The dot-netrc configuration file seems to have been born on BSD systems and 
+it is implicitly read by both "git" and "curl" tools to get login information 
+for remote sites.
 
 It's format is described in "man 5 netrc" = https://linux.die.net/man/5/netrc
+
+There is a python3 standard library module netrc as well.
+That's the reason why netrc.py was later renamed to this dotnetrc.py
 
 The implementation here is extended that "machine" can also include a following
 prefix and both machine and prefix can use fnmatch "*" "?" to catch multiple
@@ -58,15 +61,15 @@ named "$HOME/.git-credentials" with
 
 Make sure to allow the credentials file to be set by the user on the commandline.
 
-    import netrc 
+    from dotnetrc import set_password_filename
     from optparse import OptionParser
     cmdline = OptionParser("%prog files...")
     cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default="~/.netrc")
-    netrc.set_password_filename(opt.gitcredentials)
+    set_password_filename(opt.gitcredentials)
 
 Use a target url to ask for the username/password tuple
 
     import requests
-    import netrc 
-    requests.get(url, auth=netrc.get_username_password(url))
+    from dotnetrc import get_username_password
+    requests.get(url, auth=get_username_password(url))
 

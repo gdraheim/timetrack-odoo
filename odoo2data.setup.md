@@ -2,7 +2,7 @@
 
 Make sure to have the odoo login data ready in ~/.netrc
 
-See [netrc.setup.md](netrc.setup.md) for details.
+See [dotnetrc.setup.md](dotnetrc.setup.md) for details.
 
     machine erp.example.com login me@example.com password Example.2022
 

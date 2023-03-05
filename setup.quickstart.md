@@ -22,12 +22,12 @@ your home/company folder you have zeit2023.txt zeit2024.txt etcetera.
 
 ### credentials
 
-    ./netrc.py set https://erp.mycompany.corp myself@mycompany.corp Example.2022
-    ./netrc.py set https://jira.host myself Example.2022
+    ./dotnetrc.py set https://erp.mycompany.corp myself@mycompany.corp Example.2022
+    ./dotnetrc.py set https://jira.host myself Example.2022
 
-Or create a file `$HOME/.netrc` with content like
+Or simply create a file `$HOME/.netrc` with content like:
 
-    machine erp.mycompany.corp user myself@mycompany.corp login Example.2022
+    machine erp.mycompany.corp login myself@mycompany.corp password Example.2022
 
 Note that most Odoo services will use your email adress as the login
 user. For Jira services however the general corporate user directory

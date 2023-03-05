@@ -6,14 +6,14 @@ __version__ = "0.6.2097"
 import logging
 from typing import List, Dict, Union, Optional, Tuple, Any, cast
 
-import netrc
-import gitrc
 import sys
 import re
 import os.path as path
 import json
 import requests
 import datetime
+import dotnetrc
+from dotgitconfig import git_config_value
 from fnmatch import fnmatchcase as fnmatch
 
 import tabtotext
@@ -34,7 +34,7 @@ logg = logging.getLogger(__name__ == "__main__" and path.basename(sys.argv[0]) o
 ODOO_URL = ""
 ODOO_DB = ""
 
-netrc.NETRC_CLEARTEXT = True
+dotnetrc.NETRC_CLEARTEXT = True
 
 class OdooException(Exception):
     pass
@@ -47,10 +47,10 @@ def strDate(val: Union[str, Day]) -> str:
 def odoo_url() -> str:
     if ODOO_URL:
         return ODOO_URL
-    value = gitrc.git_config_value("odoo.url")
+    value = git_config_value("odoo.url")
     if value:
         return value
-    value = gitrc.git_config_value("zeit.url")
+    value = git_config_value("zeit.url")
     if value:
         return value
     return "https://example.odoo.com"
@@ -59,10 +59,10 @@ def odoo_db() -> str:
     """ see https://o2sheet.com/docs/retrieve-odoo-database-name/ """
     if ODOO_DB:
         return ODOO_DB
-    value = gitrc.git_config_value("odoo.db")
+    value = git_config_value("odoo.db")
     if value:
         return value
-    value = gitrc.git_config_value("zeit.db")
+    value = git_config_value("zeit.db")
     if value:
         return value
     return "prod-example"
@@ -448,7 +448,7 @@ class Odoo:
             return self.user_name
         return self.config.user or ""
     def login(self) -> UserID:
-        username, password = netrc.get_username_password(self.config.url)
+        username, password = dotnetrc.get_username_password(self.config.url)
         uid, sid = odoo_login(self.url, self.db, username, password)
         self.uid = uid
         self.sid = sid
@@ -677,7 +677,7 @@ if __name__ == "__main__":
     cmdline.add_option("-e", "--url", metavar="url", default=ODOO_URL)
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=logging.WARNING - 10 * opt.verbose)
-    netrc.set_password_filename(opt.gitcredentials)
+    dotnetrc.set_password_filename(opt.gitcredentials)
     ODOO_URL = opt.url
     ODOO_DB = opt.db
     if not args:

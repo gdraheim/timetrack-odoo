@@ -18,8 +18,6 @@ import os.path as path
 from fnmatch import fnmatchcase as fnmatch
 import subprocess
 
-import netrc
-
 import logging
 logg = logging.getLogger("TEST")
 
