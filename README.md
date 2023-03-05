@@ -34,6 +34,8 @@ the mapping of different work topics to their Odoo and Jira accounts. If you
 do already have data in Odoo then you can get a `zeit` summary from it for a
 quick start with `./odoo2data.py lastmonth zeit`. Save it with `-O zeit.txt`.
 
+---
+
 * [setup.quickstart](setup.quickstart.md) - the BASIC SETUP takes about one hour
 
 | Documentation                         | Topic                           |
