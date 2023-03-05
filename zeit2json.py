@@ -528,7 +528,7 @@ if __name__ == "__main__":
                        help="suffix for summary report [%default]")
     cmdline.add_option("-f", "--filename", metavar="TEXT", default=ZEIT_FILENAME,
                        help="choose input filename [%s]" % (ZEIT_FILENAME or DEFAULT_FILENAME))
-    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
+    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=FORMAT)
     cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also to json data file")
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also to xlsx data file")
