@@ -4,7 +4,7 @@ __copyright__ = "(C) 2022-2023 Guido Draheim, licensed under the Apache License 
 __version__ = "1.0.2097"
 
 import tabtotext
-import jira_rest_mockup
+import jira2data_api_mockup as jira_api_mockup
 import zeit2jira as sync
 from typing import Optional
 from tabtotext import JSONList, JSONDict
@@ -22,7 +22,7 @@ import netrc
 import logging
 logg = logging.getLogger("TEST")
 
-sync.jira_api = jira_rest_mockup
+sync.jira_api = jira_api_mockup
 
 Day = datetime.date
 USER = "myself"

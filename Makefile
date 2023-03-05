@@ -15,7 +15,8 @@ ODOO_APIS = odoo_rest.py
 ODOO_MOCK = odoo_rest_mockup.py
 ODOOTOPIC = odootopic.py
 JIRA_PROG = jira2data.py
-JIRA_APIS = jira_rest.py
+JIRA_APIS = jira2data_api.py
+JIRA_MOCK = jira2data_api_mockup.py
 JIRA_ZEIT = zeit2jira.py
 TRACKPROG = timetrack.py
 
@@ -210,7 +211,7 @@ type:
 	                 $(TAB_2XLSX).type \
 	                 $(NET_UTILS).type $(NET_UTILS:.py=.tests.py).type \
 	                 $(DAY_UTILS).type $(DAY_UTILS:.py=.tests.py).type \
-	                 $(JIRA_PROG).type $(JIRA_APIS).type \
+	                 $(JIRA_PROG).type $(JIRA_APIS).type $(JIRA_MOCK).type \
 	                 $(JIRA_ZEIT).type $(JIRA_ZEIT:.py=.tests.py).type \
 	                 $(TRACKPROG).type $(TRACKPROG:.py=.tests.py).type 
 
