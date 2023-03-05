@@ -347,8 +347,8 @@ def run(arg: str) -> None:
                 if "at task" in item:
                     item["at task"] = strName(item["at task"])
         formats = {"zeit": "{:4.2f}", "odoo": "{:4.2f}", "summe": "{:4.2f}"}
-        done = tabtotext.tabToPrintWithFormats(results, OUTPUT, FMT,  # ..
-                                               selects=LABELS, formats=formats, legend=summary)
+        done = tabtotext.tabToPrintWith(results, OUTPUT, FMT,  # ..
+                                        selects=LABELS, formats=formats, legend=summary)
         if done:
             logg.log(DONE, " %s", done)
         if JSONFILE:

@@ -578,8 +578,8 @@ def run(arg: str) -> None:
                 price_vat = get_price_vat()
                 results.append({"satz": price_vat, "summe": round(summe * price_vat, 2)})
                 results.append({"summe": summe + round(summe * price_vat, 2)})
-        done = tabtotext.tabToPrintWithFormats(results, OUTPUT, FMT,  # ..
-                                               selects=LABELS, formats=formats, legend=summary)
+        done = tabtotext.tabToPrintWith(results, OUTPUT, FMT,  # ..
+                                        selects=LABELS, formats=formats, legend=summary)
         if done:
             logg.log(DONE, " %s", done)
         if JSONFILE:

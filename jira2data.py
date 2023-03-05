@@ -19,7 +19,7 @@ import datetime
 from odootopic import OdooValues, OdooValuesForTopic
 from urllib.parse import quote_plus as qq
 from timerange import get_date, is_dayrange, dayrange, last_sunday, next_sunday
-from tabtotext import tabToJSON, tabToGFM, tabToFMT, JSONDict, JSONList, JSONItem, viewFMT, setNoRight, tabWithDateHour
+from tabtotext import tabToJSON, tabToPrintWith, JSONDict, JSONList, JSONItem, viewFMT, setNoRight, tabWithDateHour
 
 from jira2data_api import JiraFrontend, jiraGetWorklog, setJiraUser, setJiraURL
 
@@ -38,6 +38,7 @@ LIMIT = 1000
 PROJECTS: List[str] = []
 PROJECTDEFAULT = "ASO"
 
+LABELS = ""
 FORMAT = ""
 OUTPUT = ""
 JSONFILE = ""
@@ -487,12 +488,10 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
         return name
     if result:
         summary += ["found %s items" % (len(result))]
-        if OUTPUT in ["", "-", "CON"]:
-            print(tabToFMT(FMT, result, sorts=sortby, legend=summary, reorder=lastdesc))
-        elif OUTPUT:
-            with open(OUTPUT, "w") as f:
-                f.write(tabToFMT(FMT, result, sorts=sortby, legend=summary, reorder=lastdesc))
-            logg.log(DONE, " %s written  %s '%s'", FMT, viewFMT(FMT), OUTPUT)
+        done = tabToPrintWith(result, OUTPUT, FMT,  # ..
+                              selects=LABELS, sorts=sortby, legend=summary, reorder=lastdesc)
+        if done:
+            logg.log(DONE, " %s", done)
         if JSONFILE:
             FMT = "json"
             with open(JSONFILE, "w") as f:
@@ -519,6 +518,7 @@ if __name__ == "__main__":
                        help="only evaluate entrys on and before [last of month]")
     cmdline.add_option("-j", "--project", metavar="JIRA", action="append", default=PROJECTS,
                        help="jira projects (%default) or " + PROJECTDEFAULT)
+    cmdline.add_option("-L", "--labels", metavar="LIST", action="append", default=[], help="select and rename columns")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
     cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
     cmdline.add_option("-J", "--jsonfile", metavar="PATH", default=JSONFILE, help="write also json data file")
@@ -536,6 +536,7 @@ if __name__ == "__main__":
     DRYRUN = opt.dryrun
     DAYS = dayrange(opt.after, opt.before)
     PROJECTS = opt.project
+    LABELS = ",".join(opt.labels)
     FORMAT = opt.format
     OUTPUT = opt.output
     JSONFILE = opt.jsonfile
