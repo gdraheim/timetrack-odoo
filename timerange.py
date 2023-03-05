@@ -16,7 +16,9 @@ import datetime
 Day = datetime.date
 Hour = datetime.datetime
 
-logg = logging.getLogger("dayrange")
+logg = logging.getLogger("days")
+DONE = (logging.WARNING + logging.ERROR) // 2
+logging.addLevelName(DONE, "DONE")
 
 FUTURE = 3  # months (otherwise assume date is for last year)
 
@@ -329,10 +331,13 @@ def get_date(text: str, on_or_before: Optional[Day] = None) -> Day:
     logg.error("'%s' does not match YYYY-mm-dd", text)
     return date_isoformat(text)
 
-def check_days(days: dayrange) -> None:
-    print(f"days = after {days.after} ... {days.before} before")
+def check_days(days: dayrange, ref: Optional[str] = None) -> str:
+    ref = ref or "days"
+    dis = ref or "this"
+    logg.log(DONE, f"                     {ref} = after {days.after} ... {days.before} before")
     amount = len(days)
-    print(f"these are {amount} days")
+    logg.log(DONE, f"                     {dis} are {amount} days")
+    return f"-a {days.after} -b {days.before}"
 
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -348,9 +353,14 @@ if __name__ == "__main__":
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose))
     # logg.addHandler(logging.StreamHandler())
+    ref = None
     days = dayrange(opt.after, opt.before)
+    if args and is_dayrange(args[0]):
+        ref = args[0]
+        args = args[1:]
+        days = dayrange(ref)
     if not args:
         args = ["check"]
     for arg in args:
         if arg in ["check"]:
-            check_days(days)
+            print(check_days(days, ref))
