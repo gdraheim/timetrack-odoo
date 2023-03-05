@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+import dotnetrc
 """ This is a wrapper around dotnetrc.py which can read the git-credentials store,
     adding functions to read the the gitconfig settings alternativly. """
 
@@ -19,7 +20,7 @@ from fnmatch import fnmatchcase as _fnmatch
 from configparser import RawConfigParser
 from collections import OrderedDict
 
-gitrc_logg = logging.getLogger("GITRC")
+gitconfig_logg = logging.getLogger("GITCONFIG")
 GIT_CONFIG = "~/.gitconfig"
 
 GITRC_USERNAME = ""
@@ -28,7 +29,6 @@ GITRC_CLEARTEXT = False
 GIT_CREDENTIALS = "~/.git-credentials"
 NETRC_FILENAME = "~/.netrc"
 
-import dotnetrc
 
 def _target(url: str) -> str:
     return dotnetrc._target(url)
@@ -48,7 +48,7 @@ def add_password_filename(*filename: str) -> None:
 def set_password_cleartext(show: bool) -> None:
     dotnetrc.set_password_cleartext(show)
 
-git_config_overrides : Dict[str, Dict[str, str]] = {}
+git_config_overrides: Dict[str, Dict[str, str]] = {}
 
 def git_config_value(key: str, name: str = "") -> Optional[str]:
     if not name:
@@ -57,14 +57,14 @@ def git_config_value(key: str, name: str = "") -> Optional[str]:
         section = key
     value = git_config_override_value(section, name)
     if value is not None:
-       return value
+        return value
     filename = _path.expanduser(GIT_CONFIG)
     try:
         config = RawConfigParser(dict_type=OrderedDict)
         config.read(filename)
         return config.get(section, name)
     except Exception as e:
-        gitrc_logg.debug("%s: %s", filename, e)
+        gitconfig_logg.debug("%s: %s", filename, e)
         return None
 
 def git_config_override_value(key: str, name: str = "") -> Optional[str]:
@@ -76,14 +76,14 @@ def git_config_override_value(key: str, name: str = "") -> Optional[str]:
     if section in git_config_overrides:
         if name in git_config_overrides[section]:
             return git_config_overrides[section][name]
-    gitrc_logg.debug("[%s][%s] -> None", section, name)
-    gitrc_logg.debug("overrides = %s", git_config_overrides)
+    gitconfig_logg.debug("[%s][%s] -> None", section, name)
+    gitconfig_logg.debug("overrides = %s", git_config_overrides)
     return None
 
 def git_config_override(line: str) -> None:
     global git_config_overrides
     if "=" in line:
-        name, value = line.split("=",1)
+        name, value = line.split("=", 1)
     else:
         name = line.strip()
         value = "1"
@@ -94,7 +94,7 @@ def git_config_override(line: str) -> None:
     if section not in git_config_overrides:
         git_config_overrides[section] = {}
     git_config_overrides[section][key] = value
-    gitrc_logg.debug("[%s][%s] = '%s' # %s", section, key, value, line.strip())
+    gitconfig_logg.debug("[%s][%s] = '%s' # %s", section, key, value, line.strip())
 
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -143,7 +143,7 @@ if __name__ == "__main__":
         if value:
             print(value)
         else:
-            gitrc_logg.error("# not found")
+            gitconfig_logg.error("# not found")
     else:
         uselogin = get_username_password(args[0])
         if not uselogin: sys.exit(1)
