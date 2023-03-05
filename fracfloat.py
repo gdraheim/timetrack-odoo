@@ -6,7 +6,7 @@ And it has support for some Mi-byte input and output, so that
 arge numbers an be presented nicely and parsed back.
 """
 
-__copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
+__copyright__ = "(C) 2022-2023 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.5.2096"
 
 from typing import Any, cast, Union

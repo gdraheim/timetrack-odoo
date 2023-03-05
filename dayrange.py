@@ -4,7 +4,7 @@ Cut out from zeit2excel for after/before time ranges in days.
 Added a number of symbolic names for nearby months and weeks.
 """
 
-__copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
+__copyright__ = "(C) 2022-2023 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "0.8.2096"
 
 from typing import Union, Optional, Tuple

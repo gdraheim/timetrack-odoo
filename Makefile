@@ -118,8 +118,8 @@ version:
 	-e "/^version /s/[.]-*[0123456789][0123456789][0123456789]*/.$$YEARS$$WEEKnDAY/" \
 	-e "/^ *__version__/s/[.]-*[0123456789][0123456789][0123456789]*\"/.$$YEARS$$WEEKnDAY\"/" \
 	-e "/^ *__version__/s/[.]\\([0123456789]\\)\"/.\\1.$$YEARS$$WEEKnDAY\"/" \
-	-e "/^ *__copyright__/s/(C) [0123456789]*-[0123456789]*/(C) $(BASEYEAR)-$$THISYEAR/" \
-	-e "/^ *__copyright__/s/(C) [0123456789]* /(C) $$THISYEAR /" \
+	-e "/^ *__copyright__/s/(C) \\([123456789][0123456789]*\\)-[123456789][0123456789]*/(C) \\1-$$THISYEAR/" \
+	-e "/^ *__copyright__/s/(C) [123456789][0123456789]* /(C) $$THISYEAR /" \
 	$$f; done; }
 	@ grep ^__version__ $(FILES) | grep -v .tests.py
 	@ ver=`cat $(MAIN_PROG) | sed -e '/__version__/!d' -e 's/.*= *"//' -e 's/".*//' -e q` \
