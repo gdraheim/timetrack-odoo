@@ -518,7 +518,8 @@ if __name__ == "__main__":
                        help="only evaluate entrys on and before [last of month]")
     cmdline.add_option("-j", "--project", metavar="JIRA", action="append", default=PROJECTS,
                        help="jira projects (%default) or " + PROJECTDEFAULT)
-    cmdline.add_option("-L", "--labels", metavar="LIST", action="append", default=[], help="select and format columns (new=col:h)")
+    cmdline.add_option("-L", "--labels", metavar="LIST", action="append",
+                       default=[], help="select and format columns (new=col:h)")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=FORMAT)
     cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
     cmdline.add_option("-J", "--jsonfile", metavar="PATH", default=JSONFILE, help="write also json data file")

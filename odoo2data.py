@@ -616,7 +616,8 @@ if __name__ == "__main__":
                        help="present only local zeit data [%default]")
     cmdline.add_option("-Z", "--addfooter", action="count", default=ADDFOOTER,
                        help="present sum as lines in data [%default]")
-    cmdline.add_option("-L", "--labels", metavar="LIST", action="append", default=[], help="select and format columns (new=col:)")
+    cmdline.add_option("-L", "--labels", metavar="LIST", action="append",
+                       default=[], help="select and format columns (new=col:)")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=FORMAT)
     cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
