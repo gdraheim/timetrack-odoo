@@ -527,7 +527,8 @@ def run(arg: str) -> None:
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
         if results and not ADDFOOTER:
             summary += [" ### use -Z to add a VAT footer !!"]
-        formats["summe"] = " {:$}"
+        formats["summe"] = "{:$}"
+        formats["satz"] = "{4.2:f}"
     elif arg in ["xxx", "reports"]:
         results = reports_per_project(data)  # group by Odoo project, per month, add price and m column
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
@@ -535,7 +536,8 @@ def run(arg: str) -> None:
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
         if results and not ADDFOOTER:
             summary += [" ### use -Z to add a VAT footer !!"]
-        formats["summe"] = " {:$}"
+        formats["summe"] = "{:$}"
+        formats["satz"] = "{:$}"
     elif arg in ["mm", "msummarize", "mtasks", "monthlys"]:
         results = monthly_per_project_task(data)  # group by Odoo project-and-task, seperate per month
     elif arg in ["sx", "msummary", "monthly"]:
@@ -573,12 +575,19 @@ def run(arg: str) -> None:
                     summe = (summe or 0.0) + cast(float, item["summe"])
             if odoo or summe:
                 results.append({})
-                results.append({"odoo": odoo, "summe": summe})
+                results.append({"odoo": odoo, "summe": summe, "satz": "Netto:"})
             if summe:
                 price_vat = get_price_vat()
                 results.append({"satz": price_vat, "summe": round(summe * price_vat, 2)})
-                results.append({"summe": summe + round(summe * price_vat, 2)})
-        done = tabtotext.tabToPrintWith(results, OUTPUT, FMT,  # ..
+                results.append({"summe": summe + round(summe * price_vat, 2), "satz": "Gesamt:"})
+        if ADDFOOTER > 2:
+            onlycols = "Pos=.,Monat=am,Abrechnungskonto=at proj,Stunden=odoo,Satz=satz,Summe=summe"
+            results = tabtotext.tabToTabX(results, onlycols)
+            formats = {"Summe": "{:$}", "Pos": "{:n}", "Stunden": "{:4.2f}", "Satz": "{:4.2f}"}
+            reorder = ["Pos", "Monat", "Abrechnungskonto", "Stunden", "Satz", "Summe"]
+        else:
+            reorder = []
+        done = tabtotext.tabToPrintWith(results, OUTPUT, FMT, reorder=reorder,  # ..
                                         selects=LABELS, formats=formats, legend=summary)
         if done:
             logg.log(DONE, " %s", done)
@@ -590,7 +599,7 @@ def run(arg: str) -> None:
         if XLSXFILE:
             FMT = "xlsx"
             import tabtoxlsx
-            tabtoxlsx.saveToXLSX(XLSXFILE, results, formats=formats)
+            tabtoxlsx.saveToXLSX(XLSXFILE, results, formats=formats, reorder=reorder)
             logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), XLSXFILE)
 
 if __name__ == "__main__":
