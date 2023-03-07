@@ -397,7 +397,10 @@ def _monthly_per_project_task(odoodata: JSONList) -> JSONList:
         task_name: str = cast(str, item["task_name"])
         odoo_date: Day = get_date(cast(str, item["entry_date"]))
         odoo_size: Num = cast(Num, item["entry_size"])
-        odoo_month = "M%02i" % odoo_date.month
+        if ADDFOOTER > 1:
+            odoo_month = "M%02i.%04i" % (odoo_date.month, odoo_date.year)
+        else:
+            odoo_month = "M%02i" % odoo_date.month
         odoo_key = (odoo_month, proj_name, task_name)
         if ODOO_PROJONLY:
             if not fnmatches(proj_name, ODOO_PROJONLY): continue
@@ -578,7 +581,7 @@ def run(arg: str) -> None:
                 results.append({"odoo": odoo, "summe": summe, "satz": "Netto:"})
             if summe:
                 price_vat = get_price_vat()
-                results.append({"satz": price_vat, "summe": round(summe * price_vat, 2)})
+                results.append({"satz": price_vat, "summe": round(summe * price_vat, 2), "odoo": "MWst"})
                 results.append({"summe": summe + round(summe * price_vat, 2), "satz": "Gesamt:"})
         if ADDFOOTER > 2:
             onlycols = "Pos=.,Monat=am,Abrechnungskonto=at proj,Stunden=odoo,Satz=satz,Summe=summe"

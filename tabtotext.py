@@ -236,7 +236,7 @@ def tabWithDateOnly() -> None:
 
 # ================================= sorting
 
-RowSortList = Union[Sequence[str], Callable[[JSONDict], str]]
+RowSortList = Union[Sequence[str], Dict[str, str], Callable[[JSONDict], str]]
 
 class RowSortCallable:
     """ The column names in the sorts-list are used here for one of their 
@@ -272,7 +272,7 @@ class RowSortCallable:
                     sortvalue += "\n?"
             return sortvalue
 
-ColSortList = Union[Sequence[str], Callable[[str], str]]
+ColSortList = Union[Sequence[str], Dict[str, str], Callable[[str], str]]
 
 class ColSortCallable:
     """ The column names in the sorts-list always had a double function: sorting
@@ -292,8 +292,12 @@ class ColSortCallable:
             sorts = self.sorts
             if not sortheaders and not callable(sorts):
                 sortheaders = sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
+            if isinstance(sortheaders, dict):
+                if header in sortheaders:
+                    return sortheaders[header]
+            else:
+                if header in sortheaders:
+                    return "%07i" % sortheaders.index(header)
         return header
 
 LegendList = Union[Dict[str, str], Sequence[str]]
@@ -305,11 +309,21 @@ class NumFormatJSONItem(BaseFormatJSONItem):
         self.floatfmt = FLOATFMT
     def __call__(self, col: str, val: JSONItem) -> str:
         if col in self.formats:
-            for fmt in self.formats[col].split("|"):
-                if "{:" in fmt:
-                    q = fmt.rindex("}")
-                    if q > 0 and fmt[q - 1] in "hHqQM$":
+            fmt = self.formats[col]
+            if "{:" in fmt:
+                for fmt4 in fmt.split("|"):
+                    val4 = val
+                    q = fmt4.rindex("}")
+                    if q > 0 and fmt4[q - 1] in "hHqQM$":
                         val4 = Frac4(val)  # type: ignore[assignment,arg-type]
+                    try:
+                        return fmt4.format(val4)
+                    except Exception as e:
+                        logg.debug("format <%s> does not apply: %s", fmt, e)
+            # only a few percent-formatting variants are supported
+            if isinstance(val, float):
+                m = re.search(r"%\d(?:[.]\d)f", fmt)
+                if m:
                     try:
                         return fmt.format(val4)
                     except Exception as e:
@@ -1040,37 +1054,39 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
 def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {}, *,  #
              datedelim: str = '-', legend: LegendList = [],  #
              reorder: ColSortList = []) -> str:
-    if fmt.lower() in ["md", "markdown"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder)
-    if fmt.lower() in ["html"]:
-        return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder)
-    if fmt.lower() in ["json"]:
-        return tabToJSON(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
-    if fmt.lower() in ["yaml"]:
-        return tabToYAML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
-    if fmt.lower() in ["toml"]:
-        return tabToTOML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
-    if fmt.lower() in ["wide"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='')
-    if fmt.lower() in ["text"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='', noheaders=True)
-    if fmt.lower() in ["tabs"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='\t')
-    if fmt.lower() in ["tab"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t')
-    if fmt.lower() in ["dat"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t', noheaders=True)
-    if fmt.lower() in ["ifs", "data"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
-    if fmt.lower() in ["csv"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';')
-    if fmt.lower() in ["list"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';', noheaders=True)
-    if fmt.lower() in ["xlsx"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=',')
-    if fmt.lower() in ["htm"]:
-        # including the legend
-        return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
+    if fmt:
+        f = fmt.lower()
+        if f in ["md", "markdown"]:
+            return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder)
+        if f in ["html"]:
+            return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder)
+        if f in ["json"]:
+            return tabToJSON(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
+        if f in ["yaml"]:
+            return tabToYAML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
+        if f in ["toml"]:
+            return tabToTOML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
+        if f in ["wide"]:
+            return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='')
+        if f in ["text"]:
+            return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='', noheaders=True)
+        if f in ["tabs"]:
+            return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='\t')
+        if f in ["tab"]:
+            return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t')
+        if f in ["dat"]:
+            return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t', noheaders=True)
+        if f in ["ifs", "data"]:
+            return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
+        if f in ["csv"]:
+            return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';')
+        if f in ["list"]:
+            return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';', noheaders=True)
+        if f in ["xlsx"]:
+            return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=',')
+        if f in ["htm"]:
+            # including the legend
+            return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
     return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
 
 def editprog() -> str:
