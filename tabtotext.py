@@ -307,13 +307,15 @@ class NumFormatJSONItem(BaseFormatJSONItem):
         if col in self.formats:
             fmt = self.formats[col]
             if "{:" in fmt:
-                q = fmt.rindex("}")
-                if q > 0 and fmt[q - 1] in "hHqQM$":
-                    val = Frac4(val)  # type: ignore[assignment,arg-type]
-                try:
-                    return fmt.format(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", fmt, e)
+                for fmt4 in fmt.split("|"):
+                    val4 = val
+                    q = fmt4.rindex("}")
+                    if q > 0 and fmt4[q - 1] in "hHqQM$":
+                        val4 = Frac4(val)  # type: ignore[assignment,arg-type]
+                    try:
+                        return fmt4.format(val4)
+                    except Exception as e:
+                        logg.debug("format <%s> does not apply: %s", fmt, e)
             # only a few percent-formatting variants are supported
             if isinstance(val, float):
                 m = re.search(r"%\d(?:[.]\d)f", fmt)
