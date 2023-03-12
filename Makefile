@@ -43,6 +43,7 @@ check:
 	$(MAKE) test
 	$(MAKE) jira
 	$(MAKE) track
+chec: ; $(MAKE) check V=--failfast
 
 tests:
 	$(MAKE) f.frac
@@ -60,52 +61,52 @@ tests:
 tabtools.tests: frac
 f.frac: ; $(PYTHON3) $(TAB_TOOLS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 f frac: ; $(PYTHON3) $(TAB_TOOLS:.py=.tests.py) -v $V
-f_%: ;    $(PYTHON3) $(TAB_TOOLS:.py=.tests.py) $@ -v $V
+f_%: ;    $(PYTHON3) $(TAB_TOOLS:.py=.tests.py) -v $V $@ --failfast
 
 tabtotext.tests: tabt
 x.tabt: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 x tabt: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V
-x_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) $@ -v $V
+x_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V $@ --failfast
 
 netrc.tests: nett
 n.nett: ; $(PYTHON3) $(NET_UTILS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 n nett: ; $(PYTHON3) $(NET_UTILS:.py=.tests.py) -v $V
-n_%: ;    $(PYTHON3) $(NET_UTILS:.py=.tests.py) $@ -v $V
+n_%: ;    $(PYTHON3) $(NET_UTILS:.py=.tests.py) -v $V $@ --failfast
 
 dayrange.tests: dayt
 d.dayt: ; $(PYTHON3) $(DAY_UTILS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 d dayt: ; $(PYTHON3) $(DAY_UTILS:.py=.tests.py) -v $V
-d_%: ;    $(PYTHON3) $(DAY_UTILS:.py=.tests.py) $@ -v $V
+d_%: ;    $(PYTHON3) $(DAY_UTILS:.py=.tests.py) -v $V $@ --failfast
 
 odootopic.tests: topt
 r.topt: ; $(PYTHON3) $(ODOOTOPIC:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 r topt: ; $(PYTHON3) $(ODOOTOPIC:.py=.tests.py) -v $V
-r_%: ;    $(PYTHON3) $(ODOOTOPIC:.py=.tests.py) $@ -v $V
+r_%: ;    $(PYTHON3) $(ODOOTOPIC:.py=.tests.py) -v $V $@ --failfast
 
 odoo2data.tests: odoo
 o.odoo: ; $(PYTHON3) $(DATA_PROG:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 o odoo: ; $(PYTHON3) $(DATA_PROG:.py=.tests.py) -v $V
-o_%: ;    $(PYTHON3) $(DATA_PROG:.py=.tests.py) $@ -v $V
+o_%: ;    $(PYTHON3) $(DATA_PROG:.py=.tests.py) -v $V $@ --failfast
 
 zeit2json.tests: zeit
 z.zeit: ; $(PYTHON3) $(ZEIT_PROG:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 z zeit: ; $(PYTHON3) $(ZEIT_PROG:.py=.tests.py) -v $V
-z_%: ;    $(PYTHON3) $(ZEIT_PROG:.py=.tests.py) $@ -v $V
+z_%: ;    $(PYTHON3) $(ZEIT_PROG:.py=.tests.py) -v $V $@ --failfast
 
 zeit2odoo.tests: test
 t.test: ; $(PYTHON3) $(MAIN_PROG:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 t test: ; $(PYTHON3) $(MAIN_PROG:.py=.tests.py) -v $V
-t_%: ;    $(PYTHON3) $(MAIN_PROG:.py=.tests.py) $@ -v $V
+t_%: ;    $(PYTHON3) $(MAIN_PROG:.py=.tests.py) -v $V $@ --failfast
 
 zeit2jira.tests: jira
 j.jira: ; $(PYTHON3) $(JIRA_ZEIT:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 j jira: ; $(PYTHON3) $(JIRA_ZEIT:.py=.tests.py) -v $V
-j_%: ;    $(PYTHON3) $(JIRA_ZEIT:.py=.tests.py) $@ -v $V
+j_%: ;    $(PYTHON3) $(JIRA_ZEIT:.py=.tests.py) -v $V $@ --failfast
 
 timetrack.tests: track
 k.track: ; $(PYTHON3) $(TRACKPROG:.py=.tests.py) -v $V --xmlresults=TEST-$@.xml
 k track: ; $(PYTHON3) $(TRACKPROG:.py=.tests.py) -v $V
-k_%: ;     $(PYTHON3) $(TRACKPROG:.py=.tests.py) $@ -v $V
+k_%: ;     $(PYTHON3) $(TRACKPROG:.py=.tests.py) -v $V $@ --failfast
 
 ####################################################################################
 verfiles:

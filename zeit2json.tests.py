@@ -168,6 +168,8 @@ if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog [z_]test...")
     cmdline.add_option("-v", "--verbose", action="count", default=0)
+    cmdline.add_option("--failfast", action="store_true", default=False,
+                       help="Stop the test run on the first error or failure. [%default]")
     cmdline.add_option("--xmlresults", metavar="FILE", default=None,
                        help="capture results as a junit xml file [%default]")
     opt, args = cmdline.parse_args()
@@ -200,6 +202,6 @@ if __name__ == "__main__":
         logg.info(" XML reports written to %s", opt.xmlresults)
     else:
         Runner = unittest.TextTestRunner
-        result = Runner(verbosity=opt.verbose).run(suite)
+        result = Runner(verbosity=opt.verbose, failfast=opt.failfast).run(suite)
     if not result.wasSuccessful():
         sys.exit(1)
