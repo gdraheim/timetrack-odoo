@@ -326,6 +326,10 @@ def _report_per_day(odoodata: JSONList, user: str = ":") -> JSONList:
         odoo_work: str = cast(str, item["entry_desc"])
         odoo_proj: str = cast(str, item["proj_name"])
         odoo_task: str = cast(str, item["task_name"])
+        if ODOO_PROJONLY:
+            if not fnmatches(odoo_proj, ODOO_PROJONLY): continue
+        if ODOO_PROJSKIP:
+            if fnmatches(odoo_proj, ODOO_PROJSKIP): continue
         weekday = odoo_date.isoweekday()
         weekday_name = ["so", "mo", "di", "mi", "do", "fr", "sa", "so", "mo"][weekday + 1]
         key = (odoo_date, odoo_proj)
