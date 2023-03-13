@@ -296,6 +296,48 @@ def _summary_per_day(odoodata: JSONList) -> JSONList:
         daydata[odoo_date]["odoo"] += odoo_size  # type: ignore
     return list(daydata.values())
 
+def user2(name: str, m: int) -> str:
+    if " " in name:
+        n = name.split(" ")
+        return n[0][0] + n[-1][0]
+    else:
+        return str(m) + n[0]
+def reports_per_day(odoodata: Optional[JSONList] = None) -> JSONList:
+    if odoodata:
+        m = 0
+        logg.info("%s: zeit", m)
+        result = _report_per_day(odoodata, user=user2(".", m))
+        users = FOR_USER
+    else:
+        result = []
+        users = FOR_USER if FOR_USER else [""]
+    for m, user in enumerate(users):
+        logg.info("%i: %s", m + 1, user)
+        odoo = odoo_api.Odoo().for_user(user)
+        odoodata = odoo.timesheet(DAYS.after, DAYS.before)
+        result += _report_per_day(odoodata, user=user2(user, m + 1))
+    return sorted(result, key=lambda r: (r["date"], r["at proj"], r["user"]))
+def _report_per_day(odoodata: JSONList, user: str = ":") -> JSONList:
+    work_sep = " / "
+    daydata: Dict[Day, JSONDict] = {}
+    for item in odoodata:
+        odoo_date: Day = get_date(cast(str, item["entry_date"]))
+        odoo_size: Num = cast(Num, item["entry_size"])
+        odoo_work: Num = cast(Num, item["entry_desc"])
+        odoo_proj: Num = cast(Num, item["proj_name"])
+        odoo_task: Num = cast(Num, item["task_name"])
+        weekday = odoo_date.isoweekday()
+        weekday_name = ["so", "mo", "di", "mi", "do", "fr", "sa", "so", "mo"][weekday + 1]
+        if odoo_date not in daydata:
+            daydata[odoo_date] = {"date": odoo_date, "day": weekday_name, 
+                "at proj": odoo_proj,
+                "odoo": 0, "user": user, "work": ""}
+        daydata[odoo_date]["odoo"] += odoo_size  # type: ignore
+        if daydata[odoo_date]["work"]:
+           daydata[odoo_date]["work"] += work_sep  # type: ignore
+        daydata[odoo_date]["work"] += odoo_work  # type: ignore
+    return list(daydata.values())
+
 def summary_per_project_task(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
         odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
@@ -541,6 +583,8 @@ def run(arg: str) -> None:
             summary += [" ### use -Z to add a VAT footer !!"]
         formats["summe"] = "{:$}"
         formats["satz"] = "{:4.2f}"
+    elif arg in ["dx", "dayreports"]:
+        results = reports_per_day(data)  # group by Odoo project, per month, add price and m column
     elif arg in ["mm", "msummarize", "mtasks", "monthlys"]:
         results = monthly_per_project_task(data)  # group by Odoo project-and-task, seperate per month
     elif arg in ["sx", "msummary", "monthly"]:
