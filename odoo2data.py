@@ -319,7 +319,7 @@ def reports_per_day(odoodata: Optional[JSONList] = None) -> JSONList:
     return sorted(result, key=lambda r: (r["date"], r["at proj"], r["user"]))
 def _report_per_day(odoodata: JSONList, user: str = ":") -> JSONList:
     work_sep = " / "
-    daydata: Dict[Day, JSONDict] = {}
+    daydata: Dict[Tuple[Day, str], JSONDict] = {}
     for item in odoodata:
         odoo_date: Day = get_date(cast(str, item["entry_date"]))
         odoo_size: Num = cast(Num, item["entry_size"])
@@ -328,14 +328,15 @@ def _report_per_day(odoodata: JSONList, user: str = ":") -> JSONList:
         odoo_task: Num = cast(Num, item["task_name"])
         weekday = odoo_date.isoweekday()
         weekday_name = ["so", "mo", "di", "mi", "do", "fr", "sa", "so", "mo"][weekday + 1]
-        if odoo_date not in daydata:
-            daydata[odoo_date] = {"date": odoo_date, "day": weekday_name, 
+        key = (odoo_date, odoo_proj)
+        if key not in daydata:
+            daydata[key] = {"date": odoo_date, "day": weekday_name, 
                 "at proj": odoo_proj,
                 "odoo": 0, "user": user, "work": ""}
-        daydata[odoo_date]["odoo"] += odoo_size  # type: ignore
-        if daydata[odoo_date]["work"]:
-           daydata[odoo_date]["work"] += work_sep  # type: ignore
-        daydata[odoo_date]["work"] += odoo_work  # type: ignore
+        daydata[key]["odoo"] += odoo_size  # type: ignore
+        if daydata[key]["work"]:
+           daydata[key]["work"] += work_sep  # type: ignore
+        daydata[key]["work"] += odoo_work  # type: ignore
     return list(daydata.values())
 
 def summary_per_project_task(odoodata: Optional[JSONList] = None) -> JSONList:
