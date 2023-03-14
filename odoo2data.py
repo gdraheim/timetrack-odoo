@@ -56,6 +56,7 @@ JSONFILE = ""
 XLSXFILE = ""
 
 EURO = "euro"
+NIX = ""
 
 def strName(value: JSONItem) -> str:
     if value is None:
@@ -66,16 +67,30 @@ def strName(value: JSONItem) -> str:
             return val[:17] + "..." + val[-7:]
     return val
 
-def get_proj_price_rate(proj: str) -> int:
+def get_proj_price_rate(proj: str, task: str = NIX) -> int:
     rate = 0
-    for price in PRICES:
-        if ":" in price:
-            proj_name, proj_rate = price.split(":", 1)
-            proj_pattern = (proj_name if "*" in proj_name else proj_name + "*")
-            if fnmatches(proj, proj_pattern):
-                rate = int(proj_rate)
-        else:
-            rate = int(price)
+    if task:
+        for price in PRICES:
+            if ":" in price:
+                proj_task, proj_rate = price.split(":", 1)
+                if "@" not in proj_task: continue
+                proj_name, task_name = proj_task.split("@", 1)
+                proj_pattern = (proj_name if "*" in proj_name else proj_name + "*")
+                task_pattern = (task_name if "*" in task_name else "*" + task_name + "*")
+                if fnmatches(proj, proj_pattern) and fnmatches(task, task_pattern):
+                    rate = int(proj_rate)
+            else:
+                rate = int(price)
+    if not rate:
+        for price in PRICES:
+            if ":" in price:
+                proj_name, proj_rate = price.split(":", 1)
+                if "@" in proj_name: continue
+                proj_pattern = (proj_name if "*" in proj_name else proj_name + "*")
+                if fnmatches(proj, proj_pattern):
+                    rate = int(proj_rate)
+            else:
+                rate = int(price)
     if not rate:
         gitrc_price = git_config_value("zeit.price")
         if gitrc_price:
@@ -334,12 +349,12 @@ def _report_per_day(odoodata: JSONList, user: str = ":") -> JSONList:
         weekday_name = ["so", "mo", "di", "mi", "do", "fr", "sa", "so", "mo"][weekday + 1]
         key = (odoo_date, odoo_proj)
         if key not in daydata:
-            daydata[key] = {"date": odoo_date, "day": weekday_name, 
-                "at proj": odoo_proj,
-                "odoo": 0, "user": user, "work": ""}
+            daydata[key] = {"date": odoo_date, "day": weekday_name,
+                            "at proj": odoo_proj,
+                            "odoo": 0, "user": user, "work": ""}
         daydata[key]["odoo"] += odoo_size  # type: ignore
         if daydata[key]["work"]:
-           daydata[key]["work"] += work_sep  # type: ignore
+            daydata[key]["work"] += work_sep  # type: ignore
         daydata[key]["work"] += odoo_work  # type: ignore
     return list(daydata.values())
 
@@ -414,6 +429,74 @@ def _report_per_project(odoodata: JSONList, focus: int = 0) -> JSONList:
         sumvals.append(elem)
     return sumvals
 
+def reports_per_project_task(odoodata: Optional[JSONList] = None) -> JSONList:
+    if odoodata:
+        m = 0
+        logg.info("%s: zeit", m)
+        result = _report_per_project_task(odoodata, focus=m)
+        users = FOR_USER
+    else:
+        result = []
+        users = FOR_USER if FOR_USER else [""]
+    for m, user in enumerate(users):
+        logg.info("%i: %s", m + 1, user)
+        odoo = odoo_api.Odoo().for_user(user)
+        odoodata = odoo.timesheet(DAYS.after, DAYS.before)
+        result += _report_per_project_task(odoodata, focus=m + 1)
+    return sorted(result, key=lambda r: (r["am"], r["at proj"], r["m"]))
+def report_per_project_task(odoodata: Optional[JSONList] = None) -> JSONList:
+    if not odoodata:
+        odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
+        odoodata = odoo.timesheet(DAYS.after, DAYS.before)
+    return _report_per_project_task(odoodata)
+def _report_per_project_task(odoodata: JSONList, focus: int = 0) -> JSONList:
+    sumdata = _monthly_per_project_task(odoodata)
+    sumvals: JSONList = []
+    for item in sumdata:
+        new_month = cast(str, item["am"])
+        proj_name = cast(str, item["at proj"])
+        task_name = cast(str, item["at task"])
+        odoo_size = cast(float, item["odoo"])
+        price_rate = get_proj_price_rate(proj_name, task_name)
+        elem: JSONDict = {"am": new_month, "at proj": proj_name, "at task": task_name, "odoo": odoo_size, "m": focus,
+                          "satz": int(price_rate), "summe": round(price_rate * odoo_size, 2)}
+        sumvals.append(elem)
+    return sumvals
+
+def reports_per_project_topic(odoodata: Optional[JSONList] = None) -> JSONList:
+    if odoodata:
+        m = 0
+        logg.info("%s: zeit", m)
+        result = _report_per_project_topic(odoodata, focus=m)
+        users = FOR_USER
+    else:
+        result = []
+        users = FOR_USER if FOR_USER else [""]
+    for m, user in enumerate(users):
+        logg.info("%i: %s", m + 1, user)
+        odoo = odoo_api.Odoo().for_user(user)
+        odoodata = odoo.timesheet(DAYS.after, DAYS.before)
+        result += _report_per_project_topic(odoodata, focus=m + 1)
+    return sorted(result, key=lambda r: (r["am"], r["at proj"], r["m"]))
+def report_per_project_topic(odoodata: Optional[JSONList] = None) -> JSONList:
+    if not odoodata:
+        odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
+        odoodata = odoo.timesheet(DAYS.after, DAYS.before)
+    return _report_per_project_topic(odoodata)
+def _report_per_project_topic(odoodata: JSONList, focus: int = 0) -> JSONList:
+    sumdata = _monthly_per_project_topic(odoodata)
+    sumvals: JSONList = []
+    for item in sumdata:
+        new_month = cast(str, item["am"])
+        proj_name = cast(str, item["at proj"])
+        task_pref = cast(str, item["at topic"])
+        odoo_size = cast(float, item["odoo"])
+        price_rate = get_proj_price_rate(proj_name, task_pref)
+        elem: JSONDict = {"am": new_month, "at proj": proj_name, "at topic": task_pref, "odoo": odoo_size, "m": focus,
+                          "satz": int(price_rate), "summe": round(price_rate * odoo_size, 2)}
+        sumvals.append(elem)
+    return sumvals
+
 def monthly_per_project(odoodata: Optional[JSONList] = None) -> JSONList:
     if not odoodata:
         odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
@@ -455,6 +538,33 @@ def _monthly_per_project_task(odoodata: JSONList) -> JSONList:
             if fnmatches(proj_name, ODOO_PROJSKIP): continue
         if odoo_key not in sumdata:
             sumdata[odoo_key] = {"am": odoo_month, "at proj": proj_name, "at task": task_name, "odoo": 0, "zeit": 0}
+        sumdata[odoo_key]["odoo"] += odoo_size  # type: ignore
+    return list(sumdata.values())
+
+def monthly_per_project_topic(odoodata: Optional[JSONList] = None) -> JSONList:
+    if not odoodata:
+        odoo = odoo_api.Odoo().for_user(FOR_USER[0] if FOR_USER else "")
+        odoodata = odoo.timesheet(DAYS.after, DAYS.before)
+    return _monthly_per_project_topic(odoodata)
+def _monthly_per_project_topic(odoodata: JSONList) -> JSONList:
+    sumdata: Dict[Tuple[str, str, str], JSONDict] = {}
+    for item in odoodata:
+        proj_name: str = cast(str, item["proj_name"])
+        odoo_desc: str = cast(str, item["entry_desc"])
+        odoo_date: Day = get_date(cast(str, item["entry_date"]))
+        odoo_size: Num = cast(Num, item["entry_size"])
+        task_pref: str = pref_desc(odoo_desc)
+        if ADDFOOTER > 1:
+            odoo_month = "M%02i.%04i" % (odoo_date.month, odoo_date.year)
+        else:
+            odoo_month = "M%02i" % odoo_date.month
+        odoo_key = (odoo_month, proj_name, task_pref)
+        if ODOO_PROJONLY:
+            if not fnmatches(proj_name, ODOO_PROJONLY): continue
+        if ODOO_PROJSKIP:
+            if fnmatches(proj_name, ODOO_PROJSKIP): continue
+        if odoo_key not in sumdata:
+            sumdata[odoo_key] = {"am": odoo_month, "at proj": proj_name, "at topic": task_pref, "odoo": 0, "zeit": 0}
         sumdata[odoo_key]["odoo"] += odoo_size  # type: ignore
     return list(sumdata.values())
 
@@ -570,6 +680,14 @@ def run(arg: str) -> None:
             summary += ["file did already exist: %s" % filename]
     elif arg in ["dd", "dsummary", "days"]:
         results = summary_per_day(data)
+    elif arg in ["tx", "taskreport"]:
+        results = report_per_project_task(data)  # group by Odoo project, per month and add price column
+    elif arg in ["pxx", "topicreports"]:
+        results = reports_per_project_topic(data)  # group by Odoo project, per month and add price column
+    elif arg in ["px", "topicreport"]:
+        results = report_per_project_topic(data)  # group by Odoo project, per month and add price column
+    elif arg in ["txx", "taskreports"]:
+        results = reports_per_project_task(data)  # group by Odoo project, per month and add price column
     elif arg in ["xx", "report"]:
         results = report_per_project(data)  # group by Odoo project, per month and add price column
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
@@ -590,6 +708,8 @@ def run(arg: str) -> None:
         formats["satz"] = "{:4.2f}"
     elif arg in ["dx", "dayreports"]:
         results = reports_per_day(data)  # group by Odoo project, per month, add price and m column
+    elif arg in ["mt", "mtopic", "mtopics"]:
+        results = monthly_per_project_topic(data)  # group by Odoo project-and-task, seperate per month
     elif arg in ["mm", "msummarize", "mtasks", "monthlys"]:
         results = monthly_per_project_task(data)  # group by Odoo project-and-task, seperate per month
     elif arg in ["sx", "msummary", "monthly"]:
