@@ -60,6 +60,8 @@ GIT_CREDENTIALS = "~/.git-credentials"
 NETRC_FILENAME = "~/.netrc"
 NETRC_FILENAMES = [GIT_CREDENTIALS, NETRC_FILENAME]
 
+NETRC_CRYPT = "46"
+
 def _target(url: str) -> str:
     if "://" not in url:
         url = f"https://{url}"
@@ -92,12 +94,90 @@ def _encode36(text: str) -> str:
     return codecs.encode(codecs.decode(codecs.encode(text.encode('utf-8'), 'base64'), 'ascii')[::-1], 'rot13').strip()
 def _decode36(text: str) -> str:
     return codecs.decode(codecs.decode(codecs.decode(text, 'rot13').encode('ascii')[::-1], 'base64'), 'utf-8')
-def _decode(text: str, encoding: str) -> str:
+def _encode32(text: str) -> str:
+    return codecs.decode(codecs.encode(cryptData(text.encode('utf-8')), 'base64').replace(b"\n", b""), 'ascii')
+def _decode32(text: str) -> str:
+    return codecs.decode(decryptData(codecs.decode(text.encode('ascii'), 'base64')), 'utf-8')
+
+def _decode(text: str, encoding: Optional[str] = None) -> str:
+    encoding = encoding if encoding is not None else NETRC_CRYPT
     if encoding.endswith("64"): return _decode64(text).strip()
     if encoding.endswith("63"): return _decode63(text).strip()
     if encoding.endswith("46"): return _decode46(text).strip()
     if encoding.endswith("36"): return _decode36(text).strip()
+    if encoding.endswith("32"): return _decode32(text).strip()
     return text
+def _encode(text: str, encoding: Optional[str] = None) -> str:
+    encoding = encoding if encoding is not None else NETRC_CRYPT
+    if encoding.endswith("64"): return _encode64(text).strip()
+    if encoding.endswith("63"): return _encode63(text).strip()
+    if encoding.endswith("46"): return _encode46(text).strip()
+    if encoding.endswith("36"): return _encode36(text).strip()
+    if encoding.endswith("32"): return _encode32(text).strip()
+    return text
+
+# ...............................................................................................................
+if os.name in ['nt']:
+    # https://stackoverflow.com/questions/463832/using-dpapi-with-python
+    # DPAPI access library
+    # This file uses code originally created by Crusher Joe:
+    # http://article.gmane.org/gmane.comp.python.ctypes/420
+    #
+
+    from ctypes import *
+    from ctypes.wintypes import DWORD
+
+    LocalFree = windll.kernel32.LocalFree  # type: ignore[name-defined]
+    memcpy = cdll.msvcrt.memcpy  # type: ignore[name-defined]
+    CryptProtectData = windll.crypt32.CryptProtectData  # type: ignore[name-defined]
+    CryptUnprotectData = windll.crypt32.CryptUnprotectData  # type: ignore[name-defined]
+    CRYPTPROTECT_UI_FORBIDDEN = 0x01
+    extraEntropy = b"cl;ad13 \0al;323kjd #(adl;k$#ajsd"
+
+    class DATA_BLOB(Structure):
+        _fields_ = [("cbData", DWORD), ("pbData", POINTER(c_char))]
+
+    def getData(blobOut: DATA_BLOB) -> bytes:
+        cbData = int(blobOut.cbData)
+        pbData = blobOut.pbData
+        buffer = c_buffer(cbData)
+        memcpy(buffer, pbData, cbData)
+        LocalFree(pbData)
+        return buffer.raw
+
+    def Win32CryptProtectData(plainText: bytes, entropy: bytes) -> bytes:
+        bufferIn = c_buffer(plainText, len(plainText))
+        blobIn = DATA_BLOB(len(plainText), bufferIn)
+        bufferEntropy = c_buffer(entropy, len(entropy))
+        blobEntropy = DATA_BLOB(len(entropy), bufferEntropy)
+        blobOut = DATA_BLOB()
+
+        if CryptProtectData(byref(blobIn), u"python_data", byref(blobEntropy),
+                            None, None, CRYPTPROTECT_UI_FORBIDDEN, byref(blobOut)):
+            return getData(blobOut)
+        else:
+            return b""
+
+    def Win32CryptUnprotectData(cipherText: bytes, entropy: bytes) -> bytes:
+        bufferIn = c_buffer(cipherText, len(cipherText))
+        blobIn = DATA_BLOB(len(cipherText), bufferIn)
+        bufferEntropy = c_buffer(entropy, len(entropy))
+        blobEntropy = DATA_BLOB(len(entropy), bufferEntropy)
+        blobOut = DATA_BLOB()
+        if CryptUnprotectData(byref(blobIn), None, byref(blobEntropy), None, None,
+                              CRYPTPROTECT_UI_FORBIDDEN, byref(blobOut)):
+            return getData(blobOut)
+        else:
+            return b""
+
+    def cryptData(text: bytes) -> bytes:
+        return Win32CryptProtectData(text, extraEntropy)
+
+    def decryptData(cipher_text: bytes) -> bytes:
+        return Win32CryptUnprotectData(cipher_text, extraEntropy)
+
+    NETRC_CRYPT = '32'
+# ...............................................................................................................
 
 def set_username_password(username: str, password: str) -> Tuple[str, str]:
     global NETRC_USERNAME, NETRC_PASSWORD
@@ -210,7 +290,7 @@ class Credentials(CredentialsStore):
         netrc = _path.expanduser(filename)
         block = ""
         if _path.isfile(netrc):
-            if os.stat(netrc).st_mode & 0o77:
+            if os.stat(netrc).st_mode & 0o77 and os.name not in ['nt']:
                 netrc_logg.warning(" !! netrc file should be private - chmod 600 %s", netrc)
             netrc_logg.debug("looking for 'machine %s' in %s", target, netrc)
             with open(netrc) as f:
@@ -352,8 +432,9 @@ def store_username_password(url: str, username: str, password: str) -> str:
                     continue  # delete
                 lines.append(line.rstrip())
     with open(filename, "w") as f:
-        password46 = _encode46(password)
-        f.write(f"machine {machine} login {username} password46 {password46}\n")
+        crypt: str = NETRC_CRYPT
+        cryptpassword = _encode(password, crypt)
+        f.write(f"machine {machine} login {username} password{crypt} {cryptpassword}\n")
         for line in lines:
             if line.strip():
                 f.write(line + "\n")
@@ -392,8 +473,16 @@ if __name__ == "__main__":
     cmdline.add_option("-G", "--extracredentials", metavar="FILE", default=NETRC_FILENAME, help="[%default]")
     cmdline.add_option("-e", "--extrafile", metavar="NAME", default="")
     cmdline.add_option("-y", "--cleartext", action="store_true", default=NETRC_CLEARTEXT)
+    cmdline.add_option("-2", "--crypt32", action="store_true", default=False, help="use win32crypt (default if available)")
+    cmdline.add_option("-3", "--crypt36", action="store_true", default=False, help="use triple obfuscation with rot13")
+    cmdline.add_option("-4", "--crypt46", action="store_true", default=False, help="use double obfuscation with rev")
+    cmdline.add_option("-6", "--crypt64", action="store_true", default=False, help="use single obfuscation with base64")
+    cmdline.add_option("-9", "--nocrypt", action="store_true", default=False, help="use no obfusction for passwords")
+    cmdline.add_option("-a", "--as-username", action="store_true", help="as  '--username user --password pass'")
+    cmdline.add_option("--as-user", action="store_true", help="show as '--user user --password pass'")
     cmdline.add_option("--as-ac", action="store_true", help="show as '-a user -c pass'")
     cmdline.add_option("--as-up", action="store_true", help="show as '-u user -p pass'")
+    cmdline.add_option("--as-u", action="store_true", help="show as '-u user:pass'")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=logging.WARNING - 10 * opt.verbose)
     if opt.fromcredentials:
@@ -408,10 +497,22 @@ if __name__ == "__main__":
     NETRC_USERNAME = opt.username
     NETRC_PASSWORD = opt.password
     NETRC_CLEARTEXT = opt.cleartext
-    NET_AS_AC = opt.as_ac
-    NET_AS_UP = opt.as_up
+    if opt.nocrypt:
+        NETRC_CRYPT = ""
+    if opt.crypt46:
+        NETRC_CRYPT = "64"
+    if opt.crypt46:
+        NETRC_CRYPT = "46"
+    if opt.crypt36:
+        NETRC_CRYPT = "36"
+    if opt.crypt32:
+        NETRC_CRYPT = "32"
     if not args:
         args = ["help"]
+    elif len(args) == 1 and "." in args[0]:
+        args = ["GET"] + args
+    elif len(args) >= 3 and "." in args[0]:
+        args = ["SET"] + args
     cmd = args[0]
     if cmd in ["help", "HELP"]:
         cmdline.print_help()
@@ -430,10 +531,16 @@ if __name__ == "__main__":
         if not uselogin: sys.exit(1)
         hostpath = _target(args[1]).split("/", 1) + [""]
         # printing in the style of https://git-scm.com/docs/git-credential
-        if opt.as_ac:
+        if opt.as_username:
+            print(" --username " + uselogin[0] + " --password " + uselogin[1])
+        elif opt.as_user:
+            print(" --user " + uselogin[0] + " --password " + uselogin[1])
+        elif opt.as_ac:
             print(" -a " + uselogin[0] + " -c " + uselogin[1])
         elif opt.as_up:
             print(" -u " + uselogin[0] + " -p " + uselogin[1])
+        elif opt.as_u:
+            print(" -u " + uselogin[0] + ":" + uselogin[1])
         else:
             if hostpath[0]: print("host=" + hostpath[0])
             if hostpath[1]: print("path=" + hostpath[1])
