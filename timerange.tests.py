@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 __copyright__ = "(C) 2022-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.8.2102"
+__version__ = "0.8.2266"
 
 import timerange as zeit
 from typing import Optional, cast

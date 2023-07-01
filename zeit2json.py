@@ -10,7 +10,7 @@ older optins)
 """
 
 __copyright__ = "(C) 2017-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.6.2102"
+__version__ = "0.6.2266"
 
 from typing import List, Dict, Union, Optional, Sequence, TextIO, Iterator, cast
 

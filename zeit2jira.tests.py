@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 __copyright__ = "(C) 2022-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.4.2102"
+__version__ = "0.4.2266"
 
 import tabtotext
 import jira2data_api_mockup as jira_api_mockup
