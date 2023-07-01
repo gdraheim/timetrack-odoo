@@ -1,3 +1,16 @@
+Version 1.0 has been published to pypi.org
+
+Commands have been given a proper cmdline with "help" and "--version".
+
+The tabtotext.py helper does convert input.json or input.html to text.
+The tabtotext html parser can read back "combine"d columns, where one html column shows two input fiels.
+
+The dotnetrc.py uses windows crypt32 store by default on a windows machine.
+
+Monthly summary reports were added, and detail report with all comments for an odoo project.
+
+Fixes: Some weekday outputs were off by 1. Some "prefix-suffix" fallbacks were not detected.
+
 Version 0.9 has seen usage by coworkers.
 
 Timetrack has support for Jira Worklogs now being a
