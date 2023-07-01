@@ -6,6 +6,8 @@ can also read the ~/.git-credentials format. Even a mix of entries is possible
 where extensions should only be used in a ~/.net-credentials filename. ////
 Use command './dotnetrc.py set <url> <name> <pass>' to write entries."""
 
+__version__ = "0.4.2102"
+
 # dot git-credentials format:
 #   https://<username>:<password>@<hostname>
 #
@@ -379,20 +381,20 @@ def erase_username_password(url: str) -> str:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    o = OptionParser("%prog [-u username] [-p password] url | SET url name pass", epilog=__doc__)
-    o.formatter.max_help_position = 36
-    o.add_option("-v", "--verbose", action="count", default=0)
-    o.add_option("-u", "--username", metavar="NAME", default=NETRC_USERNAME, help="fallback to default user")
-    o.add_option("-p", "--password", metavar="PASS", default=NETRC_PASSWORD, help="fallback to default pass")
-    o.add_option("-f", "--fromcredentials", metavar="FILE", default="", help="scan this instead of:")
-    o.add_option("-N", "--netcredentials", metavar="FILE", default=NET_CREDENTIALS, help="[%default]")
-    o.add_option("-g", "--gitcredentials", metavar="FILE", default=GIT_CREDENTIALS, help="[%default]")
-    o.add_option("-G", "--extracredentials", metavar="FILE", default=NETRC_FILENAME, help="[%default]")
-    o.add_option("-e", "--extrafile", metavar="NAME", default="")
-    o.add_option("-y", "--cleartext", action="store_true", default=NETRC_CLEARTEXT)
-    o.add_option("--as-ac", action="store_true", help="show as '-a user -c pass'")
-    o.add_option("--as-up", action="store_true", help="show as '-u user -p pass'")
-    opt, args = o.parse_args()
+    cmdline = OptionParser("%prog [-u username] [-p password] url | SET url name pass", epilog=__doc__, version=__version__)
+    cmdline.formatter.max_help_position = 36
+    cmdline.add_option("-v", "--verbose", action="count", default=0)
+    cmdline.add_option("-u", "--username", metavar="NAME", default=NETRC_USERNAME, help="fallback to default user")
+    cmdline.add_option("-p", "--password", metavar="PASS", default=NETRC_PASSWORD, help="fallback to default pass")
+    cmdline.add_option("-f", "--fromcredentials", metavar="FILE", default="", help="scan this instead of:")
+    cmdline.add_option("-N", "--netcredentials", metavar="FILE", default=NET_CREDENTIALS, help="[%default]")
+    cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=GIT_CREDENTIALS, help="[%default]")
+    cmdline.add_option("-G", "--extracredentials", metavar="FILE", default=NETRC_FILENAME, help="[%default]")
+    cmdline.add_option("-e", "--extrafile", metavar="NAME", default="")
+    cmdline.add_option("-y", "--cleartext", action="store_true", default=NETRC_CLEARTEXT)
+    cmdline.add_option("--as-ac", action="store_true", help="show as '-a user -c pass'")
+    cmdline.add_option("--as-up", action="store_true", help="show as '-u user -p pass'")
+    opt, args = cmdline.parse_args()
     logging.basicConfig(level=logging.WARNING - 10 * opt.verbose)
     if opt.fromcredentials:
         NET_CREDENTIALS = opt.fromcredentials
