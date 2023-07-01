@@ -249,8 +249,8 @@ if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog files...", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 30
-    cmdline.add_option("-v", "--verbose", action="count", default=0,
-                       help="more verbose logging")
+    cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
+    cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     cmdline.add_option("-a", "--after", metavar="DATE", default="",
                        help="only evaluate entrys on and after [first of year]")
     cmdline.add_option("-b", "--before", metavar="DATE", default="",
@@ -258,8 +258,8 @@ if __name__ == "__main__":
     cmdline.add_option("-f", "--filename", metavar="TEXT", default="",
                        help="choose input filename [may be path/zeit{YEAR}.txt]")
     opt, args = cmdline.parse_args()
-    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
-    logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose))
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
+    logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     #
     import zeit2json
     zeit2json.ZEIT_FILENAME = opt.filename

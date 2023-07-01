@@ -100,7 +100,8 @@ if __name__ == "__main__":
     from optparse import OptionParser
     o = OptionParser("%prog [-u username] [-p password] url...")
     o.formatter.max_help_position = 30
-    o.add_option("-v", "--verbose", action="count", default=0)
+    o.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
+    o.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     o.add_option("-u", "--username", metavar="NAME", default=GITRC_USERNAME)
     o.add_option("-p", "--password", metavar="PASS", default=GITRC_PASSWORD)
     o.add_option("-g", "--gitcredentials", metavar="FILE", default=GIT_CREDENTIALS)
@@ -109,7 +110,7 @@ if __name__ == "__main__":
     o.add_option("-c", "--config", metavar="NAME=VALUE", action="append", default=[])
     o.add_option("-y", "--cleartext", action="store_true", default=False)
     opt, args = o.parse_args()
-    logging.basicConfig(level=logging.WARNING - 10 * opt.verbose)
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     GIT_CONFIG = opt.gitconfig
     for value in opt.config:
         git_config_override(value)

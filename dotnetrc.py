@@ -464,7 +464,8 @@ if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog [-u username] [-p password] url | HELP | DEL url | SET url name pass", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 36
-    cmdline.add_option("-v", "--verbose", action="count", default=0)
+    cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
+    cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     cmdline.add_option("-u", "--username", metavar="NAME", default=NETRC_USERNAME, help="fallback to default user")
     cmdline.add_option("-p", "--password", metavar="PASS", default=NETRC_PASSWORD, help="fallback to default pass")
     cmdline.add_option("-f", "--fromcredentials", metavar="FILE", default="", help="scan this instead of:")
@@ -484,7 +485,7 @@ if __name__ == "__main__":
     cmdline.add_option("--as-up", action="store_true", help="show as '-u user -p pass'")
     cmdline.add_option("--as-u", action="store_true", help="show as '-u user:pass'")
     opt, args = cmdline.parse_args()
-    logging.basicConfig(level=logging.WARNING - 10 * opt.verbose)
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     if opt.fromcredentials:
         NET_CREDENTIALS = opt.fromcredentials
         net_password_filename(opt.fromcredentials)

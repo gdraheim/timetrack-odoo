@@ -683,12 +683,13 @@ def reset() -> None:
 if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog [-options] [help|commands...]", version=__version__)
-    cmdline.add_option("-v", "--verbose", action="count", default=0)
+    cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
+    cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default="~/.netrc")
     cmdline.add_option("-d", "--db", metavar="name", default=ODOO_DB)
     cmdline.add_option("-e", "--url", metavar="url", default=ODOO_URL)
     opt, args = cmdline.parse_args()
-    logging.basicConfig(level=logging.WARNING - 10 * opt.verbose)
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     dotnetrc.set_password_filename(opt.gitcredentials)
     ODOO_URL = opt.url
     ODOO_DB = opt.db

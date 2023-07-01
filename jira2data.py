@@ -508,8 +508,8 @@ if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog [-options] [help|commands..]", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 30
-    cmdline.add_option("-v", "--verbose", action="count", default=0,
-                       help="more verbose logging")
+    cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
+    cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     cmdline.add_option("-r", "--remote", metavar="URL", default="",
                        help="url to Jira API endpoint (or gitconfig jira.url)")
     cmdline.add_option("-a", "--after", metavar="DATE", default=None,
@@ -531,7 +531,7 @@ if __name__ == "__main__":
     cmdline.add_option("-U", "--user", metavar="NAME", default=NIX,
                        help="filter for user [%default]")
     opt, args = cmdline.parse_args()
-    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     warnings.simplefilter("once", InsecureRequestWarning)
     SHORTDESC = opt.shortdesc
     DRYRUN = opt.dryrun

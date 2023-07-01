@@ -480,10 +480,8 @@ if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog [-opt] [help|command...]", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 30
-    cmdline.add_option("-v", "--verbose", action="count", default=0,
-                       help="more verbose logging")
-    cmdline.add_option("-^", "--quiet", action="count", default=0,
-                       help="less verbose logging")
+    cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
+    cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     cmdline.add_option("-a", "--after", metavar="DATE", default=None,
                        help="only evaluate entrys on and after data")
     cmdline.add_option("-b", "--before", metavar="DATE", default=None,
@@ -516,8 +514,8 @@ if __name__ == "__main__":
     cmdline.add_option("-y", "--update", action="store_true", default=UPDATE,
                        help="actually update odoo")
     opt, args = cmdline.parse_args()
-    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
-    logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose))
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
+    logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     # logg.addHandler(logging.StreamHandler())
     for value in opt.config:
         git_config_override(value)

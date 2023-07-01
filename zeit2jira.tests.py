@@ -64,7 +64,8 @@ if __name__ == "__main__":
     # unittest.main()
     from optparse import OptionParser
     cmdline = OptionParser("%prog [t_]test...")
-    cmdline.add_option("-v", "--verbose", action="count", default=0)
+    cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
+    cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     cmdline.add_option("--failfast", action="store_true", default=False,
                        help="Stop the test run on the first error or failure. [%default]")
     cmdline.add_option("--xmlresults", metavar="FILE", default=None,
