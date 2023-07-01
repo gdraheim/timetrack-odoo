@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+""" associates topics with Odoo project+task coordinates """
 
 __copyright__ = "(C) 2022-2023 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "0.8.2102"
@@ -246,7 +247,7 @@ def run(filename: str) -> None:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    cmdline = OptionParser("%prog files...")
+    cmdline = OptionParser("%prog files...", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")

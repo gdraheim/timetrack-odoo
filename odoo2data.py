@@ -776,7 +776,7 @@ def run(arg: str) -> None:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    cmdline = OptionParser("%prog [help|zeit|odoo|work|days|summarize|summary|topics|users|projects|tasks]", epilog=__doc__)
+    cmdline = OptionParser("%prog [-options] [help|commands...]", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")

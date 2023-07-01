@@ -506,7 +506,7 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    cmdline = OptionParser("%prog [options] [help|zeit|odoo|summary|projects|tickets]", epilog=__doc__)
+    cmdline = OptionParser("%prog [-options] [help|commands..]", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")

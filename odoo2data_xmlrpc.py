@@ -68,7 +68,19 @@ def odoo_sheet():
     logg.info("fields %s", json.dumps(r, indent=1))
 
 def run(arg):
-    if arg in ["version"]:
+    if arg in ["help"]:
+        cmdline.print_help()
+        print("\nCommands:")
+        previous = ""
+        for line in open(__file__):
+            if previous.strip().replace("elif arg", "if arg").startswith("if arg in"):
+                if "#" in line:
+                    print(previous.strip().split(" arg in")[1], line.strip().split("#")[1])
+                else:
+                    print(previous.strip().split(" arg in")[1], line.strip())
+            previous = line
+        raise SystemExit()
+    elif arg in ["version"]:
         print(odoo_version())
     elif arg in ["scheme", "schema", "sch"]:
         print(odoo_schema())
@@ -81,9 +93,9 @@ def run(arg):
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    cmdline = OptionParser("%prog [options] command...")
-    cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default="~/.netrc")
+    cmdline = OptionParser("%prog [-options] [help|commands...]", version=__version__)
     cmdline.add_option("-v", "--verbose", action="count", default=0)
+    cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default="~/.netrc")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level = logging.WARNING - 10 * opt.verbose)
     set_password_filename(opt.gitcredentials)

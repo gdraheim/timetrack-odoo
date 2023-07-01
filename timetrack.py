@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+""" frontend to run other modules in the system """
 
 __copyright__ = "(C) 2019-2023 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "0.2.2102"
@@ -477,12 +478,12 @@ def run(config: ConfigParser, args: List[str]) -> JSONList:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    cmdline = OptionParser("%prog [help|data|check|valid|update|compare|summarize|summary|topics] files...")
+    cmdline = OptionParser("%prog [-opt] [help|command...]", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 30
-    cmdline.add_option("--quiet", action="count", default=0,
-                       help="less verbose logging")
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
+    cmdline.add_option("-^", "--quiet", action="count", default=0,
+                       help="less verbose logging")
     cmdline.add_option("-a", "--after", metavar="DATE", default=None,
                        help="only evaluate entrys on and after data")
     cmdline.add_option("-b", "--before", metavar="DATE", default=None,

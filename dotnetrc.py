@@ -381,7 +381,7 @@ def erase_username_password(url: str) -> str:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    cmdline = OptionParser("%prog [-u username] [-p password] url | SET url name pass", epilog=__doc__, version=__version__)
+    cmdline = OptionParser("%prog [-u username] [-p password] url | HELP | DEL url | SET url name pass", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 36
     cmdline.add_option("-v", "--verbose", action="count", default=0)
     cmdline.add_option("-u", "--username", metavar="NAME", default=NETRC_USERNAME, help="fallback to default user")
@@ -413,8 +413,18 @@ if __name__ == "__main__":
     if not args:
         args = ["help"]
     cmd = args[0]
-    if cmd in ["help"]:
-        print(__doc__)
+    if cmd in ["help", "HELP"]:
+        cmdline.print_help()
+        print("\nCommands:")
+        previous = ""
+        for line in open(__file__):
+            if previous.strip().replace("elif cmd", "if cmd").startswith("if cmd in"):
+                if "#" in line:
+                    print(previous.strip().split(" cmd in")[1], line.strip().split("#")[1])
+                else:
+                    print(previous.strip().split(" cmd in")[1], line.strip())
+            previous = line
+        raise SystemExit()
     elif cmd in ["get", "find", "for", "GET"]:
         uselogin = get_username_password(args[1])
         if not uselogin: sys.exit(1)
