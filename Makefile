@@ -131,19 +131,6 @@ TESTSUITE = $(MAIN_PROG:.py=.tests.py)
 help:
 	$(PYTHON3) $(SCRIPT) --help
 
-ests: ;  $(COVERAGE3) run $(TESTSUITE) -vvv $(TESTFLAGS)
-est_%: ; $(COVERAGE3) run $(TESTSUITE) -vvv $(TESTFLAGS) t$@
-
-COVERAGEFILES = $(SCRIPT)
-cov coverage: 
-	$(COVERAGE3) erase 
-	$(MAKE) ests 
-	$(COVERAGE3) xml $(COVERAGEFLAGS) $(COVERAGEFILES)
-	$(COVERAGE3) annotate $(COVERAGEFLAGS) $(COVERAGEFILES)
-	$(COVERAGE3) report $(COVERAGEFLAGS) $(COVERAGEFILES)
-	@ wc -l $(SCRIPT),cover | sed -e "s/^\\([^ ]*\\)  *\\(.*\\)/\\2      \\1 lines/"
-
-
 clean:
 	- rm *.pyc 
 	- rm -rf *.tmp
@@ -151,8 +138,7 @@ clean:
 	- rm TEST-*.xml
 	- rm setup.py README
 	- rm -rf build dist *.egg-info
-
-
+	- rm *.cover *,cover
 
 ############## https://pypi.org/...
 
@@ -184,6 +170,13 @@ tar:
 txt: ; for i in *.py; do cp -v $$i ../tmp.$$i.txt; done
 tab: ; for i in tab*.py frac*.py; do cp -v $$i ../tmp.$$i.txt; done
 # ------------------------------------------------------------
+ALLPYTHONFILES := $(glob *.py) 
+%.py.cover: %.py $(ALLPYTHONFILES) Makefile
+	$(COVERAGE3) erase 
+	$(COVERAGE3) run $(@:.py.cover=.tests.py) -vvv $(TESTFLAGS)
+	$(COVERAGE3) xml --include=$(@:.py.cover=.py) $(COVERAGEFLAGS) 
+	$(COVERAGE3) annotate --include=$(@:.py.cover=.py) $(COVERAGEFLAGS)
+	$(COVERAGE3) report --include=$(@:.py.cover=.py) $(COVERAGEFLAGS) | tee $@
 
 mypy:
 	zypper install -y mypy
@@ -232,3 +225,17 @@ style pep8:
 	                 $(JIRA_PROG).pep8 $(JIRA_APIS).pep8 \
 	                 $(JIRA_ZEIT).pep8 $(JIRA_ZEIT:.py=.tests.py).pep8 \
 	                 $(TRACKPROG).pep8 $(TRACKPROG:.py=.tests.py).pep8 
+
+coverage cover cov:
+	$(MAKE) \
+	                 $(ODOOTOPIC).cover \
+	                 $(MAIN_PROG).cover \
+	                 $(ZEIT_PROG).cover \
+	                 $(DATA_PROG).cover \
+	                 $(TAB_TOOLS).cover \
+	                 $(TAB_UTILS).cover \
+	                 $(NET_UTILS).cover \
+	                 $(DAY_UTILS).cover \
+	                 $(JIRA_ZEIT).cover \
+	                 $(TRACKPROG).cover
+	cat *.cover | sed -e "/--------/d" -e "s/^Name/    /"
