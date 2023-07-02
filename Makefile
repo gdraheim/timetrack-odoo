@@ -171,7 +171,7 @@ txt: ; for i in *.py; do cp -v $$i ../tmp.$$i.txt; done
 tab: ; for i in tab*.py frac*.py; do cp -v $$i ../tmp.$$i.txt; done
 # ------------------------------------------------------------
 ALLPYTHONFILES := $(glob *.py) 
-%.py.cover: %.py $(ALLPYTHONFILES) Makefile
+%.py.cover: %.py $(ALLPYTHONFILES)
 	$(COVERAGE3) erase 
 	$(COVERAGE3) run $(@:.py.cover=.tests.py) -vvv $(TESTFLAGS)
 	$(COVERAGE3) xml --include=$(@:.py.cover=.py) $(COVERAGEFLAGS) 
@@ -226,7 +226,7 @@ style pep8:
 	                 $(JIRA_ZEIT).pep8 $(JIRA_ZEIT:.py=.tests.py).pep8 \
 	                 $(TRACKPROG).pep8 $(TRACKPROG:.py=.tests.py).pep8 
 
-coverage cover cov:
+coverage cov:
 	$(MAKE) \
 	                 $(ODOOTOPIC).cover \
 	                 $(MAIN_PROG).cover \
@@ -238,4 +238,5 @@ coverage cover cov:
 	                 $(DAY_UTILS).cover \
 	                 $(JIRA_ZEIT).cover \
 	                 $(TRACKPROG).cover
-	cat *.cover | sed -e "/--------/d" -e "s/^Name/    /"
+cover: coverage
+	cat *.cover | sed -e "/--------/d" -e "s/^Name/____/" -e "s/^____       /___________/" -e "s/  Cover/ ______/"
