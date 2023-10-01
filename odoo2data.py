@@ -52,6 +52,7 @@ FOR_USER: List[str] = []
 LABELS = ""
 FORMAT = ""
 OUTPUT = ""
+TEXTFILE = ""
 JSONFILE = ""
 XLSXFILE = ""
 
@@ -763,6 +764,11 @@ def run(arg: str) -> None:
                                         selects=LABELS, formats=formats, legend=summary)
         if done:
             logg.log(DONE, " %s", done)
+        if TEXTFILE:
+            FMT = "text"
+            with open(TEXTFILE, "w") as f:
+                f.write(tabtotext.tabToGFM(results))
+            logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), TEXTFILE)
         if JSONFILE:
             FMT = "json"
             with open(JSONFILE, "w") as f:
@@ -801,6 +807,7 @@ if __name__ == "__main__":
                        default=[], help="select and format columns (new=col:)")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=FORMAT)
     cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
+    cmdline.add_option("-T", "--textfile", metavar="FILE", default=TEXTFILE, help="write also text data file")
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also xslx data file")
     cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=dotnetrc.GIT_CREDENTIALS)
@@ -821,6 +828,7 @@ if __name__ == "__main__":
     LABELS = ",".join(opt.labels)
     FORMAT = opt.format
     OUTPUT = opt.output
+    TEXTFILE = opt.textfile
     JSONFILE = opt.jsonfile
     XLSXFILE = opt.xlsxfile
     ONLYZEIT = opt.onlyzeit
