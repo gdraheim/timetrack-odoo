@@ -39,9 +39,9 @@ import logging
 import sys
 import os
 import os.path as _path
-import stat
 import re
 import codecs
+from base64 import b64encode, b64decode
 from collections import OrderedDict
 from urllib.parse import urlparse as _urlparse
 from fnmatch import fnmatchcase as _fnmatch
@@ -75,29 +75,29 @@ def _target(url: str) -> str:
 
 def _encode64(text: str) -> str:
     """ echo -n pw | base64 """
-    return codecs.decode(codecs.encode(text.encode('utf-8'), 'base64'), 'ascii').strip()
+    return codecs.decode(b64encode(text.encode('utf-8')), 'ascii').strip()
 def _decode64(text: str) -> str:
-    return codecs.decode(codecs.decode(text.encode('ascii'), 'base64'), 'utf-8')
+    return codecs.decode(b64decode(text.encode('ascii')), 'utf-8')
 def _encode63(text: str) -> str:
     """ echo -n pw | base64 | tr A-Za-z M-ZA-Nm-za-n """
-    return codecs.encode(codecs.decode(codecs.encode(text.encode('utf-8'), 'base64'), 'ascii'), 'rot13').strip()
+    return codecs.encode(codecs.decode(b64encode(text.encode('utf-8')), 'ascii'), 'rot13').strip()
 def _decode63(text: str) -> str:
-    return codecs.decode(codecs.decode(codecs.decode(text, 'rot13').encode('ascii'), 'base64'), 'utf-8')
+    return codecs.decode(b64decode(codecs.decode(text, 'rot13').encode('ascii')), 'utf-8')
 def _encode46(text: str) -> str:
     """ echo -n pw | base64 | rev """
-    return codecs.decode(codecs.encode(text.encode('utf-8'), 'base64')[::-1], 'ascii').strip()
+    return codecs.decode(b64encode(text.encode('utf-8'))[::-1], 'ascii').strip()
 def _decode46(text: str) -> str:
-    return codecs.decode(codecs.decode(text.encode('ascii')[::-1], 'base64'), 'utf-8')
+    return codecs.decode(b64decode(text.encode('ascii')[::-1]), 'utf-8')
 def _encode36(text: str) -> str:
     """ echo -n pw | base64 | rev | tr A-Za-z M-ZA-Nm-za-n """
-    # return codecs.decode(codecs.encode(codecs.encode(text.encode('utf-8'), 'base64'), 'rot13')[::-1], 'ascii').strip()
-    return codecs.encode(codecs.decode(codecs.encode(text.encode('utf-8'), 'base64'), 'ascii')[::-1], 'rot13').strip()
+    # return codecs.decode(codecs.encode(b64encode(text.encode('utf-8')), 'rot13')[::-1], 'ascii').strip()
+    return codecs.encode(codecs.decode(b64encode(text.encode('utf-8')), 'ascii')[::-1], 'rot13').strip()
 def _decode36(text: str) -> str:
-    return codecs.decode(codecs.decode(codecs.decode(text, 'rot13').encode('ascii')[::-1], 'base64'), 'utf-8')
+    return codecs.decode(b64decode(codecs.decode(text, 'rot13').encode('ascii')[::-1]), 'utf-8')
 def _encode32(text: str) -> str:
-    return codecs.decode(codecs.encode(cryptData(text.encode('utf-8')), 'base64').replace(b"\n", b""), 'ascii')
+    return codecs.decode(b64encode(cryptData(text.encode('utf-8'))).replace(b"\n", b""), 'ascii')
 def _decode32(text: str) -> str:
-    return codecs.decode(decryptData(codecs.decode(text.encode('ascii'), 'base64')), 'utf-8')
+    return codecs.decode(decryptData(b64decode(text.encode('ascii'))), 'utf-8')
 
 def _decode(text: str, encoding: Optional[str] = None) -> str:
     encoding = encoding if encoding is not None else NETRC_CRYPT
@@ -424,7 +424,7 @@ def store_username_password(url: str, username: str, password: str) -> str:
     machine = _target(url)
     matching0 = f"machine {machine} *"
     matching1 = f"machine {machine}/*"
-    lines = []
+    lines: List[str] = []
     if os.path.isfile(filename):
         with open(filename) as f:
             for line in f:
