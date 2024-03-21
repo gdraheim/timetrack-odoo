@@ -41,6 +41,7 @@ ZEIT_USER_NAME = ""  # get_user_name() in zeit
 ZEIT_SUMMARY = "stundenzettel"
 ZEIT_PROJSKIP = ""
 ZEIT_PROJONLY = ""
+ZEIT_FUTURE = False
 # [end zeit2json]
 
 PRICES: List[str] = []
@@ -492,6 +493,7 @@ def run(arg: str) -> None:
     zeit_api.ZEIT_BEFORE = DAYS.before.isoformat()
     zeit_api.ZEIT_USER_NAME = ZEIT_USER_NAME
     zeit_api.ZEIT_SUMMARY = ZEIT_SUMMARY
+    zeit_api.ZEIT_FUTURE = ZEIT_FUTURE
     conf = zeit_api.ZeitConfig(ZEITDATA, username=ZEIT_USER_NAME)
     zeit = zeit_api.Zeit(conf)
     if CSVDATA:
@@ -572,6 +574,8 @@ if __name__ == "__main__":
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
+    cmdline.add_option("-8", "--future", action="store_true", default=ZEIT_FUTURE,
+                       help="allow future entries from zeit timesheet")
     cmdline.add_option("-a", "--after", metavar="DATE", default=None,
                        help="only evaluate entrys on and after date")
     cmdline.add_option("-b", "--before", metavar="DATE", default=None,
@@ -646,6 +650,7 @@ if __name__ == "__main__":
     ZEIT_PROJONLY = opt.projonly
     ZEIT_PROJSKIP = opt.projskip
     ZEIT_SUMMARY = opt.summary
+    ZEIT_FUTURE = opt.future
     PRICES = opt.price
     DAYS = dayrange(opt.after, opt.before)
     if not args:

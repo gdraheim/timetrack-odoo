@@ -46,6 +46,7 @@ ZEIT_EXTRATIME = False
 ZEIT_SHORT = False
 ZEIT_FILENAME = ""
 ZEIT_USER_NAME = ""
+ZEIT_FUTURE = False
 
 DEFAULT_FILENAME = "~/zeit{YEAR}.txt"
 
@@ -97,7 +98,7 @@ class DateFromWeekday:
             return False
         # sync weekdays to dates
         date1 = get_date(match1.group(1), refdate or today)
-        if date1 > today:
+        if date1 > today and not ZEIT_FUTURE:
             logg.info("going to ignore future week date (%s)", date1)
             self.ignore = True
         else:
@@ -520,6 +521,8 @@ if __name__ == "__main__":
                        help="generate ID column (was used as foreignkey in old odoo)")
     cmdline.add_option("-2", "--newformat", action="store_true", default=False,
                        help="generate Ticket column (can be used to import to jira)")
+    cmdline.add_option("-8", "--future", action="store_true", default=ZEIT_FUTURE,
+                       help="allow future entries from zeit timesheet")
     cmdline.add_option("-a", "--after", metavar="DATE", default=ZEIT_AFTER,
                        help="only evaluate entrys on and after [first of year]")
     cmdline.add_option("-b", "--before", metavar="DATE", default=ZEIT_BEFORE,
@@ -569,6 +572,7 @@ if __name__ == "__main__":
     ZEIT_DESCFILTER = opt.descfilter
     ZEIT_FILENAME = opt.filename
     ZEIT_SUMMARY = opt.summary
+    ZEIT_FUTURE = opt.future
     ZEIT_AFTER = opt.after
     ZEIT_BEFORE = opt.before
     if not args or is_dayrange(args[0]):
