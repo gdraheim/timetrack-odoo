@@ -462,7 +462,8 @@ def erase_username_password(url: str) -> str:
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    cmdline = OptionParser("%prog [-u username] [-p password] url | HELP | DEL url | SET url name pass", epilog=__doc__, version=__version__)
+    cmdline = OptionParser("%prog [-u username] [-p password] url | HELP | DEL url | SET url name pass",
+                           epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 36
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
