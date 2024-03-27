@@ -538,7 +538,13 @@ def run(arg: str) -> None:
         results = summary_per_project(data)  # group by Odoo project
         sum_zeit = sum([float(cast(JSONBase, item["zeit"])) for item in results if item["zeit"]])
         sum_odoo = sum([float(cast(JSONBase, item["odoo"])) for item in results if item["odoo"]])
-        summary = [f"{sum_zeit} hours zeit", f"{sum_odoo} hours odoo"]
+        summary = [F"{sum_zeit} hours zeit", f"{sum_odoo} hours odoo"]
+        logg.info("PRICES %s", PRICES)
+        if PRICES and ":" not in PRICES[0]:
+            rate = int(PRICES[0])
+            summ = max(sum_zeit, sum_odoo)
+            euro = "\u20AC"
+            summary += [F"{summ*rate:.2f} {euro} price - ({summ} hours * {rate} {euro}/h)"]
     elif arg in ["tt", "topics"]:
         results = summary_per_topic(data)  # group by topic prefix in description
     else:
