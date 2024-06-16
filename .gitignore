@@ -7,3 +7,5 @@ __pycache__
 TEST*.xml
 *.egg-info
 dist
+.coverage
+coverage.*
