@@ -52,9 +52,8 @@ SHORTNAME = 0
 SHORTDESC = 0
 ONLYZEIT = 0
 
-LABELS = ""
-FORMAT = ""
-OUTPUT = "-"
+LABELS: List[str] = []
+OUTPUT = ""
 JSONFILE = ""
 XLSXFILE = ""
 CSVFILE = ""
@@ -518,7 +517,6 @@ def run(arg: str) -> None:
         logg.log(DONE, "written %s (%s entries)", csv_file, len(data))
         return
     # =====================================
-    FMT = FORMAT
     summary = []
     results: JSONList = []
     if arg in ["cc", "check"]:
@@ -558,9 +556,8 @@ def run(arg: str) -> None:
                     item["at proj"] = strName(item["at proj"])
                 if "at task" in item:
                     item["at task"] = strName(item["at task"])
-        formats = {"zeit": "{:4.2f}", "odoo": "{:4.2f}", "summe": "{:4.2f}"}
-        done = tabtotext.tabToPrintWith(results, OUTPUT, FMT,  # ..
-                                        selects=LABELS, formats=formats, legend=summary)
+        formats = ["{zeit:4.2f}", "{odoo:4.2f}", "{summe:4.2f}"]
+        done = tabtotext.print_tabtotext(OUTPUT, results, LABELS, formats, legend=summary)
         if done:
             logg.log(DONE, " %s", done)
         if JSONFILE:
@@ -605,8 +602,7 @@ if __name__ == "__main__":
                        help="present only local zeit data [%default]")
     cmdline.add_option("-L", "--labels", metavar="LIST", action="append",
                        default=[], help="select and format columns (new=col:h)")
-    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=FORMAT)
-    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
+    cmdline.add_option("-o", "-O", "--output", metavar="TO", default=OUTPUT, help="(filename.)json|yaml|html|wide|md|htm|csv|dat")
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also json data file")
     cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE, help="write also sCSV data file")
@@ -630,8 +626,7 @@ if __name__ == "__main__":
     if opt.mockup:
         import odoo2data_api_mockup as odoo_api  # type: ignore[no-redef]
     UPDATE = opt.update
-    LABELS = ",".join(opt.labels)
-    FORMAT = opt.format
+    LABELS = cast(List[str], opt.labels)
     OUTPUT = opt.output
     JSONFILE = opt.jsonfile
     XLSXFILE = opt.xlsxfile
