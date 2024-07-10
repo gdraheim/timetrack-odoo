@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 """ frontend to run other modules in the system """
 
-__copyright__ = "(C) 2019-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.2.2266"
+__copyright__ = "(C) 2019-2024 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "0.2.3283"
 
 from typing import Optional, Union, Dict, List, Tuple, Iterable, cast
 

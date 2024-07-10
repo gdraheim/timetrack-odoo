@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 """ associates topics with Odoo project+task coordinates """
 
-__copyright__ = "(C) 2022-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.8.2266"
+__copyright__ = "(C) 2022-2024 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "0.8.3283"
 
 from typing import List, Dict, Union, Optional, Tuple, Iterator, Iterable, cast
 
