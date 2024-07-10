@@ -288,7 +288,7 @@ def pull_zeit(after: Day, before: Day, conf: Optional[zeit_api.ZeitConfig] = Non
     return r
 
 def pull_jira(after: Day, before: Day, conf: Optional[odoo_api.OdooConfig] = None) -> JSONList:
-    pass
+    return []
 
 def odoo_users(conf: Optional[odoo_api.OdooConfig] = None) -> JSONList:
     conf = conf or odoo_api.OdooConfig()
