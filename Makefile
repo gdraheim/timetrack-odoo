@@ -5,6 +5,7 @@ FOR=today
 
 FILES = *.py *.cfg
 PYTHON3 = python3
+PYTHONVERSION = 3.8
 COVERAGE3 = $(PYTHON3) -m coverage
 TWINE = twine
 
@@ -204,7 +205,7 @@ mypy:
 	zypper install -y python3-click python3-pathspec
 
 MYPY = mypy
-MYPY_STRICT = --strict --show-error-codes --show-error-context --no-warn-unused-ignores --python-version 3.6 --implicit-reexport
+MYPY_STRICT = --strict --show-error-codes --show-error-context --no-warn-unused-ignores --python-version $(PYTHONVERSION) --implicit-reexport
 AUTOPEP8=autopep8
 AUTOPEP8_INPLACE= --in-place
 
