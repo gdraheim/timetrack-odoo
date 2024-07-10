@@ -88,7 +88,7 @@ def odoo_login(url: str, db: str, username: str, password: str) -> Tuple[UserID,
             logg.error("Error during login")
         raise OdooException("error login")
     uid = cast(UserID, response.json()['result']['uid'])
-    session = cast(SessionID, response.cookies['session_id'])
+    session = cast(SessionID, response.cookies['session_id'])  # type: ignore[redundant-cast]
     return uid, session
 
 # otter/odoo/rest.py#get_databases_json
