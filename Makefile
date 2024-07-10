@@ -27,6 +27,7 @@ GIT_UTILS = dotgitconfig.py
 TAB_TOOLS = tabtools.py
 TAB_UTILS = tabtotext.py
 TAB_2XLSX = tabtoxlsx.py
+TAB_4XLSX = tabxlsx.py
 
 PARALLEL = -j2
 
@@ -67,7 +68,13 @@ tabtotext.tests: tabt
 x.tabt: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 x tabt: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V
 x_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V $@ --failfast
-y_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -vv $V $@ --failfast
+X_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -vv $V $@ --failfast
+
+tabxlsx.tests: tabx
+y.tabx: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
+y tabx: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V
+y_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V $@ --failfast
+Y_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -vv $V $@ --failfast
 
 netrc.tests: nett
 n.nett: ; $(PYTHON3) $(NET_UTILS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
@@ -218,6 +225,7 @@ type:
 	                 $(TAB_TOOLS).type $(TAB_TOOLS:.py=.tests.py).type \
 	                 $(TAB_UTILS).type $(TAB_UTILS:.py=.tests.py).type \
 	                 $(TAB_2XLSX).type $(GIT_UTILS).type \
+	                 $(TAB_4XLSX).type \
 	                 $(NET_UTILS).type $(NET_UTILS:.py=.tests.py).type \
 	                 $(DAY_UTILS).type $(DAY_UTILS:.py=.tests.py).type \
 	                 $(JIRA_PROG).type $(JIRA_APIS).type $(JIRA_MOCK).type \
@@ -234,6 +242,7 @@ style pep8:
 	                 $(TAB_TOOLS).pep8 $(TAB_TOOLS:.py=.tests.py).pep8 \
 	                 $(TAB_UTILS).pep8 $(TAB_UTILS:.py=.tests.py).pep8 \
 	                 $(TAB_2XLSX).pep8 $(GIT_UTILS).pep8 \
+	                 $(TAB_4XLSX).pep8 \
 	                 $(NET_UTILS).pep8 $(NET_UTILS:.py=.tests.py).pep8 \
 	                 $(DAY_UTILS).pep8 $(DAY_UTILS:.py=.tests.py).pep8 \
 	                 $(JIRA_PROG).pep8 $(JIRA_APIS).pep8 \
