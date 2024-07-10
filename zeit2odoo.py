@@ -602,7 +602,8 @@ if __name__ == "__main__":
                        help="present only local zeit data [%default]")
     cmdline.add_option("-L", "--labels", metavar="LIST", action="append",
                        default=[], help="select and format columns (new=col:h)")
-    cmdline.add_option("-o", "-O", "--output", metavar="TO", default=OUTPUT, help="(filename.)json|yaml|html|wide|md|htm|csv|dat")
+    cmdline.add_option("-o", "-O", "--output", metavar="TO", default=OUTPUT,
+                       help="(filename.)json|yaml|html|wide|md|htm|csv|dat")
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also json data file")
     cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE, help="write also sCSV data file")
