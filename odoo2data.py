@@ -317,7 +317,7 @@ def user2(name: str, m: int) -> str:
         n = name.split(" ")
         return n[0][0] + n[-1][0]
     else:
-        return str(m) + n[0]
+        return str(m) + name[0]
 def reports_per_day(odoodata: Optional[JSONList] = None) -> JSONList:
     if odoodata:
         m = 0
