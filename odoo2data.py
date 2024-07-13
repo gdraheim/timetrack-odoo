@@ -126,7 +126,7 @@ def odoo_users() -> JSONList:
     return list(each_odoo_users())
 def each_odoo_users() -> Iterator[JSONDict]:
     for item in odoo_all_users():
-        name = cast(str, item["user_email"]).lower() + "|" + cast(str, item["user_fullname"]).lower()
+        name = str(item["user_email"]).lower() + "|" + str(["user_fullname"]).lower()
         if ODOO_PROJONLY:
             if not fnmatches(name, ODOO_PROJONLY): continue
         if ODOO_PROJSKIP:
