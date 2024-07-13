@@ -37,6 +37,7 @@ default: help
 check:
 	$(MAKE) frac
 	$(MAKE) tabt
+	$(MAKE) tabx
 	$(MAKE) nett
 	$(MAKE) dayt
 	$(MAKE) topt
@@ -50,6 +51,7 @@ chec: ; $(MAKE) check V=--failfast
 tests:
 	$(MAKE) f.frac
 	$(MAKE) x.tabt
+	$(MAKE) y.tabx
 	$(MAKE) n.nett
 	$(MAKE) d.dayt
 	$(MAKE) r.topt
@@ -226,7 +228,7 @@ type:
 	                 $(TAB_TOOLS).type $(TAB_TOOLS:.py=.tests.py).type \
 	                 $(TAB_UTILS).type $(TAB_UTILS:.py=.tests.py).type \
 	                 $(TAB_2XLSX).type $(GIT_UTILS).type \
-	                 $(TAB_4XLSX).type \
+	                 $(TAB_4XLSX).type $(TAB_4XLSX:.py=.tests.py).type \
 	                 $(NET_UTILS).type $(NET_UTILS:.py=.tests.py).type \
 	                 $(DAY_UTILS).type $(DAY_UTILS:.py=.tests.py).type \
 	                 $(JIRA_PROG).type $(JIRA_APIS).type $(JIRA_MOCK).type \
@@ -243,7 +245,7 @@ style pep8:
 	                 $(TAB_TOOLS).pep8 $(TAB_TOOLS:.py=.tests.py).pep8 \
 	                 $(TAB_UTILS).pep8 $(TAB_UTILS:.py=.tests.py).pep8 \
 	                 $(TAB_2XLSX).pep8 $(GIT_UTILS).pep8 \
-	                 $(TAB_4XLSX).pep8 \
+	                 $(TAB_4XLSX).pep8 $(TAB_4XLSX:.py=.tests.py).pep8 \
 	                 $(NET_UTILS).pep8 $(NET_UTILS:.py=.tests.py).pep8 \
 	                 $(DAY_UTILS).pep8 $(DAY_UTILS:.py=.tests.py).pep8 \
 	                 $(JIRA_PROG).pep8 $(JIRA_APIS).pep8 \
