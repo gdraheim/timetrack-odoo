@@ -9,3 +9,5 @@ TEST*.xml
 dist
 .coverage
 coverage.*
+.~*
+
