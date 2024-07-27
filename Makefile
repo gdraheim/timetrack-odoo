@@ -47,6 +47,7 @@ check:
 	$(MAKE) jira
 	$(MAKE) track
 chec: ; $(MAKE) check V=--failfast
+cc: ; $(MAKE) check "V=-vv --failfast"
 
 tests:
 	$(MAKE) f.frac
