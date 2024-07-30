@@ -361,7 +361,7 @@ def run(config: ConfigParser, args: List[str]) -> JSONList:
     verb = None
     summary: List[str] = []
     results: JSONList = []
-    headers: List[str] = ["name", "type", "zeit:{4.2f}", "odoo:{:4.2f}", "summe:{:4.2f}"]
+    headers: List[str] = ["name", "type", "zeit:{:4.2f}", "odoo:{:4.2f}", "summe:{:4.2f}"]
 
     while args:
         arg = args[0]
