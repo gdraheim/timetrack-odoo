@@ -19,7 +19,7 @@ import datetime
 from odootopic import OdooValues, OdooValuesForTopic
 from urllib.parse import quote_plus as qq
 from timerange import get_date, is_dayrange, dayrange, last_sunday, next_sunday
-from tabtotext import tabToJSON, tabToPrintWith, JSONDict, JSONList, JSONItem, viewFMT, setNoRight, tabWithDateHour
+from tabtotext import tabtoJSON, print_tabtotext, JSONDict, JSONList, JSONItem, viewFMT, setNoRight, tabWithDateHour
 
 from jira2data_api import JiraFrontend, jiraGetWorklog, setJiraUser, setJiraURL
 
@@ -38,8 +38,7 @@ LIMIT = 1000
 PROJECTS: List[str] = []
 PROJECTDEFAULT = "ASO"
 
-LABELS = ""
-FORMAT = ""
+LABELS: List[str] = []
 OUTPUT = ""
 JSONFILE = ""
 XLSXFILE = ""
@@ -422,14 +421,12 @@ def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
             yield {zeit_txt: line}
 
 def run(remote: JiraFrontend, args: List[str]) -> int:
-    global DAYS
+    global DAYS, OUTPUT
     if TASKDATA:
         read_odoo_taskdata(TASKDATA)
     # execute verbs after arguments are scanned
-    FMT = FORMAT
     result: JSONList = []
     summary: List[str] = []
-    sortby: List[str] = []
     tab = "|"
     for arg in args:
         if is_dayrange(arg):  # "week", "month", "last", "latest"
@@ -465,42 +462,32 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
             result = list(jiraGetUserActivityInDays(remote))  # projects with updates lately
         elif report in ["activity", "aa"]:
             result = list(only_shorterActivity(jiraGetUserActivityInDays(remote)))  # projects with updates lately
-            sortby = ["upcreated"]
         elif report in ["myactivity", "a"]:
             result = list(item for item in only_shorterActivity(
                 jiraGetUserActivityInDays(remote)) if item["itemAuthor"] == remote.user())
-            sortby = ["upcreated"]
         elif report in ["odoo", "data", "d"]:
             result = list(jiraOdooData(remote))  # list all Jira entries in Odoo update format
         elif report in ["zeit", "text", "z"]:
             result = list(jiraZeitData(remote))  # list all Jira entries in Zeit sheet format
-            if not FMT:
-                FMT = "wide"
+            if not OUTPUT:
+                OUTPUT = "wide"
         else:
             logg.error("unknown report %s", report)
-    def lastdesc(name: str) -> str:
-        if name in ["Description", "comment"]:
-            return f"z.{name}"
-        if name in ["Quantity"]:
-            return f"Day{name}"
-        if name in ["upcreated"]:
-            return f"at.{name}"
-        return name
+    headers = ["upcreated", "Quantity", "Description", "comment"]
     if result:
         summary += ["found %s items" % (len(result))]
-        done = tabToPrintWith(result, OUTPUT, FMT,  # ..
-                              selects=LABELS, sorts=sortby, legend=summary, reorder=lastdesc)
+        done = print_tabtotext(OUTPUT, result, headers, LABELS, legend=summary)
         if done:
             logg.log(DONE, " %s", done)
         if JSONFILE:
             FMT = "json"
             with open(JSONFILE, "w") as f:
-                print(tabToJSON(result, sorts=sortby), file=f)
+                print(tabtoJSON(result, headers), file=f)
                 logg.log(DONE, " %s written  %s %s", FMT, viewFMT(FMT), JSONFILE)
         if XLSXFILE:
             FMT = "xlsx"
             import tabtoxlsx
-            tabtoxlsx.saveToXLSX(XLSXFILE, result, sorts=sortby)
+            tabtoxlsx.tabtoXLSX(XLSXFILE, result, headers)
             logg.log(DONE, " %s written  %s %s", FMT, viewFMT(FMT), XLSXFILE)
     return 0
 
@@ -520,8 +507,7 @@ if __name__ == "__main__":
                        help="jira projects (%default) or " + PROJECTDEFAULT)
     cmdline.add_option("-L", "--labels", metavar="LIST", action="append",
                        default=[], help="select and format columns (new=col:h)")
-    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=FORMAT)
-    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
+    cmdline.add_option("-o", "--output", metavar="-", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=OUTPUT)
     cmdline.add_option("-J", "--jsonfile", metavar="PATH", default=JSONFILE, help="write also json data file")
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also xmlx data file")
     cmdline.add_option("-m", "--taskdata", metavar="PATH", default=TASKDATA, help="use odootopic mapping file")
@@ -537,8 +523,7 @@ if __name__ == "__main__":
     DRYRUN = opt.dryrun
     DAYS = dayrange(opt.after, opt.before)
     PROJECTS = opt.project
-    LABELS = ",".join(opt.labels)
-    FORMAT = opt.format
+    LABELS = opt.labels
     OUTPUT = opt.output
     JSONFILE = opt.jsonfile
     XLSXFILE = opt.xlsxfile
