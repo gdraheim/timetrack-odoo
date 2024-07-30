@@ -556,8 +556,8 @@ def run(arg: str) -> None:
                     item["at proj"] = strName(item["at proj"])
                 if "at task" in item:
                     item["at task"] = strName(item["at task"])
-        formats = ["{zeit:4.2f}", "{odoo:4.2f}", "{summe:4.2f}"]
-        done = tabtotext.print_tabtotext(OUTPUT, results, LABELS, formats, legend=summary)
+        headers = ["date", "act", "at proj", "at task", "zeit:4.2f", "odoo:4.2f", "summe:4.2f"]
+        done = tabtotext.print_tabtotext(OUTPUT, results, headers, LABELS, legend=summary)
         if done:
             logg.log(DONE, " %s", done)
         if JSONFILE:
