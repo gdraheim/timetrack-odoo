@@ -51,8 +51,7 @@ SHORTNAME = 0
 SHORTDESC = 0
 ONLYZEIT = 0
 
-LABELS = ""
-FORMAT = ""
+LABELS: List[str] = []
 OUTPUT = "-"
 JSONFILE = ""
 XLSXFILE = ""
@@ -362,7 +361,8 @@ def run(config: ConfigParser, args: List[str]) -> JSONList:
     verb = None
     summary: List[str] = []
     results: JSONList = []
-    headers: List[str] = ["name", "type"]
+    headers: List[str] = ["name", "type", "zeit:{4.2f}", "odoo:{:4.2f}", "summe:{:4.2f}"]
+
     while args:
         arg = args[0]
         args = args[1:]
@@ -458,21 +458,18 @@ def run(config: ConfigParser, args: List[str]) -> JSONList:
             logg.error("unknown object type % for  %s - use 'config to check it", typ, arg)
             return [{"error": "unknown object type"}]
     if results:
-        FMT = FORMAT
-        formats = {"zeit": "{:4.2f}", "odoo": "{:4.2f}", "summe": "{:4.2f}"}
-        done = tabtotext.tabToPrintWith(results, OUTPUT, FMT,  # ..
-                                        selects=LABELS, sorts=headers, formats=formats, legend=summary)
+        done = tabtotext.print_tabtotext(OUTPUT, results, headers, LABELS, legend=summary)
         if done:
             logg.log(DONE, " %s", done)
         if JSONFILE:
             FMT = "json"
             with open(JSONFILE, "w") as f:
-                f.write(tabtotext.tabToJSON(results, headers))
+                f.write(tabtotext.tabtoJSON(results, headers))
             logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), JSONFILE)
         if XLSXFILE:
             FMT = "xlsx"
             import tabtoxlsx
-            tabtoxlsx.saveToXLSX(XLSXFILE, results, headers)
+            tabtoxlsx.tabtoXLSX(XLSXFILE, results, headers)
             logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), XLSXFILE)
     return results
 
@@ -503,8 +500,7 @@ if __name__ == "__main__":
                        help="present only local zeit data [%default]")
     cmdline.add_option("-L", "--labels", metavar="LIST", action="append",
                        default=[], help="select and format columns (new=col:h)")
-    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=FORMAT)
-    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
+    cmdline.add_option("-o", "--output", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=OUTPUT)
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also xslx data file")
     cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=dotnetrc.GIT_CREDENTIALS)
@@ -524,8 +520,7 @@ if __name__ == "__main__":
     config = ConfigParser()
     config.read_string(default_config(False))
     UPDATE = opt.update
-    LABELS = ",".join(opt.labels)
-    FORMAT = opt.format
+    LABELS = opt.labels
     OUTPUT = opt.output
     JSONFILE = opt.jsonfile
     XLSXFILE = opt.xlsxfile
