@@ -242,8 +242,9 @@ def mapping(lines: Iterable[str]) -> Iterator[JSONDict]:
         logg.debug("lines must start with either '>>' or '..'")
 
 def run(filename: str) -> None:
+    headers = ["pref", "proj", "task", "ticket"]
     results = mapping(open(filename))
-    print(tabtotext.tabToGFM(list(results)))
+    print(tabtotext.tabtoGFM(list(results), headers))
 
 if __name__ == "__main__":
     from optparse import OptionParser
