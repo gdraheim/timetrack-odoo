@@ -6,7 +6,7 @@ Read and format Odoo timesheet entries. Provides extra reports.
 __copyright__ = "(C) 2021-2024 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.1.3313"
 
-from typing import Optional, Union, Dict, List, Tuple, cast, Iterable, Iterator
+from typing import Optional, Union, Dict, List, Tuple, cast, Iterable, Iterator, NamedTuple
 
 import logging
 import re
@@ -614,12 +614,15 @@ def _json2odoo(data: JSONList) -> Iterator[JSONDict]:
         info["entry_size"] = item["Quantity"]
         yield info
 
-def run(arg: str) -> None:
+class Report(NamedTuple):
+    data: JSONList
+    summary: List[str]
+def report(arg: str) -> Optional[Report]:
     global DAYS, OUTPUT, LABELS
     if is_dayrange(arg):  # "week", "month", "last", "latest"
         DAYS = dayrange(arg)
         logg.log(DONE, "%s -> %s", arg, DAYS)
-        return
+        return None
     if arg in ["help"]:
         report_name = None
         for line in open(__file__):
@@ -632,14 +635,11 @@ def run(arg: str) -> None:
                 if report_name:
                     print(f"{report_name} {report_func}")
             report_name = None
-        return
+        return None
     ###########################################################
     data: Optional[JSONList] = None
     summary = []
     results: JSONList = []
-    headers = ["am", "Date", "date", "at date", "day", "at proj", "Project", "at topic", "Topic",
-               "at task", "Task", 'task_name:"{:}"', "m", "User",
-               "Quantity", "odoo:4.2f", "satz:4.2f", "summe:{:$}", "Description"]
     if ONLYZEIT:
         import zeit2json
         data = json2odoo(zeit2json.read_zeit(DAYS.after, DAYS.before))
@@ -723,7 +723,18 @@ def run(arg: str) -> None:
         logg.error("unknown report '%s'", arg)
         import sys
         logg.error("  hint: check available reports:    %s help", sys.argv[0])
-    if results:
+        return None
+    return Report(results, summary)
+
+HEADERS = ["am", "Date", "date", "at date", "day", "at proj", "Project", "at topic", "Topic",
+               "at task", "Task", 'task_name:"{:}"', "m", "User",
+               "Quantity", "odoo:4.2f", "satz:4.2f", "summe:{:$}", "Description"]
+
+def run(arg: str) -> None:
+    reportresults = report(arg)
+    if reportresults:
+        results, summary = reportresults
+        headers = HEADERS
         if SHORTNAME:
             for item in results:
                 if "at proj" in item:
