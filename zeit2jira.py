@@ -49,8 +49,7 @@ SHORTNAME = 0
 SHORTDESC = 0
 ONLYZEIT = 0
 
-LABELS = ""
-FORMAT = ""
+LABELS: List[str] = []
 OUTPUT = "-"
 JSONFILE = ""
 XLSXFILE = ""
@@ -317,7 +316,6 @@ def run(arg: str) -> None:
         logg.log(DONE, "written %s (%s entries)", csv_file, len(data))
         return
     # ---------------------------------
-    FMT = FORMAT
     summary = []
     results: JSONList = []
     if arg in ["zz", "zeit"]:
@@ -346,9 +344,8 @@ def run(arg: str) -> None:
                     item["at proj"] = strName(item["at proj"])
                 if "at task" in item:
                     item["at task"] = strName(item["at task"])
-        formats = {"zeit": "{:4.2f}", "odoo": "{:4.2f}", "summe": "{:4.2f}"}
-        done = tabtotext.tabToPrintWith(results, OUTPUT, FMT,  # ..
-                                        selects=LABELS, formats=formats, legend=summary)
+        headers = ["date", "act", "at proj", "at task", "zeit:4.2f", "jira:4.2f", "odoo:4.2f", "summe:4.2f", "desc"]
+        done = tabtotext.print_tabtotext(OUTPUT, results, headers, LABELS, legend=summary)
         if done:
             logg.log(DONE, " %s", done)
         if JSONFILE:
@@ -387,8 +384,7 @@ if __name__ == "__main__":
                        help="present only local zeit data [%default]")
     cmdline.add_option("-L", "--labels", metavar="LIST", action="append",
                        default=[], help="select and format columns (new=col:h)")
-    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default=FORMAT)
-    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
+    cmdline.add_option("-o", "--output", metavar="-", help="json|yaml|html|wide|md|htm|tab|csv", default=OUTPUT)
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also xlsx data file")
     cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE, help="write also sCSV data file")
@@ -411,8 +407,7 @@ if __name__ == "__main__":
     dotnetrc.add_password_filename(opt.netcredentials, opt.extracredentials)
     REMOTE = opt.remote
     UPDATE = opt.update
-    LABELS = ",".join(opt.labels)
-    FORMAT = opt.format
+    LABELS = opt.labels
     OUTPUT = opt.output
     JSONFILE = opt.jsonfile
     XLSXFILE = opt.xlsxfile
