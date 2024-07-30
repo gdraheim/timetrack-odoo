@@ -288,6 +288,8 @@ def run(arg: str) -> None:
             report_name = None
         return
     ###########################################################
+    headers = ["date", "act", "at proj", "at task", "zeit:4.2f", "jira:4.2f", "odoo:4.2f", "summe:4.2f", "desc"]
+    ###########################################################
     zeit_api.ZEIT_AFTER = DAYS.after.isoformat()
     zeit_api.ZEIT_BEFORE = DAYS.before.isoformat()
     zeit_api.ZEIT_USER_NAME = ZEIT_USER_NAME
@@ -302,14 +304,14 @@ def run(arg: str) -> None:
     else:
         data = zeit.read_entries2(DAYS.after, DAYS.before)
     if arg in ["json", "make"]:
-        json_text = tabtotext.tabToJSON(data)
+        json_text = tabtotext.tabtoJSON(data, headers)
         json_file = conf.filename(DAYS.after) + ".json"
         with open(json_file, "w") as f:
             f.write(json_text)
         logg.log(DONE, "written %s (%s entries)", json_file, len(data))
         return
     if arg in ["csv", "make"]:
-        csv_text = tabtotext.tabToCSV(data)
+        csv_text = tabtotext.tabtoCSV(data, headers)
         csv_file = conf.filename(DAYS.after) + ".csv"
         with open(csv_file, "w") as f:
             f.write(csv_text)
@@ -344,19 +346,18 @@ def run(arg: str) -> None:
                     item["at proj"] = strName(item["at proj"])
                 if "at task" in item:
                     item["at task"] = strName(item["at task"])
-        headers = ["date", "act", "at proj", "at task", "zeit:4.2f", "jira:4.2f", "odoo:4.2f", "summe:4.2f", "desc"]
         done = tabtotext.print_tabtotext(OUTPUT, results, headers, LABELS, legend=summary)
         if done:
             logg.log(DONE, " %s", done)
         if JSONFILE:
             FMT = "json"
             with open(JSONFILE, "w") as f:
-                f.write(tabtotext.tabToJSON(results))
+                f.write(tabtotext.tabtoJSON(results, headers))
             logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), JSONFILE)
         if XLSXFILE:
             FMT = "xlsx"
             import tabtoxlsx
-            tabtoxlsx.saveToXLSX(XLSXFILE, results)
+            tabtoxlsx.tabtoXLSX(XLSXFILE, results, headers)
             logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), XLSXFILE)
 
 if __name__ == "__main__":
