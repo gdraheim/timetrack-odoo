@@ -673,7 +673,7 @@ def run(arg: str) -> None:
         filename = conf.filename(DAYS.after)
         if not os.path.exists(filename):
             with open(filename, "w") as f:
-                f.write(tabtotext.tabToFMT("wide", results))
+                f.write(tabtotext.tabtotext(results, fmt="wide"))
             summary += ["zeit.txt data written to %s" % filename]
         else:
             summary += ["file did already exist: %s" % filename]
