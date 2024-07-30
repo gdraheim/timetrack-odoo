@@ -727,8 +727,8 @@ def report(arg: str) -> Optional[Report]:
     return Report(results, summary)
 
 HEADERS = ["am", "Date", "date", "at date", "day", "at proj", "Project", "at topic", "Topic",
-               "at task", "Task", 'task_name:"{:}"', "m", "User",
-               "Quantity", "odoo:4.2f", "satz:4.2f", "summe:{:$}", "Description"]
+           "at task", "Task", 'task_name:"{:}"', "m", "User",
+           "Quantity", "odoo:4.2f", "satz:4.2f", "summe:{:$}", "Description"]
 
 def run(arg: str) -> None:
     reportresults = report(arg)
@@ -760,7 +760,7 @@ def run(arg: str) -> None:
                 results.append({"summe": summe + round(summe * price_vat, 2), "satz": "Gesamt:"})
         if ADDFOOTER > 2:
             headers = ["#", "am@Monat", "at proj@Abrechnungskonto", "odoo:4.2f@Stunden", "satz:4.2f@Satz", "summe:$@Summe"]
-        done = tabtotext.print_tabtotext(OUTPUT, results, headers, LABELS,  legend=summary)
+        done = tabtotext.print_tabtotext(OUTPUT, results, headers, LABELS, legend=summary)
         if done:
             logg.log(DONE, " %s", done)
         if TEXTFILE:
