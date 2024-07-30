@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 __copyright__ = "(C) 2022-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.8.3312"
+__version__ = "0.8.3313"
 
 import odootopic as topics
 from typing import Optional, Tuple, cast
