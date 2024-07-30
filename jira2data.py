@@ -6,7 +6,7 @@ Read and format Jira worklog entries. Provides additional reports.
 __copyright__ = "(C) 2022-2024 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "0.4.3313"
 
-from typing import Union, Dict, List, Any, Optional, Tuple, Iterable, Iterator, cast
+from typing import Union, Dict, List, Any, Optional, Tuple, Iterable, Iterator, cast, NamedTuple
 from requests import Session, Response, HTTPError
 from requests.packages.urllib3.exceptions import InsecureRequestWarning   # type: ignore[import]
 import warnings
@@ -420,7 +420,11 @@ def each_jiraZeitData(api: JiraFrontend, user: str = NIX, days: Optional[dayrang
         for line in lines:
             yield {zeit_txt: line}
 
-def run(remote: JiraFrontend, args: List[str]) -> int:
+class Report(NamedTuple):
+    data: JSONList
+    summary: List[str]
+
+def report(remote: JiraFrontend, args: List[str]) -> Optional[Report]:
     global DAYS, OUTPUT
     if TASKDATA:
         read_odoo_taskdata(TASKDATA)
@@ -446,7 +450,7 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
                     if report_name:
                         print(f"{report_name} {report_func}")
                 report_name = None
-            return 0
+            return None
         report = arg.lower()
         if report in ["allprojects"]:
             result = list(jiraGetProjects(remote))  # list all Jira project trackers (including unused)
@@ -473,8 +477,13 @@ def run(remote: JiraFrontend, args: List[str]) -> int:
                 OUTPUT = "wide"
         else:
             logg.error("unknown report %s", report)
+    return Report(result, summary)
+
+def run(remote: JiraFrontend, args: List[str]) -> int:
     headers = ["upcreated", "Quantity", "Description", "comment"]
-    if result:
+    reportresults = report(remote, args)
+    if reportresults:
+        result, summary = reportresults
         summary += ["found %s items" % (len(result))]
         done = print_tabtotext(OUTPUT, result, headers, LABELS, legend=summary)
         if done:
