@@ -755,12 +755,12 @@ def run(arg: str) -> None:
         if TEXTFILE:
             FMT = "text"
             with open(TEXTFILE, "w") as f:
-                f.write(tabtotext.tabToGFM(results))
+                f.write(tabtotext.tabtoGFM(results))
             logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), TEXTFILE)
         if JSONFILE:
             FMT = "json"
             with open(JSONFILE, "w") as f:
-                f.write(tabtotext.tabToJSON(results))
+                f.write(tabtotext.tabtoJSON(results))
             logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), JSONFILE)
         if XLSXFILE:
             FMT = "xlsx"
