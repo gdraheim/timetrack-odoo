@@ -56,8 +56,8 @@ WRITECSV = True
 JSONFILE = ""
 XLSXFILE = ""
 CSVFILE = ""
-FORMAT = ""
 OUTPUT = ""
+LABELS: List[str] = []
 
 NEWFORMAT = True
 TitleID = "ID"
@@ -479,27 +479,21 @@ def run(arg: str) -> None:
         return
     filename = arg
     data = get_data(filename)
-    def order(name: str) -> str:
-        if name in ["Description"]:
-            return f"z.{name}"
-        if name in ["Quantity"]:
-            return f"Day{name}"
-        return name
+    headers = ["Date", "Project", "Task", "Topic", "Ticket", "User", "Quantity:.2f", "Description"]
     if OUTPUT:
-        FMT = FORMAT
-        with open(OUTPUT, "w") as f:
-            f.write(tabtotext.tabToFMT(FMT, data))
-        logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), OUTPUT)
+        done = tabtotext.print_tabtotext(OUTPUT, data, headers, LABELS)
+        if done:
+            logg.log(DONE, " %s '%s'", done, OUTPUT)
     if WRITEJSON or JSONFILE:
         FMT = "json"
-        json_text = tabtotext.tabToJSON(data)
+        json_text = tabtotext.tabtoJSON(data, headers)
         json_file = JSONFILE or f"{filename}.{FMT}"
         with open(json_file, "w") as f:
             f.write(json_text)
         logg.log(DONE, " %s written   %s '%s'  (%s entries)", FMT, viewFMT(FMT), json_file, len(data))
     if WRITECSV or CSVFILE:
         FMT = "csv"
-        csv_text = tabtotext.tabToCSV(data, reorder=order)
+        csv_text = tabtotext.tabtoCSV(data, headers)
         csv_file = CSVFILE or f"{filename}.{FMT}"
         with open(csv_file, "w") as f:
             f.write(csv_text)
@@ -508,7 +502,7 @@ def run(arg: str) -> None:
         FMT = "xlsx"
         xlsx_file = XLSXFILE or f"{filename}.{FMT}"
         import tabtoxlsx
-        tabtoxlsx.saveToXLSX(xlsx_file, data, reorder=order)
+        tabtoxlsx.tabtoXLSX(xlsx_file, data, headers)
         logg.log(DONE, " %s written   %s '%s'  (%s entries)", FMT, viewFMT(FMT), xlsx_file, len(data))
 
 if __name__ == "__main__":
@@ -531,8 +525,9 @@ if __name__ == "__main__":
                        help="suffix for summary report [%default]")
     cmdline.add_option("-f", "--filename", metavar="TEXT", default=ZEIT_FILENAME,
                        help="choose input filename [%s]" % (ZEIT_FILENAME or DEFAULT_FILENAME))
-    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=FORMAT)
-    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
+    cmdline.add_option("-L", "--labels", metavar="LIST", action="append", default=[],
+                       help="select and format columns (new=col:h)")
+    cmdline.add_option("-o", "--output", metavar="-", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=OUTPUT)
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also to json data file")
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also to xlsx data file")
     cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE, help="write also to sCSV data file")
@@ -554,7 +549,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     # logg.addHandler(logging.StreamHandler())
-    FORMAT = opt.format
+    LABELS = opt.labels
     OUTPUT = opt.output
     JSONFILE = opt.jsonfile
     XLSXFILE = opt.xlsxfile
