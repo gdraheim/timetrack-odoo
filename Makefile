@@ -155,6 +155,31 @@ clean:
 
 ############## https://pypi.org/...
 
+TAB=tabxlsx.tmp
+xlsx tabxlsx:
+	test ! -d $(TAB) || rm -rf $(TAB)
+	mkdir -v $(TAB)
+	$(MAKE) $(TAB)/setup.py
+	cd $(TAB) && $(PYTHON3) setup.py sdist
+	cd $(TAB) && $(TWINE) check dist/*
+	@echo "(cd $(TAB) && $(TWINE) upload dist/*)"
+tabxlsx.tmp/setup.py: setup.tabxlsx.cfg tabxlsx.py tabxlsx.md tabxlsx.tests.py LICENSE Makefile
+	cp -v setup.tabxlsx.cfg $(dir $@)/setup.cfg
+	cp -v tabxlsx.py $(dir $@)/
+	cp -v tabxlsx.md $(dir $@)/
+	cp -v tabxlsx.tests.py $(dir $@)/
+	cp -v LICENSE $(dir $@)/tabxlsx.txt
+	{ echo '#!/usr/bin/env python3' \
+	; echo 'import setuptools' \
+	; echo 'setuptools.setup()' ; } > $@
+	chmod +x $@
+insxlsx:
+	$(MAKE) $(TAB)/setup.py
+	cd $(TAB) && $(PYTHON3) -m pip install --no-compile --user .
+	$(MAKE) showxlsx
+showxlsx: ; $(PYTHON3) -m pip show -f $$(sed -e '/^name *=/!d' -e 's/.*= *//' setup.tabxlsx.cfg)
+unsxlsx: ; $(PYTHON3) -m pip uninstall -vv --yes $$(sed -e '/^name *=/!d' -e 's/.*= *//' setup.tabxlsx.cfg)
+
 README: README.md Makefile
 	cat README.md | sed -e "/\\/badge/d" -e /^---/q > README
 setup.py: Makefile
@@ -180,8 +205,7 @@ ins install:
 	$(PYTHON3) -m pip install --no-compile --user .
 	rm -v setup.py
 	$(MAKE) show | sed -e "s|[.][.]/[.][.]/[.][.]/bin|$$HOME/.local/bin|"
-show:
-	python3 -m pip show -f $$(sed -e '/^name *=/!d' -e 's/.*= *//' setup.cfg)
+show:;  $(PYTHON3) -m pip show -f $$(sed -e '/^name *=/!d' -e 's/.*= *//' setup.cfg)
 uns uninstall: setup.py
 	$(MAKE) setup.py
 	$(PYTHON3) -m pip uninstall -v --yes $$(sed -e '/^name *=/!d' -e 's/.*= *//' setup.cfg)
