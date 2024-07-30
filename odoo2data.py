@@ -49,8 +49,7 @@ ODOO_SUMMARY = ""
 
 FOR_USER: List[str] = []
 
-LABELS = ""
-FORMAT = ""
+LABELS: List[str] = []
 OUTPUT = ""
 TEXTFILE = ""
 JSONFILE = ""
@@ -616,7 +615,7 @@ def _json2odoo(data: JSONList) -> Iterator[JSONDict]:
         yield info
 
 def run(arg: str) -> None:
-    global DAYS
+    global DAYS, OUTPUT, LABELS
     if is_dayrange(arg):  # "week", "month", "last", "latest"
         DAYS = dayrange(arg)
         logg.log(DONE, "%s -> %s", arg, DAYS)
@@ -638,8 +637,9 @@ def run(arg: str) -> None:
     data: Optional[JSONList] = None
     summary = []
     results: JSONList = []
-    formats = {"odoo": "{:4.2f}", "summe": "{:4.2f}"}
-    FMT = FORMAT
+    headers = ["am", "Date", "date", "at date", "day", "at proj", "Project", "at topic", "Topic",
+               "at task", "Task", 'task_name:"{:}"', "m", "User",
+               "Quantity", "odoo:4.2f", "satz:4.2f", "summe:{:$}", "Description"]
     if ONLYZEIT:
         import zeit2json
         data = json2odoo(zeit2json.read_zeit(DAYS.after, DAYS.before))
@@ -650,12 +650,10 @@ def run(arg: str) -> None:
         summary += ["# use 'oo' or 'odoo-projects-tasks' to see task details"]
     elif arg in ["oo", "opt", "odoo-projects-tasks", "projects-tasks", "projects-and-task", "tasks"]:
         results = odoo_projects_tasks()  # list all Odoo projects-and-tasks (including unused)
-        formats["task_name"] = '"{:}"'
     elif arg in ["om", "odoo-mapping", "mapping"]:
         results = guess_mapping(odoo_projects_tasks())  # Odoo projects-and-tasks in Zeit mapping format
-        formats["task_name"] = '"{:}"'
-        if not FMT:
-            FMT = "wide"
+        if not OUTPUT:
+            OUTPUT = "wide"
     elif arg in ["ww", "data", "worked"]:
         results = work_data(data)  # list all Odoo entries
         if results and not SHORTNAME:
@@ -666,8 +664,8 @@ def run(arg: str) -> None:
             summary += [" ### use -q or -qq to shorten the names for proj and task !!"]
     elif arg in ["z", "text", "zeit"]:
         results = work_zeit(data)  # list all Odoo entries in Zeit sheet format
-        if not FMT:
-            FMT = "wide"
+        if not OUTPUT:
+            OUTPUT = "wide"
     elif arg in ["init", "zeit.txt"]:
         results = work_zeit(data)  # and write Zeit sheet to default location if not exists
         import zeit2json
@@ -696,8 +694,6 @@ def run(arg: str) -> None:
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
         if results and not ADDFOOTER:
             summary += [" ### use -Z to add a VAT footer !!"]
-        formats["summe"] = "{:$}"
-        formats["satz"] = "{:4.2f}"
     elif arg in ["xxx", "reports"]:
         results = reports_per_project(data)  # group by Odoo project, per month, add price and m column
         sum_euro = sum([float(cast(JSONBase, item["summe"])) for item in results if item["summe"]])
@@ -705,8 +701,6 @@ def run(arg: str) -> None:
         summary = [f"{sum_euro:11.2f} {EURO} summe", f"{sum_odoo:11.2f} hours odoo"]
         if results and not ADDFOOTER:
             summary += [" ### use -Z to add a VAT footer !!"]
-        formats["summe"] = "{:$}"
-        formats["satz"] = "{:4.2f}"
     elif arg in ["dx", "dayreports"]:
         results = reports_per_day(data)  # group by Odoo project, per month, add price and m column
     elif arg in ["mt", "mtopic", "mtopics"]:
@@ -754,14 +748,8 @@ def run(arg: str) -> None:
                 results.append({"satz": price_vat, "summe": round(summe * price_vat, 2), "odoo": "MWst"})
                 results.append({"summe": summe + round(summe * price_vat, 2), "satz": "Gesamt:"})
         if ADDFOOTER > 2:
-            onlycols = "Pos=.,Monat=am,Abrechnungskonto=at proj,Stunden=odoo,Satz=satz,Summe=summe"
-            results = tabtotext.tabToTabX(results, onlycols)
-            formats = {"Summe": "{:$}", "Pos": "{:n}", "Stunden": "{:4.2f}", "Satz": "{:4.2f}"}
-            reorder = ["Pos", "Monat", "Abrechnungskonto", "Stunden", "Satz", "Summe"]
-        else:
-            reorder = []
-        done = tabtotext.tabToPrintWith(results, OUTPUT, FMT, reorder=reorder,  # ..
-                                        selects=LABELS, formats=formats, legend=summary)
+            headers = ["#", "am@Monat", "at proj@Abrechnungskonto", "odoo:4.2f@Stunden", "satz:4.2f@Satz", "summe:$@Summe"]
+        done = tabtotext.print_tabtotext(OUTPUT, results, headers, LABELS,  legend=summary)
         if done:
             logg.log(DONE, " %s", done)
         if TEXTFILE:
@@ -777,7 +765,7 @@ def run(arg: str) -> None:
         if XLSXFILE:
             FMT = "xlsx"
             import tabtoxlsx
-            tabtoxlsx.saveToXLSX(XLSXFILE, results, formats=formats, reorder=reorder)
+            tabtoxlsx.tabtoXLSX(XLSXFILE, results, headers, LABELS)
             logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), XLSXFILE)
 
 if __name__ == "__main__":
@@ -805,8 +793,7 @@ if __name__ == "__main__":
                        help="present sum as lines in data [%default]")
     cmdline.add_option("-L", "--labels", metavar="LIST", action="append",
                        default=[], help="select and format columns (new=col:)")
-    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=FORMAT)
-    cmdline.add_option("-O", "--output", metavar="CON", default=OUTPUT, help="redirect output to filename")
+    cmdline.add_option("-o", "--output", metavar="-", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=OUTPUT)
     cmdline.add_option("-T", "--textfile", metavar="FILE", default=TEXTFILE, help="write also text data file")
     cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
     cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also xslx data file")
@@ -825,8 +812,7 @@ if __name__ == "__main__":
     dotnetrc.set_password_filename(opt.gitcredentials)
     dotnetrc.add_password_filename(opt.netcredentials, opt.extracredentials)
     FOR_USER = opt.user
-    LABELS = ",".join(opt.labels)
-    FORMAT = opt.format
+    LABELS = opt.labels
     OUTPUT = opt.output
     TEXTFILE = opt.textfile
     JSONFILE = opt.jsonfile
