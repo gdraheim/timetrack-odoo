@@ -6,7 +6,7 @@ Synchronize odoo-import data (from zeit.txt) with Odoo timesheet records.
 __copyright__ = "(C) 2021-2024 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.1.3313"
 
-from typing import Optional, Union, Dict, List, Tuple, cast
+from typing import Optional, Union, Dict, List, Tuple, cast, NamedTuple
 
 import logging
 import re
@@ -468,12 +468,15 @@ def _summary_per_topic(data: JSONList, odoodata: JSONList) -> JSONList:
         sumdata[old_pref]["odoo"] += old_size  # type: ignore
     return list(sumdata.values())
 
-def run(arg: str) -> None:
+class Report(NamedTuple):
+    data: JSONList
+    summary: List[str]
+def report(arg: str) -> Optional[Report]:
     global DAYS
     if is_dayrange(arg):
         DAYS = dayrange(arg)
         logg.log(DONE, "%s -> %s %s", arg, DAYS.after, DAYS.before)
-        return
+        return None
     if arg in ["help"]:
         report_name = None
         for line in open(__file__):
@@ -486,9 +489,9 @@ def run(arg: str) -> None:
                 if report_name:
                     print(f"{report_name} {report_func}")
             report_name = None
-        return
+        return None
     ###########################################################
-    headers = ["date", "act", "at proj", "at task", "zeit:4.2f", "odoo:4.2f", "summe:4.2f"]
+    headers = HEADERS
     ###########################################################
     zeit_api.ZEIT_AFTER = DAYS.after.isoformat()
     zeit_api.ZEIT_BEFORE = DAYS.before.isoformat()
@@ -510,14 +513,14 @@ def run(arg: str) -> None:
         with open(json_file, "w") as f:
             f.write(json_text)
         logg.log(DONE, "written %s (%s entries)", json_file, len(data))
-        return
+        return None
     if arg in ["csv", "make"]:
         csv_text = tabtotext.tabtoCSV(data, headers)
         csv_file = conf.filename(DAYS.after) + ".csv"
         with open(csv_file, "w") as f:
             f.write(csv_text)
         logg.log(DONE, "written %s (%s entries)", csv_file, len(data))
-        return
+        return None
     # =====================================
     summary = []
     results: JSONList = []
@@ -551,7 +554,16 @@ def run(arg: str) -> None:
         logg.error("unknown report '%s'", arg)
         import sys
         logg.error("  hint: check available reports:    %s help", sys.argv[0])
-    if results:
+        return None
+    return Report(results, summary)
+
+HEADERS = ["date", "act", "at proj", "at task", "zeit:4.2f", "odoo:4.2f", "summe:4.2f"]
+
+def run(arg: str) -> None:
+    reportresults = report(arg)
+    if reportresults:
+        results, summary = reportresults
+        headers = HEADERS
         if SHORTNAME:
             for item in results:
                 if "at proj" in item:
