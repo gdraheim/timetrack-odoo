@@ -662,19 +662,19 @@ def run(arg: str) -> None:
         odoo = Odoo()
         logg.info(" ODOO URL %s DB %s", odoo.url, odoo.db)
         data = odoo.projects()
-        text = tabtotext.tabToGFM(data, ["proj_name", "proj_id"], {"proj_name": "'%s'"})
+        text = tabtotext.tabtoGFM(data, ["proj_name:'%s'", "proj_id"])
         print(text)
     if arg in ["tks", "tasks"]:
         odoo = Odoo()
         logg.info(" ODOO URL %s DB %s", odoo.url, odoo.db)
         data = odoo.projects_tasks()
-        text = tabtotext.tabToGFM(data, ["proj_name", "task_name"], {"proj_name": "'%s'", "task_name": "'%s'"})
+        text = tabtotext.tabtoGFM(data, ["proj_name:'%s'", "task_name:'%s'"])
         print(text)
     if arg in ["tks1", "tasks1"]:
         odoo = Odoo()
         logg.info(" ODOO URL %s DB %s", odoo.url, odoo.db)
         data = odoo.project_tasks()
-        text = tabtotext.tabToGFM(data, ["proj_name", "task_name"], {"proj_name": "'%s'", "task_name": "'%s'"})
+        text = tabtotext.tabtoGFM(data, ["proj_name:'%s'", "task_name:'%s'"])
         print(text)
 
 def reset() -> None:
