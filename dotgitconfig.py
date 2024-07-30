@@ -4,7 +4,7 @@ import dotnetrc
     adding functions to read the the gitconfig settings alternativly. """
 
 __copyright__ = "(C) 2021-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.1.3283"
+__version__ = "1.1.3312"
 
 from typing import List, Dict, Tuple, Optional
 

@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 __copyright__ = "(C) 2021-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.7.3283"
+__version__ = "0.7.3312"
 
 import logging
 from typing import List, Dict, Union, Optional, Tuple, Any, cast
