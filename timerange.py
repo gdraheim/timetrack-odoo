@@ -5,7 +5,7 @@ Added a number of symbolic names for nearby months and weeks.
 """
 
 __copyright__ = "(C) 2022-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.8.3313"
+__version__ = "0.8.3314"
 
 from typing import Union, Optional, Tuple
 
