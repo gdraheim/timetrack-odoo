@@ -45,7 +45,9 @@ or `.md` file - the input parser gets selected from the file extension automatic
 
 Additional arguments are the columns to be selected for output - being a subset of
 the data from the input file. Just like with `headers` each column can be formatted
-in the style of Python's `string.format()`.
+in the style of Python's `string.format()`. The `selects` fall back to known
+formatting if not provided - including Date/Time columns which are generally
+recognized in all library parts.
 
 Use `"@csv"` to ensure output as CSV instead of the default markdown tables. For
 the markdown tables, the columns of each row have the same width mich makes the
