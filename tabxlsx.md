@@ -1,13 +1,14 @@
 
 ## TABXLSX - minimal Excel support
 
-TabXLSX reads and writes Excel xlsx files. It does not depend on other libraries.The output defaults to a markdown table and csv-like output
-is available as well. This allows piping the data into other scripts.
+TabXLSX reads and writes Excel xlsx files. It is a single file implementation
+that does not depend on other libraries. The output defaults to a markdown table 
+and csv-like output is available as well. This allows piping the data into other scripts.
 
-A number of output format options are available but less than the tabtotext.py module. The export to xlsx was orginally written with
-openpyx1 for tabtotext but it is possible to write simple tables
-just with Python's zip and xml.etree builtin modules. That is also
-faster.
+A number of output format options are available but less than the tabtotext.py module. 
+The export to xlsx was orginally written with openpyx1 for tabtotext but it is possible 
+to write simple xlsx tables just with Python's `zipfile` and  `xml.etree` builtin modules. 
+That is also faster.
 
 ### import tabxlsx
 
@@ -81,7 +82,8 @@ if you start extending the tabxlsx code.
 The original implementation in tabtotext was based on openpyx1 the resulting xlsx
 files were inspected how to write them with just Python's internal `zipfile`. The
 xlsx reader is using `zipfile` and Python's internal `xml.etree`. This should be
-portable to JPython and IronPython as well.
+portable to JPython and IronPython as well. And tests showed tabxlsx to be 10x
+faster than openpyx1 for small datasets.
 
 Have fun!
 
