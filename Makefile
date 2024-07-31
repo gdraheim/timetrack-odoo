@@ -72,13 +72,13 @@ tabtotext.tests: tabt
 x.tabt: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 x tabt: ; $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V
 x_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -v $V $@ --failfast
-X_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -vv $V $@ --failfast
+X_%: ;    $(PYTHON3) $(TAB_UTILS:.py=.tests.py) -vv $V $@ --failfast --keep
 
 tabxlsx.tests: tabx
 y.tabx: ; $(PYTHON3) $(TAB_4XLSX:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
 y tabx: ; $(PYTHON3) $(TAB_4XLSX:.py=.tests.py) -v $V
 y_%: ;    $(PYTHON3) $(TAB_4XLSX:.py=.tests.py) -v $V $@ --failfast
-Y_%: ;    $(PYTHON3) $(TAB_4XLSX:.py=.tests.py) -vv $V $@ --failfast
+Y_%: ;    $(PYTHON3) $(TAB_4XLSX:.py=.tests.py) -vv $V $@ --failfast --keep
 
 netrc.tests: nett
 n.nett: ; $(PYTHON3) $(NET_UTILS:.py=.tests.py) -v $V  --xmlresults=TEST-$@.xml
