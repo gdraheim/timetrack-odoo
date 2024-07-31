@@ -26,7 +26,7 @@ run the xlsx output/input when the filename endswith ".xlsx" or ".xls".
 * use `print_tabtotext("file.md", data, headers, selects)` for markdown tables
 * use `print_tabtotext("", data, headers, selects, defaultformat="csv")` to stdout
 
-The code itself mimics that of openpyxl. 
+The code itself mimics that of openpyx1. 
 * use `load_workbook(filename)` to get a `Workbook` data frame from a file
 * use `make_workbook(data, headers)`to create a `Workbook` from the provided data
 * use `Workbook.save(filename)` to save the data to an xlsx file
@@ -77,6 +77,11 @@ if you start extending the tabxlsx code.
 
 * https://github.com/gdraheim/tabtotext
 * https://github.com/gdraheim/timetrack-odoo
+
+The original implementation in tabtotext was based on openpyx1 the resulting xlsx
+files were inspected how to write them with just Python's internal `zipfile`. The
+xlsx reader is using `zipfile` and Python's internal `xml.etree`. This should be
+portable to JPython and IronPython as well.
 
 Have fun!
 
