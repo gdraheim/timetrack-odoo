@@ -16,16 +16,16 @@ The tabxlsx.py script can be used as a library.
 
 * use `readFromXLSX("file.xlsx") -> data` to get data out of an Excel file
 * use `tabtextfileXLSX("file.xlsx") -> (data, headers)` to get data and header info
-* use `tabtoXLSX("file.xlsx", data, headers, selects)` to write data into an Excel file
+* use `tabtoXLSX("file.xlsx", data, headers, selected)` to write data into an Excel file
 
 and there are generic function that allow to write CSV and Markdown tables. These will
 run the xlsx output/input when the filename endswith ".xlsx" or ".xls".
 
 * use `tabtextfile("file.csv") -> (data, headers)` to get data and header from csv files
 * use `tabtextfile("file.md") -> (data, headers)` to get it for markdown tables in text
-* use `print_tabtotext("file.csv", data, headers, selects)` to write a csv file
-* use `print_tabtotext("file.md", data, headers, selects)` for markdown tables
-* use `print_tabtotext("", data, headers, selects, defaultformat="csv")` to stdout
+* use `print_tabtotext("file.csv", data, headers, selected)` to write a csv file
+* use `print_tabtotext("file.md", data, headers, selected)` for markdown tables
+* use `print_tabtotext("", data, headers, selected, defaultformat="csv")` to stdout
 
 The code itself mimics that of openpyx1. 
 * use `load_workbook(filename)` to get a `Workbook` data frame from a file
@@ -46,9 +46,9 @@ Use `tabxlsx.py --help` for the latest options when running the script as a comm
 line tool. The first argument is usually some `data.xlsx` but it can also be `.csv`
 or `.md` file - the input parser gets selected from the file extension automatically.
 
-Additional arguments are the columns to be selected for output - being a subset of
+Additional arguments are the columns to be `selected` for output - being a subset of
 the data from the input file. Just like with `headers` each column can be formatted
-in the style of Python's `string.format()`. The `selects` columns fall back to known
+in the style of Python's `string.format()`. The `selected` columns fall back to known
 formatting if not provided - including Date/Time columns which are generally
 recognized in all library parts.
 
