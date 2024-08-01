@@ -31,6 +31,8 @@ The code itself mimics that of openpyx1.
 * use `load_workbook(filename)` to get a `Workbook` data frame from a file
 * use `make_workbook(data, headers)`to create a `Workbook` from the provided data
 * use `Workbook.save(filename)` to save the data to an xlsx file
+* and `workbook.create_sheet().cell(1,1).alignment = Alignment(horizontal="right")`
+* and of course `workbook.active.cell(1,2).value = 1` with Python's basic data types
 
 The `headers` arguments defines the default order and formatting of the provided
 input data, which is `List[Dict[str, CellValue]]`, so each row does not have an
@@ -46,7 +48,7 @@ or `.md` file - the input parser gets selected from the file extension automatic
 
 Additional arguments are the columns to be selected for output - being a subset of
 the data from the input file. Just like with `headers` each column can be formatted
-in the style of Python's `string.format()`. The `selects` fall back to known
+in the style of Python's `string.format()`. The `selects` columns fall back to known
 formatting if not provided - including Date/Time columns which are generally
 recognized in all library parts.
 
@@ -79,7 +81,7 @@ if you start extending the tabxlsx code.
 * https://github.com/gdraheim/tabtotext
 * https://github.com/gdraheim/timetrack-odoo
 
-The original implementation in tabtotext was based on openpyx1 the resulting xlsx
+The original implementation in tabtoxlsx was based on openpyx1. The resulting xlsx
 files were inspected how to write them with just Python's internal `zipfile`. The
 xlsx reader is using `zipfile` and Python's internal `xml.etree`. This should be
 portable to JPython and IronPython as well. And tests showed tabxlsx to be 10x
