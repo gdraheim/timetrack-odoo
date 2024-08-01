@@ -37,8 +37,8 @@ The code itself mimics that of openpyx1.
 The `headers` arguments defines the default order and formatting of the provided
 input data, which is `List[Dict[str, CellValue]]`, so each row does not have an
 implicit order. Using `["b:.2f", "a"]` shows the `"b"` values first formatted with
-two digits after the decimal point. Then `"a"` column follows and then the rest in
-alphabetic order.
+two digits after the decimal point. Then the `"a"` column follows, and then the rest 
+in alphabetic order.
 
 ### run tabxlsx.py
 
