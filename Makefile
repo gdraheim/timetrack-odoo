@@ -177,8 +177,12 @@ insxlsx:
 	$(MAKE) $(TAB)/setup.py
 	cd $(TAB) && $(PYTHON3) -m pip install --no-compile --user .
 	$(MAKE) showxlsx
-showxlsx: ; $(PYTHON3) -m pip show -f $$(sed -e '/^name *=/!d' -e 's/.*= *//' setup.tabxlsx.cfg)
-unsxlsx: ; $(PYTHON3) -m pip uninstall -vv --yes $$(sed -e '/^name *=/!d' -e 's/.*= *//' setup.tabxlsx.cfg)
+showxlsx:
+	test -d tmp || mkdir -v tmp
+	cd tmp && $(PYTHON3) -m pip show -f $$(sed -e '/^name *=/!d' -e 's/.*= *//' ../setup.tabxlsx.cfg)
+unsxlsx: 
+	test -d tmp || mkdir -v tmp
+	cd tmp && $(PYTHON3) -m pip uninstall -vv --yes $$(sed -e '/^name *=/!d' -e 's/.*= *//' ../setup.tabxlsx.cfg)
 
 README: README.md Makefile
 	cat README.md | sed -e "/\\/badge/d" -e /^---/q > README
