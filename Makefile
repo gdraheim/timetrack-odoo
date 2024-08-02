@@ -205,11 +205,12 @@ ins install:
 	$(PYTHON3) -m pip install --no-compile --user .
 	rm -v setup.py
 	$(MAKE) show | sed -e "s|[.][.]/[.][.]/[.][.]/bin|$$HOME/.local/bin|"
-show:;  $(PYTHON3) -m pip show -f $$(sed -e '/^name *=/!d' -e 's/.*= *//' setup.cfg)
+show:
+	test -d tmp || mkdir -v tmp
+	cd tmp && $(PYTHON3) -m pip show -f $$(sed -e '/^name *=/!d' -e 's/.*= *//' ../setup.cfg)
 uns uninstall: setup.py
-	$(MAKE) setup.py
-	$(PYTHON3) -m pip uninstall -v --yes $$(sed -e '/^name *=/!d' -e 's/.*= *//' setup.cfg)
-	rm -v setup.py
+	test -d tmp || mkdir -v tmp
+	cd tmp && $(PYTHON3) -m pip uninstall -v --yes $$(sed -e '/^name *=/!d' -e 's/.*= *//' ../setup.cfg)
 
 tar:
 	- rm -f ../timetrack-odoo-20*.tgz
