@@ -92,15 +92,18 @@ and `make x_9020` runs "test_9020" in that tests.py.
 * `make insxlsx` 
 * `make unsxlsx`
 * `make coverage` 
-* update README.md with the result from coverage
+   * update README.md with the result from coverage
 * `git push` # if necessary
-* wait for github workflows to be okay
+   * wait for github workflows to be okay
 * prepare a tmp.changes.txt 
-* `git tag -F tmp.changes.txt v1.x` to the version in zziplib.spec
+* `make tag`
+   * `git tag -F tmp.changes.txt v1.x` to the version in zziplib.spec
 * `git push --tags`
 * update the short description on github
-* `make xlsx` and executed the shown `twine upload` to pypi.org
-* `make build` and executed the shown `twine upload` to pypi.org
+* `make xlsx` 
+  * execute shown `twine upload` to pypi.org
+* `make build`
+  * execute shown `twine upload` to pypi.org
 
 ## TODO
 

@@ -137,6 +137,10 @@ version:
 	@ grep ^__version__ $(FILES) | grep -v .tests.py
 	@ ver=`cat $(MAIN_PROG) | sed -e '/__version__/!d' -e 's/.*= *"//' -e 's/".*//' -e q` \
 	; echo "# $(GIT) commit -m v$$ver"
+tag:
+	@ ver=`grep "version.*=" setup.cfg | sed -e "s/version *= */v/"` \
+	; rev=`git rev-parse --short HEAD` \
+	; echo ": ${GIT} tag $$ver $$rev"
 
 TESTSUITE = $(MAIN_PROG:.py=.tests.py)
 
