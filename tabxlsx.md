@@ -64,6 +64,8 @@ or `"@data"` with the latter being tab-seperated CSV.
 * use `./tabxlsx.py data.xlsx b:2.f a` # format the b number for a 2-column table
 * use `./tabxlsx.py data.xlsx a --unique` # get one column out, remove duplicates
 
+Converting to and from `"@json"` is supported as well but it spoils the column order.
+
 
 ### development
 
