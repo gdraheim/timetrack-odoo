@@ -10847,6 +10847,12 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
         want = test018Q
         back = readFromXLSX(filename)
         self.assertEqual(_date(want), _date(back))

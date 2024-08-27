@@ -378,7 +378,7 @@ def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
                     set_cell(ws, row, col, value, txt_style)
             col += 1
         row += 1
-    if legend:
+    if legend and False:
         ws = workbook.create_sheet()
         ws.title = "legend"
         if isinstance(legend, str):
@@ -390,6 +390,19 @@ def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
         else:
             for row, line in enumerate(legend):
                 set_cell(ws, row, 1, line, txt_style)
+    if legend and True:
+        if isinstance(legend, str):
+            text = '="%s"' % legend.replace('"',"'")
+            set_cell(ws, row+0, 1, text, txt_style)
+        elif isinstance(legend, dict):
+            for num, name in enumerate(legend):
+                text = '="%s"' % legend[name].replace('"',"'")
+                set_cell(ws, row+num, 0, name, txt_style)
+                set_cell(ws, row+num, 1, text, txt_style)
+        else:
+            for num, line in enumerate(legend):
+                text = '="%s"' % line.replace('"',"'")
+                set_cell(ws, row+num, 0, text, txt_style)
     return workbook
 
 def readFromXLSX(filename: str) -> JSONList:
@@ -414,6 +427,8 @@ def tabtextfileXLSX(filename: str) -> TabText:
         found = 0
         for atcol in range(len(cols)):
             cell = ws.cell(row=atrow + 2, column=atcol + 1)
+            if cell.data_type in ["f"]:
+                continue
             value = cell.value
             # logg.debug("[%i,%si] cell.value = %s", atcol, atrow, value)
             if value is not None:
