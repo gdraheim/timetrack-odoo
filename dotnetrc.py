@@ -6,7 +6,7 @@ can also read the ~/.git-credentials format. Even a mix of entries is possible
 where extensions should only be used in a ~/.net-credentials filename. ////
 Use command './dotnetrc.py set <url> <name> <pass>' to write entries."""
 
-__version__ = "0.4.3321"
+__version__ = "0.4.3352"
 
 # dot git-credentials format:
 #   https://<username>:<password>@<hostname>
