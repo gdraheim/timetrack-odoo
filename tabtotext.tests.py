@@ -5,7 +5,7 @@ __version__ = "1.6.3352"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable
 from tabtotext import JSONList, JSONDict, JSONItem, DataList, DataItem
-from tabtotext import loadCSV, loadGFM, StrToDate
+from tabtotext import loadCSV, loadGFM, loadHTML, StrToDate, StrToTime
 import tabtotext
 import unittest
 import sys
@@ -251,14 +251,14 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text)
         self.assertEqual(len(text), 40)
     def test_1100(self) -> None:
-        time = tabtotext.StrToTime()
+        time = StrToTime()
         want = Date(2022, 12, 23)
         have = time("2022-12-23")
         self.assertEqual(have, want)
         have = time("2022-12-23.")
         self.assertEqual(have, want)
     def test_1101(self) -> None:
-        time = tabtotext.StrToTime()
+        time = StrToTime()
         want = "2022-12-23T"
         have = time(want)
         self.assertEqual(have, want)
@@ -266,14 +266,14 @@ class TabToTextTest(unittest.TestCase):
         have = time(want)
         self.assertEqual(have, want)
     def test_1102(self) -> None:
-        time = tabtotext.StrToTime()
+        time = StrToTime()
         want = Time(2022, 12, 23, 14, 45)
         have = time("2022-12-23T14:45")
         self.assertEqual(have, want)
         have = time("2022-12-23.14:45:00")
         self.assertEqual(have, want)
     def test_1103(self) -> None:
-        time = tabtotext.StrToTime()
+        time = StrToTime()
         want = "2022-12-23T14"
         have = time(want)
         self.assertEqual(have, want)
@@ -284,7 +284,7 @@ class TabToTextTest(unittest.TestCase):
         have = time(want)
         self.assertEqual(have, want)
     def test_1104(self) -> None:
-        time = tabtotext.StrToTime()
+        time = StrToTime()
         want = Time(2022, 12, 23, 14, 45, tzinfo=TimeZone.utc)
         have = time("2022-12-23T14:45Z")
         self.assertEqual(have, want)
@@ -293,7 +293,7 @@ class TabToTextTest(unittest.TestCase):
         have = time("2022-12-23.14:45:00 +00")
         self.assertEqual(have, want)
     def test_1105(self) -> None:
-        time = tabtotext.StrToTime()
+        time = StrToTime()
         want = "2022-12-23T14Z"
         have = time(want)
         self.assertEqual(have, want)
@@ -304,7 +304,7 @@ class TabToTextTest(unittest.TestCase):
         have = time(want)
         self.assertEqual(have, want)
     def test_1106(self) -> None:
-        time = tabtotext.StrToTime()
+        time = StrToTime()
         want = Time(2022, 12, 23, 14, 45, tzinfo=TimeZone(Plus(hours=1)))
         have = time("2022-12-23T14:45+01")
         self.assertEqual(have, want)
@@ -313,7 +313,7 @@ class TabToTextTest(unittest.TestCase):
         have = time("2022-12-23.14:45:00 +01:00")
         self.assertEqual(have, want)
     def test_1107(self) -> None:
-        time = tabtotext.StrToTime()
+        time = StrToTime()
         want = "2022-12-23T14+01"
         have = time(want)
         self.assertEqual(have, want)
@@ -325,7 +325,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(have, want)
     def test_1109(self) -> None:
         BB = 880 * 1000
-        time = tabtotext.StrToTime()
+        time = StrToTime()
         want = Time(2022, 12, 23, 14, 45, 55, BB, tzinfo=TimeZone(Plus(hours=-1)))
         have = time("2022-12-23T14:45:55.88-01")
         self.assertEqual(have, want)
