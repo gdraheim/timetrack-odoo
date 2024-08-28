@@ -17,4 +17,5 @@ dist
 coverage.*
 .~*
 *,cover
+.vscode
 
