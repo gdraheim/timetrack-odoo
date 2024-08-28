@@ -16,4 +16,5 @@ dist
 .coverage
 coverage.*
 .~*
+*,cover
 
