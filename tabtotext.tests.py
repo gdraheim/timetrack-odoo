@@ -5,7 +5,7 @@ __version__ = "1.6.3352"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable
 from tabtotext import JSONList, JSONDict, JSONItem, DataList, DataItem
-from tabtotext import loadCSV, loadGFM
+from tabtotext import loadCSV, loadGFM, StrToDate
 import tabtotext
 import unittest
 import sys
@@ -332,6 +332,25 @@ class TabToTextTest(unittest.TestCase):
         have = time("2022-12-23.14:45:55.880 -0100")
         self.assertEqual(have, want)
         have = time("2022-12-23.14:45:55.880000 -01:00")
+        self.assertEqual(have, want)
+    def test_1110(self) -> None:
+        time = StrToDate()
+        want = Date(2022, 12, 23)
+        have = time("2022-12-23")
+        self.assertEqual(have, want)
+        have = time("2022-12-23.")
+        self.assertEqual(have, want)
+        have = time("2022-12-23T23:45")
+        self.assertEqual(have, want)
+        have = time("2022-12-23++++")
+        self.assertEqual(have, want)
+    def test_1111(self) -> None:
+        time = StrToDate()
+        want = "2022-12-234"
+        have = time(want)
+        self.assertEqual(have, want)
+        want = "2022-12-2"
+        have = time(want)
         self.assertEqual(have, want)
     #
     def test_4003(self) -> None:

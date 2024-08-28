@@ -222,12 +222,25 @@ class StrToDate:
     def __init__(self, datedelim: str = "-") -> None:
         self.delim = datedelim
         self.is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)[.]?$".replace('-', datedelim))
+        self.is_part = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)[^\d].*".replace('-', datedelim))
     def date(self, value: str) -> Optional[Date]:
         got = self.is_date.match(value)
         if got:
             y, m, d = got.group(1), got.group(2), got.group(3)
             return Date(int(y), int(m), int(d))
         return None
+    def datepart(self, value: str) -> Optional[Date]:
+        got = self.is_part.match(value)
+        if got:
+            y, m, d = got.group(1), got.group(2), got.group(3)
+            return Date(int(y), int(m), int(d))
+        return None
+    def __call__(self, value: str) -> Union[str, Date, Time]:
+        d = self.date(value)
+        if d: return d
+        p = self.datepart(value)
+        if p: return p
+        return value
 class StrToTime(StrToDate):
     """ parsing iso8601 day or day-and-time formats with zone offsets"""
     def __init__(self, datedelim: str = "-") -> None:
