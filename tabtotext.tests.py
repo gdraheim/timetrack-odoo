@@ -5,7 +5,7 @@ __version__ = "1.6.3352"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable
 from tabtotext import JSONList, JSONDict, JSONItem, DataList, DataItem
-from tabtotext import loadCSV, loadGFM, loadHTML, StrToDate, StrToTime
+from tabtotext import loadJSON, loadCSV, loadGFM, loadHTML, StrToDate, StrToTime
 import tabtotext
 import unittest
 import sys
@@ -2308,7 +2308,7 @@ class TabToTextTest(unittest.TestCase):
         want = test003
         cond = ['[', '', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5004(self) -> None:
         text = tabtotext.tabToJSON(test004)
@@ -2316,7 +2316,7 @@ class TabToTextTest(unittest.TestCase):
         want = test004
         cond = ['[', ' {}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5005(self) -> None:
         text = tabtotext.tabToJSON(test005)
@@ -2324,7 +2324,7 @@ class TabToTextTest(unittest.TestCase):
         want = test005
         cond = ['[', ' {"a": "x"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5006(self) -> None:
         text = tabtotext.tabToJSON(test006)
@@ -2332,7 +2332,7 @@ class TabToTextTest(unittest.TestCase):
         want = test006
         cond = ['[', ' {"a": "x", "b": "y"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5007(self) -> None:
         text = tabtotext.tabToJSON(test007)
@@ -2340,7 +2340,7 @@ class TabToTextTest(unittest.TestCase):
         want = test007
         cond = ['[', ' {"a": "x", "b": "y"},', ' {"b": "v"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5008(self) -> None:
         text = tabtotext.tabToJSON(test008)
@@ -2348,7 +2348,7 @@ class TabToTextTest(unittest.TestCase):
         want = test008
         cond = ['[', ' {"a": "x"},', ' {"b": "v"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5009(self) -> None:
         text = tabtotext.tabToJSON(test009)
@@ -2356,7 +2356,7 @@ class TabToTextTest(unittest.TestCase):
         want = test009
         cond = ['[', ' {},', ' {"b": "v"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5011(self) -> None:
         text = tabtotext.tabToJSON(test011)
@@ -2364,7 +2364,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['[', ' {"b": null}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5012(self) -> None:
         text = tabtotext.tabToJSON(test012)
@@ -2372,7 +2372,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['[', ' {"b": false}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5013(self) -> None:
         text = tabtotext.tabToJSON(test013)
@@ -2380,7 +2380,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['[', ' {"b": true}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5014(self) -> None:
         text = tabtotext.tabToJSON(test014)
@@ -2388,7 +2388,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['[', ' {"b": ""}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5015(self) -> None:
         text = tabtotext.tabToJSON(test015)
@@ -2396,7 +2396,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015
         cond = ['[', ' {"b": "5678"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5016(self) -> None:
         text = tabtotext.tabToJSON(test016)
@@ -2404,7 +2404,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['[', ' {"b": 123}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5017(self) -> None:
         text = tabtotext.tabToJSON(test017)
@@ -2412,7 +2412,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['[', ' {"b": 123.40}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5018(self) -> None:
         text = tabtotext.tabToJSON(test018)
@@ -2420,7 +2420,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['[', ' {"b": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5019(self) -> None:
         text = tabtotext.tabToJSON(test019)
@@ -2428,7 +2428,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['[', ' {"b": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5021(self) -> None:
         """ legend is ignored for JSON output """
@@ -2437,7 +2437,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['[', ' {"b": null}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5031(self) -> None:
         """ legend is ignored for JSON output """
@@ -2446,7 +2446,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['[', ' {"b": null}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5044(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
@@ -2454,7 +2454,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[', ' {"b": 1, "a": "y"},', ' {"b": 2, "a": "x"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -2464,7 +2464,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[', ' {"b": 1, "a": "y"},', ' {"b": 2, "a": "x"},', ' {"c": "h"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -2474,7 +2474,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[', ' {"a": "y", "b": 1},', ' {"a": "x", "b": 2},', ' {"c": "h"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -2484,7 +2484,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['[', ' {"b": null}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5052(self) -> None:
         text = tabtotext.tabToJSONx(data012)
@@ -2492,7 +2492,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['[', ' {"b": false}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5053(self) -> None:
         text = tabtotext.tabToJSONx(data013)
@@ -2500,7 +2500,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['[', ' {"b": true}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5054(self) -> None:
         text = tabtotext.tabToJSONx(data014)
@@ -2508,7 +2508,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['[', ' {"b": ""}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5055(self) -> None:
         text = tabtotext.tabToJSONx(data015)
@@ -2516,7 +2516,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015
         cond = ['[', ' {"b": "5678"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5056(self) -> None:
         text = tabtotext.tabToJSONx(data016)
@@ -2524,7 +2524,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['[', ' {"b": 123}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5057(self) -> None:
         text = tabtotext.tabToJSONx(data017)
@@ -2532,7 +2532,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['[', ' {"b": 123.40}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5058(self) -> None:
         text = tabtotext.tabToJSONx(data018)
@@ -2540,7 +2540,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['[', ' {"b": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5059(self) -> None:
         text = tabtotext.tabToJSONx(data019)
@@ -2548,7 +2548,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['[', ' {"b": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5103(self) -> None:
         out = StringIO()
@@ -2559,7 +2559,7 @@ class TabToTextTest(unittest.TestCase):
         want = test003
         cond = ['[', '', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5104(self) -> None:
         out = StringIO()
@@ -2570,7 +2570,7 @@ class TabToTextTest(unittest.TestCase):
         want = test004
         cond = ['[', ' {}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5105(self) -> None:
         out = StringIO()
@@ -2581,7 +2581,7 @@ class TabToTextTest(unittest.TestCase):
         want = test005
         cond = ['[', ' {"a": "x"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5106(self) -> None:
         out = StringIO()
@@ -2592,7 +2592,7 @@ class TabToTextTest(unittest.TestCase):
         want = test006
         cond = ['[', ' {"a": "x", "b": "y"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5107(self) -> None:
         out = StringIO()
@@ -2603,7 +2603,7 @@ class TabToTextTest(unittest.TestCase):
         want = test007
         cond = ['[', ' {"a": "x", "b": "y"},', ' {"b": "v"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5108(self) -> None:
         out = StringIO()
@@ -2614,7 +2614,7 @@ class TabToTextTest(unittest.TestCase):
         want = test008
         cond = ['[', ' {"a": "x"},', ' {"b": "v"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5109(self) -> None:
         out = StringIO()
@@ -2625,7 +2625,7 @@ class TabToTextTest(unittest.TestCase):
         want = test009
         cond = ['[', ' {},', ' {"b": "v"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5111(self) -> None:
         out = StringIO()
@@ -2636,7 +2636,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['[', ' {"b": null}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5112(self) -> None:
         out = StringIO()
@@ -2647,7 +2647,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['[', ' {"b": false}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5113(self) -> None:
         out = StringIO()
@@ -2658,7 +2658,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['[', ' {"b": true}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5114(self) -> None:
         out = StringIO()
@@ -2669,7 +2669,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['[', ' {"b": ""}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5115(self) -> None:
         out = StringIO()
@@ -2680,7 +2680,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015
         cond = ['[', ' {"b": "5678"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5116(self) -> None:
         out = StringIO()
@@ -2691,7 +2691,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['[', ' {"b": 123}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5117(self) -> None:
         out = StringIO()
@@ -2702,7 +2702,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['[', ' {"b": 123.40}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5118(self) -> None:
         out = StringIO()
@@ -2713,7 +2713,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['[', ' {"b": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5119(self) -> None:
         out = StringIO()
@@ -2724,7 +2724,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['[', ' {"b": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5131(self) -> None:
         """ legend is ignored for JSON output """
@@ -2736,7 +2736,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['[', ' {"b": null}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5143(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
@@ -2747,7 +2747,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[', ' {"b": 2, "a": "x"},', ' {"b": 1, "a": "y"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 1}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -2760,7 +2760,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[', ' {"b": 1, "a": "y"},', ' {"b": 2, "a": "x"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -2773,7 +2773,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[', ' {"b": 1, "a": "y"},', ' {"b": 2, "a": "x"},', ' {"c": "h"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -2786,7 +2786,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[', ' {"a": "y", "b": 1},', ' {"a": "x", "b": 2},', ' {"c": "h"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -2801,7 +2801,7 @@ class TabToTextTest(unittest.TestCase):
         # = ['[', ' {"a": "y", "b": 1},', ' {"a": "x", "b": 2},', ' {"c": "h"}', ']']
         cond = ['[', ' {"a":"y","b":1},', ' {"a":"x","b":2},', ' {"c":"h"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -3553,7 +3553,7 @@ class TabToTextTest(unittest.TestCase):
         want = test003
         cond = ['[', '', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5404(self) -> None:
         text = tabtotext.tabtoJSON(test004)
@@ -3561,7 +3561,7 @@ class TabToTextTest(unittest.TestCase):
         want = test004
         cond = ['[', ' {}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5405(self) -> None:
         text = tabtotext.tabtoJSON(test005)
@@ -3569,7 +3569,7 @@ class TabToTextTest(unittest.TestCase):
         want = test005
         cond = ['[', ' {"a": "x"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5406(self) -> None:
         text = tabtotext.tabtoJSON(test006)
@@ -3577,7 +3577,7 @@ class TabToTextTest(unittest.TestCase):
         want = test006
         cond = ['[', ' {"a": "x", "b": "y"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5407(self) -> None:
         text = tabtotext.tabtoJSON(test007)
@@ -3585,7 +3585,7 @@ class TabToTextTest(unittest.TestCase):
         want = test007
         cond = ['[', ' {"a": "x", "b": "y"},', ' {"b": "v"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5408(self) -> None:
         text = tabtotext.tabtoJSON(test008)
@@ -3593,7 +3593,7 @@ class TabToTextTest(unittest.TestCase):
         want = test008
         cond = ['[', ' {"a": "x"},', ' {"b": "v"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5409(self) -> None:
         text = tabtotext.tabtoJSON(test009)
@@ -3601,7 +3601,7 @@ class TabToTextTest(unittest.TestCase):
         want = test009
         cond = ['[', ' {},', ' {"b": "v"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5411(self) -> None:
         text = tabtotext.tabtoJSON(test011)
@@ -3609,7 +3609,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['[', ' {"b": null}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5412(self) -> None:
         text = tabtotext.tabtoJSON(test012)
@@ -3617,7 +3617,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['[', ' {"b": false}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5413(self) -> None:
         text = tabtotext.tabtoJSON(test013)
@@ -3625,7 +3625,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['[', ' {"b": true}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5414(self) -> None:
         text = tabtotext.tabtoJSON(test014)
@@ -3633,7 +3633,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['[', ' {"b": ""}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5415(self) -> None:
         text = tabtotext.tabtoJSON(test015)
@@ -3641,7 +3641,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015
         cond = ['[', ' {"b": "5678"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5416(self) -> None:
         text = tabtotext.tabtoJSON(test016)
@@ -3649,7 +3649,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['[', ' {"b": 123}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5417(self) -> None:
         text = tabtotext.tabtoJSON(test017)
@@ -3657,7 +3657,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['[', ' {"b": 123.40}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5418(self) -> None:
         text = tabtotext.tabtoJSON(test018)
@@ -3665,7 +3665,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['[', ' {"b": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5419(self) -> None:
         text = tabtotext.tabtoJSON(test019)
@@ -3673,7 +3673,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['[', ' {"b": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5421(self) -> None:
         """ legend is ignored for JSON output """
@@ -3682,7 +3682,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['[', ' {"b": null}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5431(self) -> None:
         """ legend is ignored for JSON output """
@@ -3691,7 +3691,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['[', ' {"b": null}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5444(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
@@ -3699,7 +3699,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[', ' {"b": 1, "a": "y"},', ' {"b": 2, "a": "x"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -3709,7 +3709,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[', ' {"b": 1, "a": "y"},', ' {"b": 2, "a": "x"},', ' {"c": "h"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -3719,7 +3719,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[', ' {"a": "y", "b": 1},', ' {"a": "x", "b": 2},', ' {"c": "h"}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -3729,7 +3729,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {},', ' {"a": "x"}', ']']
         want = [{}, {'a': 'x'}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5471(self) -> None:
         text = tabtotext.tabtoJSON(table02, ["b", "a"], ["a"])
@@ -3737,7 +3737,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {},', ' {"a": "x"}', ']']
         want = [{}, {'a': 'x'}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5472(self) -> None:
         text = tabtotext.tabtoJSON(table22, ["b", "a"], ["a"])
@@ -3745,7 +3745,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"a": "x"},', ' {"a": "y"}', ']']
         want = [{'a': 'x'}, {'a': 'y'}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5473(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["b", "a"], ["a"])
@@ -3753,7 +3753,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"a": null},', ' {"a": "x"},', ' {"a": "y"}', ']']
         want = [{'a': None}, {'a': 'x'}, {'a': 'y'}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5474(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["c", "a"], ["a"])
@@ -3761,7 +3761,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"a": null},', ' {"a": "x"},', ' {"a": "y"}', ']']
         want = [{'a': None}, {'a': 'x'}, {'a': 'y'}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5475(self) -> None:
         text = tabtotext.tabtoJSON(table02, ["b", "a"], ["b"])
@@ -3769,7 +3769,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"b": 0},', ' {"b": 2}', ']']
         want = [{'b': 0}, {'b': 2}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5476(self) -> None:
         text = tabtotext.tabtoJSON(table22, ["b", "a"], ["b"])
@@ -3777,7 +3777,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"b": 2},', ' {"b": 3}', ']']
         want = [{'b': 2}, {'b': 3}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5477(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["b", "a"], ["b"])
@@ -3785,7 +3785,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"b": 2},', ' {"b": 3},', ' {}', ']']
         want = [{'b': 2}, {'b': 3}, {}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5478(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["c", "a"], ["b"])
@@ -3793,7 +3793,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"b": 2},', ' {"b": 3},', ' {}', ']']
         want = [{'b': 2}, {'b': 3}, {}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5479(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["c", "a"], ["c"])
@@ -3801,7 +3801,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"c": "2021-12-30"},', ' {"c": "2021-12-31"},', ' {"c": "2021-12-31"}', ']']
         want = [{'c': Date(2021, 12, 30)}, {'c': Date(2021, 12, 31)}, {'c': Date(2021, 12, 31)}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5530(self) -> None:
         text = tabtotext.tabtoJSON(table01, ["a|b"])
@@ -3809,7 +3809,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"a": "x"},', ' {"b": 1}', ']']
         self.assertEqual(cond, text.splitlines())
         want = table01
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5531(self) -> None:
         text = tabtotext.tabtoJSON(table02, ["a|b"])
@@ -3817,7 +3817,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"a": "x", "b": 0},', ' {"b": 2}', ']']
         self.assertEqual(cond, text.splitlines())
         want = table02
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5532(self) -> None:
         text = tabtotext.tabtoJSON(table22, ["a|b"])
@@ -3825,7 +3825,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"a": "x", "b": 3},', ' {"a": "y", "b": 2}', ']']
         self.assertEqual(cond, text.splitlines())
         want = table22
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5533(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["a|b"])
@@ -3835,7 +3835,7 @@ class TabToTextTest(unittest.TestCase):
                 ' {"a": null, "c": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
         want = table33
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(_date(want), back)
     def test_5534(self) -> None:
         text = tabtotext.tabtoJSON(table44, ["a|b"])
@@ -3846,7 +3846,7 @@ class TabToTextTest(unittest.TestCase):
                 ' {"a": "y", "b": 1, "d": 0.10}', ']']
         self.assertEqual(cond, text.splitlines())
         want = table44
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5535(self) -> None:
         text = tabtotext.tabtoJSON(table01, ["b|a"])
@@ -3854,7 +3854,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"a": "x"},', ' {"b": 1}', ']']
         self.assertEqual(cond, text.splitlines())
         want = table01
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5536(self) -> None:
         text = tabtotext.tabtoJSON(table02, ["b|a"])
@@ -3862,7 +3862,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"b": 0, "a": "x"},', ' {"b": 2}', ']']
         self.assertEqual(cond, text.splitlines())
         want = table02
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5537(self) -> None:
         text = tabtotext.tabtoJSON(table22, ["b|a"])
@@ -3870,7 +3870,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"b": 3, "a": "x"},', ' {"b": 2, "a": "y"}', ']']
         self.assertEqual(cond, text.splitlines())
         want = table22
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(want, back)
     def test_5538(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["b|a"])
@@ -3880,7 +3880,7 @@ class TabToTextTest(unittest.TestCase):
                 ' {"a": null, "c": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
         want = table33
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(_date(want), back)
     def test_5539(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["b|c|a"])
@@ -3890,7 +3890,7 @@ class TabToTextTest(unittest.TestCase):
                 ' {"c": "2021-12-31", "a": null}', ']']
         self.assertEqual(cond, text.splitlines())
         want = table33
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         self.assertEqual(_date(want), back)
     def test_5594(self) -> None:
         text = tabtotext.tabtoJSON(table44, ["a|b"], ["a|b"])
@@ -4642,7 +4642,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[', ' {"a": "x", "b": 2},', ' {"a": "y", "b": 3}', ']']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
+        back = loadJSON(text)
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
