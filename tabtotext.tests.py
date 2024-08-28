@@ -5,7 +5,7 @@ __version__ = "1.6.3352"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable
 from tabtotext import JSONList, JSONDict, JSONItem, DataList, DataItem
-from tabtotext import loadJSON, loadCSV, loadGFM, loadHTML, StrToDate, StrToTime
+from tabtotext import loadJSON, loadCSV, loadGFM, loadHTML, loadYAML, loadTOML, StrToDate, StrToTime
 import tabtotext
 import unittest
 import sys
@@ -2923,7 +2923,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['data:', '- b: null']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5212(self) -> None:
         text = tabtotext.tabToYAML(test012)
@@ -2931,7 +2931,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['data:', '- b: false']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5213(self) -> None:
         text = tabtotext.tabToYAML(test013)
@@ -2939,7 +2939,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['data:', '- b: true']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5214(self) -> None:
         text = tabtotext.tabToYAML(test014)
@@ -2947,7 +2947,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['data:', '- b: ""']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5215(self) -> None:
         text = tabtotext.tabToYAML(test015)
@@ -2955,7 +2955,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015
         cond = ['data:', '- b: "5678"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5216(self) -> None:
         text = tabtotext.tabToYAML(test016)
@@ -2963,7 +2963,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['data:', '- b: 123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5217(self) -> None:
         text = tabtotext.tabToYAML(test017)
@@ -2971,7 +2971,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['data:', '- b: 123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5218(self) -> None:
         text = tabtotext.tabToYAML(test018)
@@ -2979,7 +2979,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['data:', '- b: 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5219(self) -> None:
         text = tabtotext.tabToYAML(test019)
@@ -2987,7 +2987,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['data:', '- b: 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5221(self) -> None:
         text = tabtotext.tabToTOML(test011)
@@ -2995,7 +2995,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011Q
         cond = ['[[data]]', '']  # toml can not encode null
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5222(self) -> None:
         text = tabtotext.tabToTOML(test012)
@@ -3003,7 +3003,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['[[data]]', 'b = false']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5223(self) -> None:
         text = tabtotext.tabToTOML(test013)
@@ -3011,7 +3011,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['[[data]]', 'b = true']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5224(self) -> None:
         text = tabtotext.tabToTOML(test014)
@@ -3019,7 +3019,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['[[data]]', 'b = ""']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5225(self) -> None:
         text = tabtotext.tabToTOML(test015)
@@ -3027,7 +3027,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015
         cond = ['[[data]]', 'b = "5678"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5226(self) -> None:
         text = tabtotext.tabToTOML(test016)
@@ -3035,7 +3035,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['[[data]]', 'b = 123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5227(self) -> None:
         text = tabtotext.tabToTOML(test017)
@@ -3043,7 +3043,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['[[data]]', 'b = 123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5228(self) -> None:
         text = tabtotext.tabToTOML(test018)
@@ -3051,7 +3051,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['[[data]]', 'b = 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5229(self) -> None:
         text = tabtotext.tabToTOML(test019)
@@ -3059,7 +3059,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['[[data]]', 'b = 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
 
     def test_5241(self) -> None:
@@ -3068,7 +3068,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['data:', '- a: "x"', '  b: 2', '- a: "y"', '  b: 3', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -3078,7 +3078,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[[data]]', 'a = "x"', 'b = 2', '[[data]]', 'a = "y"', 'b = 3', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -3088,7 +3088,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['data:', '- b: 1', '  a: "y"', '- b: 2', '  a: "x"', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         want = [{'a': "y", 'b': 1}, {'a': "x", 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -3098,7 +3098,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[[data]]', 'b = 1', 'a = "y"', '[[data]]', 'b = 2', 'a = "x"', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -3108,7 +3108,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['data:', '- a: "y"', '  b: 1', '- a: "x"', '  b: 2', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         want = [{'a': "y", 'b': 1}, {'a': "x", 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -3118,7 +3118,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[[data]]', 'a = "y"', 'b = 1', '[[data]]', 'a = "x"', 'b = 2', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -3130,7 +3130,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['data:', '- a: "x"', '  b: 2', '- a: "y"', '  b: 3', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -3142,7 +3142,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[[data]]', 'a = "x"', 'b = 2', '[[data]]', 'a = "y"', 'b = 3', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -3153,7 +3153,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['data:', '- b: null']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5252(self) -> None:
         text = tabtotext.tabToYAMLx(data012)
@@ -3161,7 +3161,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['data:', '- b: false']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5253(self) -> None:
         text = tabtotext.tabToYAMLx(data013)
@@ -3169,7 +3169,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['data:', '- b: true']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5254(self) -> None:
         text = tabtotext.tabToYAMLx(data014)
@@ -3177,7 +3177,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['data:', '- b: ""']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5255(self) -> None:
         text = tabtotext.tabToYAMLx(data015)
@@ -3185,7 +3185,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015
         cond = ['data:', '- b: "5678"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5256(self) -> None:
         text = tabtotext.tabToYAMLx(data016)
@@ -3193,7 +3193,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['data:', '- b: 123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5257(self) -> None:
         text = tabtotext.tabToYAMLx(data017)
@@ -3201,7 +3201,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['data:', '- b: 123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5258(self) -> None:
         text = tabtotext.tabToYAMLx(data018)
@@ -3209,7 +3209,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['data:', '- b: 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5259(self) -> None:
         text = tabtotext.tabToYAMLx(data019)
@@ -3217,7 +3217,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['data:', '- b: 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5261(self) -> None:
         text = tabtotext.tabToTOMLx(data011)
@@ -3225,7 +3225,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011Q
         cond = ['[[data]]', '']  # toml can not encode null
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5262(self) -> None:
         text = tabtotext.tabToTOMLx(data012)
@@ -3233,7 +3233,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['[[data]]', 'b = false']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5263(self) -> None:
         text = tabtotext.tabToTOMLx(data013)
@@ -3241,7 +3241,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['[[data]]', 'b = true']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5264(self) -> None:
         text = tabtotext.tabToTOMLx(data014)
@@ -3249,7 +3249,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['[[data]]', 'b = ""']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5265(self) -> None:
         text = tabtotext.tabToTOMLx(data015)
@@ -3257,7 +3257,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015
         cond = ['[[data]]', 'b = "5678"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5266(self) -> None:
         text = tabtotext.tabToTOMLx(data016)
@@ -3265,7 +3265,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['[[data]]', 'b = 123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5267(self) -> None:
         text = tabtotext.tabToTOMLx(data017)
@@ -3273,7 +3273,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['[[data]]', 'b = 123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5268(self) -> None:
         text = tabtotext.tabToTOMLx(data018)
@@ -3281,7 +3281,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['[[data]]', 'b = 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5269(self) -> None:
         text = tabtotext.tabToTOMLx(data019)
@@ -3289,7 +3289,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['[[data]]', 'b = 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5311(self) -> None:
         out = StringIO()
@@ -3300,7 +3300,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['data:', '- b: null']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5312(self) -> None:
         out = StringIO()
@@ -3311,7 +3311,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['data:', '- b: false']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5313(self) -> None:
         out = StringIO()
@@ -3322,7 +3322,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['data:', '- b: true']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5314(self) -> None:
         out = StringIO()
@@ -3333,7 +3333,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['data:', '- b: ""']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5315(self) -> None:
         out = StringIO()
@@ -3344,7 +3344,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015
         cond = ['data:', '- b: "5678"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5316(self) -> None:
         out = StringIO()
@@ -3355,7 +3355,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['data:', '- b: 123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5317(self) -> None:
         out = StringIO()
@@ -3366,7 +3366,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['data:', '- b: 123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5318(self) -> None:
         out = StringIO()
@@ -3377,7 +3377,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['data:', '- b: 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5319(self) -> None:
         out = StringIO()
@@ -3388,7 +3388,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['data:', '- b: 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5324(self) -> None:
         out = StringIO()
@@ -3403,7 +3403,7 @@ class TabToTextTest(unittest.TestCase):
                 '- a: null', '  b: null', '  c: true', '  d: 0.20',
                 '- a: "y"', '  b: 1', '  d: 0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5329(self) -> None:
         out = StringIO()
@@ -3418,7 +3418,7 @@ class TabToTextTest(unittest.TestCase):
                 '- a:null', '  b:null', '  c:true', '  d:0.20',
                 '- a:"y"', '  b:1', '  d:0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         self.assertEqual(want, back)
     def test_5361(self) -> None:
         out = StringIO()
@@ -3429,7 +3429,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011Q
         cond = ['[[data]]', '']  # toml can not encode null
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5362(self) -> None:
         out = StringIO()
@@ -3440,7 +3440,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['[[data]]', 'b = false']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5363(self) -> None:
         out = StringIO()
@@ -3451,7 +3451,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['[[data]]', 'b = true']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5364(self) -> None:
         out = StringIO()
@@ -3462,7 +3462,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['[[data]]', 'b = ""']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5365(self) -> None:
         out = StringIO()
@@ -3473,7 +3473,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015
         cond = ['[[data]]', 'b = "5678"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5366(self) -> None:
         out = StringIO()
@@ -3484,7 +3484,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['[[data]]', 'b = 123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5367(self) -> None:
         out = StringIO()
@@ -3495,7 +3495,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['[[data]]', 'b = 123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5368(self) -> None:
         out = StringIO()
@@ -3506,7 +3506,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['[[data]]', 'b = 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5369(self) -> None:
         out = StringIO()
@@ -3517,7 +3517,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['[[data]]', 'b = 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5374(self) -> None:
         out = StringIO()
@@ -3531,7 +3531,7 @@ class TabToTextTest(unittest.TestCase):
                 '[[data]]', 'c = true', 'd = 0.20',
                 '[[data]]', 'a = "y"', 'b = 1', 'd = 0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5379(self) -> None:
         out = StringIO()
@@ -3545,7 +3545,7 @@ class TabToTextTest(unittest.TestCase):
                 '[[data]]', 'c=true', 'd=0.20',
                 '[[data]]', 'a="y"', 'b=1', 'd=0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         self.assertEqual(want, back)
     def test_5403(self) -> None:
         text = tabtotext.tabtoJSON(test003)
@@ -4654,7 +4654,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['data:', '- a: "x"', '  b: 2', '- a: "y"', '  b: 3', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
+        back = loadYAML(text)
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -4666,7 +4666,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['[[data]]', 'a = "x"', 'b = 2', '[[data]]', 'a = "y"', 'b = 3', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
+        back = loadTOML(text)
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
