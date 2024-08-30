@@ -6,6 +6,9 @@ __version__ = "1.6.3352"
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable
 from tabtotext import JSONList, JSONDict, JSONItem, DataList, DataItem
 from tabtotext import loadJSON, loadCSV, loadGFM, loadHTML, loadYAML, loadTOML, StrToDate, StrToTime
+from tabtotext import print_tabtotext, print_tablist, StrToTime, StrToDate
+from tabtotext import tablistfile, tablistmap, tablistfor, tablistscanGFM
+from tabtotext import TabSheet
 import tabtotext
 import unittest
 import sys
@@ -11575,6 +11578,66 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a;wide', ';', 'x;3.0in', 'y;1.0in', 'y;2.0in']
         self.assertEqual(cond, text.splitlines())
         self.rm_testdir()
+    def test_9821(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "output.xlsx")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename}")
+        logg.info("=>\n%s", text)
+        want = { "table22": table22, "table33": _date(_none(table33Q))}
+        scan = tablistscanGFM(text)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_9822(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "output.xlsx")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -: table22")
+        logg.info("=>\n%s", text)
+        want = { "table22": table22, }
+        scan = tablistscanGFM(text)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_9823(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "output.xlsx")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -: table33")
+        logg.info("=>\n%s", text)
+        want = { "table33": _none(table33Q), }
+        scan = tablistscanGFM(text)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_9824(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "output.xlsx")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -2")
+        logg.info("=>\n%s", text)
+        want = { "-1": _none(table33Q), }
+        scan = tablistscanGFM(text)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
 
 if __name__ == "__main__":
     # unittest.main()
