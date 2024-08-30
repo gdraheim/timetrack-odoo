@@ -4634,6 +4634,31 @@ class TabToTextTest(unittest.TestCase):
                 ' {"d": 0.40, "info": "x", "mm": 3}',
                 ']']
         self.assertEqual(cond, text.splitlines())
+    def test_5811(self) -> None:
+        tablist = { "table01": table01, "table02": table02}
+        text = tabtotext.tablistmakeFMT("json", tabtotext.tablistfor(tablist))
+        logg.debug("%s => %s", tablist, text.splitlines())
+        cond = ['{"table01": [', ' {"a": "x"},', ' {"b": 1}',
+               '],"table02": [', ' {"a": "x", "b": 0},', ' {"b": 2}',']}']
+        self.assertEqual(cond, text.splitlines())
+        want = tablist
+        scan = tabtotext.tablistscanJSON(text)
+        back = tabtotext.tablistmap(scan)
+        self.assertEqual(want, back)
+    def test_5812(self) -> None:
+        tablist = { "table22": table22, "table33": table33}
+        text = tabtotext.tablistmakeFMT("json", tabtotext.tablistfor(tablist))
+        logg.debug("%s => %s", tablist, text.splitlines())
+        cond = ['{"table22": [', ' {"a": "x", "b": 3},', ' {"a": "y", "b": 2}', 
+                '],"table33": [', ' {"a": "x", "b": 3, "c": "2021-12-31"},', 
+                            ' {"a": "y", "b": 2, "c": "2021-12-30"},', 
+                            ' {"a": null, "c": "2021-12-31"}', ']}']
+        self.assertEqual(cond, text.splitlines())
+        want = { "table22": table22, "table33": _date(table33)}
+        scan = tabtotext.tablistscanJSON(text)
+        back = dict(tabtotext.tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", tablist, back)
+        self.assertEqual(want, back)
     def test_5914(self) -> None:
         item1 = Item2("x", 2)
         item2 = Item2("y", 3)
@@ -7101,6 +7126,52 @@ class TabToTextTest(unittest.TestCase):
                 '| 0.30  | y     | 2',
                 '| 0.40  | x     | 3']
         self.assertEqual(cond, text.splitlines())
+    def test_6811(self) -> None:
+        tablist = { "table01": table01, "table02": table02}
+        text = tabtotext.tablistmakeFMT("md", tabtotext.tablistfor(tablist))
+        logg.debug("%s => %s", tablist, text.splitlines())
+        cond = ['',
+                '## table01',
+                '| a     | b',
+                '| ----- | -----',
+                '| x     | ~',
+                '| ~     | 1',
+                '',
+                '## table02',
+                '| a     | b',
+                '| ----- | -----',
+                '| x     | 0',
+                '| ~     | 2']
+
+        self.assertEqual(cond, text.splitlines())
+        want = { "table01": table01N, "table02": table02N}
+        scan = tabtotext.tablistscanGFM(text)
+        back = dict(tabtotext.tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", tablist, back)
+        self.assertEqual(want, back)
+    def test_6812(self) -> None:
+        tablist = { "table22": table22, "table33": table33}
+        text = tabtotext.tablistmakeFMT("md", tabtotext.tablistfor(tablist))
+        logg.debug("%s => %s", tablist, text.splitlines())
+        cond =  ['',
+                '## table22',
+                '| a     | b',
+                '| ----- | -----',
+                '| x     | 3',
+                '| y     | 2',
+                '',
+                '## table33',
+                '| a     | b     | c',
+                '| ----- | ----- | ----------',
+                '| x     | 3     | 2021-12-31',
+                '| y     | 2     | 2021-12-30',
+                '| ~     | ~     | 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        want = { "table22": table22, "table33": table33Q}
+        scan = tabtotext.tablistscanGFM(text)
+        back = dict(tabtotext.tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", tablist, back)
+        self.assertEqual(want, back)
     def test_6910(self) -> None:
         item = Item2("x", 2)
         text = tabtotext.tabToFMTx("def", item)
