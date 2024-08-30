@@ -4657,9 +4657,23 @@ class TabToTextTest(unittest.TestCase):
         want = { "table22": table22, "table33": _date(table33)}
         scan = tabtotext.tablistscanJSON(text)
         back = dict(tabtotext.tablistmap(scan))
-        logg.debug("\n>> %s\n<< %s", tablist, back)
+        logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
-    def test_5914(self) -> None:
+    def test_5821(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "output.xlsx")
+        text = tabtotext.print_tablist(filename, tabtotext.tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        want = { "table22": table22, "table33": _date(_none(table33Q))}
+        scan = tabtotext.tablistfile(filename)
+        back = dict(tabtotext.tablistmap(scan))
+        back["table33"] = _date(back["table33"])  # FIXME: openpyxl returns .999999 sec
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_5812(self) -> None:
         item1 = Item2("x", 2)
         item2 = Item2("y", 3)
         itemlist: DataList = [item1, item2]
