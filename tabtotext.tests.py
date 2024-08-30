@@ -7187,6 +7187,33 @@ class TabToTextTest(unittest.TestCase):
         back = dict(tabtotext.tablistmap(scan))
         logg.debug("\n>> %s\n<< %s", tablist, back)
         self.assertEqual(want, back)
+    def test_6821(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table01": table01, "table02": table02}
+        filename = path.join(tmp, "output.md")
+        text = tabtotext.print_tablist(filename, tabtotext.tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        self.assertGreater(200, sz)
+        want = { "table01": table01N, "table02": _date(table02N)}
+        scan = tabtotext.tablistfile(filename)
+        back = dict(tabtotext.tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_6822(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "output.md")
+        text = tabtotext.print_tablist(filename, tabtotext.tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        self.assertGreater(600, sz)
+        want = { "table22": table22, "table33": _date(table33Q)}
+        scan = tabtotext.tablistfile(filename)
+        back = dict(tabtotext.tablistmap(scan))
+        back["table33"] = _date(back["table33"])
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
     def test_6910(self) -> None:
         item = Item2("x", 2)
         text = tabtotext.tabToFMTx("def", item)
