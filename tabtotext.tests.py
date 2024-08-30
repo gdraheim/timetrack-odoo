@@ -4683,7 +4683,6 @@ class TabToTextTest(unittest.TestCase):
         want = { "table22": table22, "table33": _date(table33)}
         scan = tabtotext.tablistfile(filename)
         back = dict(tabtotext.tablistmap(scan))
-        back["table33"] = _date(back["table33"])  # FIXME: openpyxl returns .999999 sec
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
     def test_5915(self) -> None:
