@@ -4661,29 +4661,30 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_5821(self) -> None:
         tmp = self.testdir()
-        tablist = { "table22": table22, "table33": table33}
-        filename = path.join(tmp, "output.xlsx")
+        tablist = { "table01": table01, "table02": table02}
+        filename = path.join(tmp, "output.json")
         text = tabtotext.print_tablist(filename, tabtotext.tablistfor(tablist))
         sz = path.getsize(filename)
-        self.assertGreater(sz, 3000)
-        self.assertGreater(6000, sz)
-        want = { "table22": table22, "table33": _date(_none(table33Q))}
+        self.assertGreater(sz, 10)
+        self.assertGreater(100, sz)
+        want = { "table01": table01, "table02": _date(table02)}
+        scan = tabtotext.tablistfile(filename)
+        back = dict(tabtotext.tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_5822(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "output.json")
+        text = tabtotext.print_tablist(filename, tabtotext.tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        self.assertGreater(600, sz)
+        want = { "table22": table22, "table33": _date(table33)}
         scan = tabtotext.tablistfile(filename)
         back = dict(tabtotext.tablistmap(scan))
         back["table33"] = _date(back["table33"])  # FIXME: openpyxl returns .999999 sec
         logg.debug("\n>> %s\n<< %s", want, back)
-        self.assertEqual(want, back)
-    def test_5812(self) -> None:
-        item1 = Item2("x", 2)
-        item2 = Item2("y", 3)
-        itemlist: DataList = [item1, item2]
-        text = tabtotext.tabToFMTx("json", itemlist)
-        logg.debug("%s => %s", test004, text)
-        cond = ['[', ' {"a": "x", "b": 2},', ' {"a": "y", "b": 3}', ']']
-        self.assertEqual(cond, text.splitlines())
-        back = loadJSON(text)
-        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
-        logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
     def test_5915(self) -> None:
         item1 = Item2("x", 2)
