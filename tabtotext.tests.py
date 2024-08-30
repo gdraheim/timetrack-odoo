@@ -11581,7 +11581,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9821(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
-        filename = path.join(tmp, "output.xlsx")
+        filename = path.join(tmp, "input.xlsx")
         text = print_tablist(filename, tablistfor(tablist))
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
@@ -11596,7 +11596,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9822(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
-        filename = path.join(tmp, "output.xlsx")
+        filename = path.join(tmp, "input.xlsx")
         text = print_tablist(filename, tablistfor(tablist))
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
@@ -11611,7 +11611,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9823(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
-        filename = path.join(tmp, "output.xlsx")
+        filename = path.join(tmp, "input.xlsx")
         text = print_tablist(filename, tablistfor(tablist))
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
@@ -11626,7 +11626,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9824(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
-        filename = path.join(tmp, "output.xlsx")
+        filename = path.join(tmp, "input.xlsx")
         text = print_tablist(filename, tablistfor(tablist))
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
@@ -11638,10 +11638,86 @@ class TabToTextTest(unittest.TestCase):
         back = dict(tablistmap(scan))
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
+    def test_9831(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.md")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output}")
+        text = open(output).read()
+        logg.info("=>\n%s", text)
+        test = tablistscanGFM(text)
+        want = { "table22": table22, "table33": _date(_none(table33Q))}
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+        self.assertEqual(test, scan)
+    def test_9832(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.md")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output} -: table22")
+        text = open(output).read()
+        logg.info("=>\n%s", text)
+        test = tablistscanGFM(text)
+        want = { "table22": table22, }
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+        self.assertEqual(test, scan)
+    def test_9833(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.md")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output} -: table33")
+        text = open(output).read()
+        logg.info("=>\n%s", text)
+        test = tablistscanGFM(text)
+        want = { "table33": _none(table33Q), }
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+        self.assertEqual(test, scan)
+    def test_9834(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.md")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output} -2")
+        text = open(output).read()
+        logg.info("=>\n%s", text)
+        test = tablistscanGFM(text)
+        want = { "-1": _none(table33Q), }
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+        self.assertEqual(test, scan)
     def test_9851(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
-        filename = path.join(tmp, "output.xlsx")
+        filename = path.join(tmp, "input.xlsx")
         text = print_tablist(filename, tablistfor(tablist))
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
@@ -11656,7 +11732,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9852(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
-        filename = path.join(tmp, "output.xlsx")
+        filename = path.join(tmp, "input.xlsx")
         text = print_tablist(filename, tablistfor(tablist))
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
@@ -11671,7 +11747,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9853(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
-        filename = path.join(tmp, "output.xlsx")
+        filename = path.join(tmp, "input.xlsx")
         text = print_tablist(filename, tablistfor(tablist))
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
@@ -11686,7 +11762,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9854(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
-        filename = path.join(tmp, "output.xlsx")
+        filename = path.join(tmp, "input.xlsx")
         text = print_tablist(filename, tablistfor(tablist))
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
@@ -11698,6 +11774,82 @@ class TabToTextTest(unittest.TestCase):
         back = dict(tablistmap(scan))
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
+    def test_9861(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.json")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output}")
+        text = open(output).read()
+        logg.info("=>\n%s", text)
+        test = tablistscanJSON(text)
+        want = { "table22": table22, "table33": _date(_none(table33Q))}
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+        self.assertEqual(test, scan)
+    def test_9862(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.json")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename}  -o {output} -: table22")
+        text = open(output).read()
+        logg.info("=>\n%s", text)
+        test = tablistscanJSON(text)
+        want = { "table22": table22, }
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+        self.assertEqual(test, scan)
+    def test_9863(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.json")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename}  -o {output} -: table33")
+        text = open(output).read()
+        logg.info("=>\n%s", text)
+        test = tablistscanJSON(text)
+        want = { "table33": _none(table33Q), }
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+        self.assertEqual(test, scan)
+    def test_9864(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.json")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output} -2")
+        text = open(output).read()
+        logg.info("=>\n%s", text)
+        test = tablistscanJSON(text)
+        want = { "data": _none(table33Q), }
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+        self.assertEqual(test, scan)
 
 if __name__ == "__main__":
     # unittest.main()
