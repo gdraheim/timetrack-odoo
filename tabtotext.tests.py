@@ -7210,7 +7210,6 @@ class TabToTextTest(unittest.TestCase):
         want = { "table22": table22, "table33": _date(table33Q)}
         scan = tabtotext.tablistfile(filename)
         back = dict(tabtotext.tablistmap(scan))
-        back["table33"] = _date(back["table33"])
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
     def test_6910(self) -> None:
