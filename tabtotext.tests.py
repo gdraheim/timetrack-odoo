@@ -124,6 +124,9 @@ table22: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
 table33: JSONList = [{"a": "x", "b": 3, "c": Date(2021, 12, 31)},
                      {"b": 2, "a": "y", "c": Date(2021, 12, 30)},
                      {"a": None, "c": Time(2021, 12, 31, 23, 34)}]
+table33N: JSONList = [{"a": "x", "b": 3, "c": Date(2021, 12, 31)},
+                      {"b": 2, "a": "y", "c": Date(2021, 12, 30)},
+                      {"a": None, "b": None, "c": Time(2021, 12, 31, 23, 34)}]
 table33Q: JSONList = [{"a": "x", "b": 3, "c": Date(2021, 12, 31)},
                       {"b": 2, "a": "y", "c": Date(2021, 12, 30)},
                       {"a": None, "b": None, "c": Date(2021, 12, 31)}]
