@@ -11701,6 +11701,28 @@ class TabToTextTest(unittest.TestCase):
             back["newdata"] = _date(back["newdata"])  # FIXME: openpyxl returns .999999 sec
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
+    def test_9816(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.xlsx")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output} -2 -:newdata")
+        with ZipFile(output) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+               xmldata = zipdata.read()
+        logg.info("xmldata=>\n%s", xmldata)
+        self.assertIn(b"</worksheet>", xmldata)
+        want = { "newdata": _none(table33Q), }
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        if FIXME and "newdata" in back:
+            back["newdata"] = _date(back["newdata"])  # FIXME: openpyxl returns .999999 sec
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
     def test_9821(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
@@ -11870,6 +11892,25 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
         self.assertEqual(test, scan)
+    def test_9836(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.md")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output} -2 :newdata")
+        text = open(output).read()
+        logg.info("=>\n%s", text)
+        test = tablistscanGFM(text)
+        want = { "newdata": _none(table33Q), }
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+        self.assertEqual(test, scan)
     def test_9851(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
@@ -12030,6 +12071,25 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
         text = sh(F"{TABTO} -^ {filename} -o {output} -2 -: newdata")
+        text = open(output).read()
+        logg.info("=>\n%s", text)
+        test = tablistscanJSON(text)
+        want = { "newdata": _none(table33Q), }
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+        self.assertEqual(test, scan)
+    def test_9866(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.json")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output} -2 :newdata")
         text = open(output).read()
         logg.info("=>\n%s", text)
         test = tablistscanJSON(text)
