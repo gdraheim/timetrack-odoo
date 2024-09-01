@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 __copyright__ = "(C) 2021-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.4.3352"
+__version__ = "0.4.3361"
 
 from xmlrpc import client as odoo
 from dotnetrc import set_password_filename, get_username_password, str_get_username_password
