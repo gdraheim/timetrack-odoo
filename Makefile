@@ -8,6 +8,7 @@ PYTHON3 = python3
 PYTHONVERSION = 3.8
 COVERAGE3 = $(PYTHON3) -m coverage
 TWINE = twine
+GIT = git
 
 MAIN_PROG = zeit2odoo.py
 ZEIT_PROG = zeit2json.py
@@ -139,7 +140,7 @@ version:
 	; echo "# $(GIT) commit -m v$$ver"
 tag:
 	@ ver=`grep "version.*=" setup.cfg | sed -e "s/version *= */v/"` \
-	; rev=`git rev-parse --short HEAD` \
+	; rev=`$(GIT) rev-parse --short HEAD` \
 	; echo ": ${GIT} tag $$ver $$rev"
 
 TESTSUITE = $(MAIN_PROG:.py=.tests.py)
@@ -250,7 +251,7 @@ AUTOPEP8_INPLACE= --in-place
 
 %.pep8:
 	$(AUTOPEP8) $(AUTOPEP8_INPLACE) $(AUTOPEP8_OPTIONS) $(@:.pep8=)
-	git --no-pager diff $(@:.pep8=)
+	$(GIT) --no-pager diff $(@:.pep8=)
 
 type: 
 	$(MAKE) $(PARALLEL) \
