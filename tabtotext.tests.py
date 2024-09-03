@@ -10696,7 +10696,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '"    x"', 'b': 22.0}, {'a': '"    y"', 'b': 1.0}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
-    def test_7911(self) -> None:
+    def test_7901(self) -> None:
         item1 = Item2("x", 2)
         item2 = Item2("y", 3)
         itemlist: DataList = [item1, item2]
@@ -10706,6 +10706,71 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>x</td><td>2</td></tr>',
                 '<tr><td>y</td><td>3</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
+    def test_7911(self) -> None:
+        tablist = {"table01": table01, "table02": table02}
+        text = tabtotext.tablistmakeFMT("html", tabtotext.tablistfor(tablist))
+        logg.debug("%s => %s", tablist, text.splitlines())
+        cond = ['<table border="1" cellpadding="8"><caption>table01</caption>',
+                '<tr><th>a</th><th>b</th></tr>',
+                '<tr><td>x</td><td></td></tr>',
+                '<tr><td></td><td>1</td></tr>',
+                '</table>',
+                '<table border="1" cellpadding="8"><caption>table02</caption>',
+                '<tr><th>a</th><th>b</th></tr>',
+                '<tr><td>x</td><td>0</td></tr>',
+                '<tr><td></td><td>2</td></tr>',
+                '</table>']
+        self.assertEqual(cond, text.splitlines())
+        want = {"table01": table01N, "table02": table02N}
+        scan = tabtotext.tablistscanHTML(text)
+        back = dict(tabtotext.tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_7912(self) -> None:
+        tablist = {"table22": table22, "table33": table33}
+        text = tabtotext.tablistmakeFMT("html", tabtotext.tablistfor(tablist))
+        logg.debug("%s => %s", tablist, text.splitlines())
+        cond = ['<table border="1" cellpadding="8"><caption>table22</caption>',
+                '<tr><th>a</th><th>b</th></tr>',
+                '<tr><td>x</td><td>3</td></tr>',
+                '<tr><td>y</td><td>2</td></tr>', '</table>',
+                '<table border="1" cellpadding="8"><caption>table33</caption>',
+                '<tr><th>a</th><th>b</th><th>c</th></tr>',
+                '<tr><td>x</td><td>3</td><td>2021-12-31</td></tr>',
+                '<tr><td>y</td><td>2</td><td>2021-12-30</td></tr>',
+                '<tr><td>~</td><td></td><td>2021-12-31</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        want = {"table22": table22, "table33": _date(table33Q)}
+        scan = tabtotext.tablistscanHTML(text)
+        back = dict(tabtotext.tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_7921(self) -> None:
+        tmp = self.testdir()
+        tablist = {"table01": table01, "table02": table02}
+        filename = path.join(tmp, "output.html")
+        text = tabtotext.print_tablist(filename, tabtotext.tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        self.assertGreater(400, sz)
+        want = {"table01": table01N, "table02": _date(table02N)}
+        scan = tabtotext.tablistfile(filename)
+        back = dict(tabtotext.tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_7922(self) -> None:
+        tmp = self.testdir()
+        tablist = {"table22": table22, "table33": table33}
+        filename = path.join(tmp, "output.html")
+        text = tabtotext.print_tablist(filename, tabtotext.tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        self.assertGreater(600, sz)
+        want = {"table22": table22, "table33": _date(table33N)}
+        scan = tabtotext.tablistfile(filename)
+        back = dict(tabtotext.tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
 
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_8011(self) -> None:
