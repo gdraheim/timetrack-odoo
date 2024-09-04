@@ -7796,7 +7796,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['<table border="1" cellpadding="8">',
                 '<tr><th>a</th><th>b</th></tr>',
-                '<tr><td>x y</td><td></td></tr>', 
+                '<tr><td>x y</td><td></td></tr>',
                 '<tr><td></td><td>1</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = loadHTML(text)
@@ -8778,7 +8778,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['<table border="1" cellpadding="8">',
                 '<tr><th>a</th><th>b</th></tr>',
-                '<tr><td>x y</td><td></td></tr>', 
+                '<tr><td>x y</td><td></td></tr>',
                 '<tr><td></td><td>1</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = loadHTML(text)
