@@ -7321,6 +7321,7 @@ class TabToTextTest(unittest.TestCase):
         back = dict(tabtotext.tablistmap(scan))
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
+
     def test_6910(self) -> None:
         item = Item2("x", 2)
         text = tabtotext.tabToFMTx("def", item)
@@ -7607,6 +7608,17 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = [' x\\ y  ~', ' ~     1']
         self.assertEqual(cond, text.splitlines())
+    def test_6976(self) -> None:
+        data: JSONList = [{"a": "a b", "c": "c d e"}, {"a":"g\nh", "c":"s\\t"}]
+        text = tabtotext.tabtotext(data, [], ["@read"])
+        logg.debug("%s => %s", data, text)
+        cond = [' a\\ b  c\\ d\\ e', ' g\\', 'h  s\\\\t']
+        self.assertEqual(cond, text.splitlines())
+        real = sh("{ echo ' a\\ b  c\\ d\\ e'; echo ' g\\'; echo 'h  s\\\\t'; } | while read a c e; do echo a=$a; echo c=$c; echo e=$e; done")
+        logg.info("real\n%s", real)
+        back = real.splitlines()
+        want = ["a=a b", 'c=c d e', 'e=', 'a=gh', 'c=s\\t', 'e=']  # NOTE: bash-read swallows \n between gh ?
+        self.assertEqual(want, back)
     def test_6980(self) -> None:
         text = tabtotext.tabtotext(table01, [], ["@text"])
         logg.debug("%s => %s", table01, text)
