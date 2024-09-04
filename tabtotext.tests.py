@@ -118,10 +118,10 @@ data017: DataList = [Item1(123.4)]
 data018: DataList = [Item1(Date(2021, 12, 31))]
 data019: DataList = [Item1(Time(2021, 12, 31))]
 
-table01: JSONList = [{"a": "x"}, {"b": 1}]
-table01N1: JSONList = [{'a': 'x', 'b': None, }, {'b': 1}]
-table01N2: JSONList = [{'a': 'x'}, {'a': None, 'b': 1}]
-table01N: JSONList = [{'a': 'x', 'b': None}, {'a': None, 'b': 1}]
+table01: JSONList = [{"a": "x y"}, {"b": 1}]
+table01N1: JSONList = [{'a': 'x y', 'b': None, }, {'b': 1}]
+table01N2: JSONList = [{'a': 'x y'}, {'a': None, 'b': 1}]
+table01N: JSONList = [{'a': 'x y', 'b': None}, {'a': None, 'b': 1}]
 table02: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
 table02N: JSONList = [{'a': 'x', 'b': 0}, {'a': None, 'b': 2}]
 table22: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
@@ -496,7 +496,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabToCSV(table01)
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['a;b', 'x;~', '~;1']
+        cond = ['a;b', 'x y;~', '~;1']
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
         self.assertEqual(want, back)
@@ -660,7 +660,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabToCSV(table01, ["b", "a"])
         logg.debug("%s => %s", table01, text)
         want = rev(table01N)
-        cond = ['b;a', '1;~', '~;x']
+        cond = ['b;a', '1;~', '~;x y']
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
         self.assertEqual(want, back)
@@ -1307,7 +1307,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtoCSV(table01)
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['a;b', 'x;~', '~;1']
+        cond = ['a;b', 'x y;~', '~;1']
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
         self.assertEqual(want, back)
@@ -1387,7 +1387,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtoCSV(table01, ["b", "a"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['b;a', '~;x', '1;~']
+        cond = ['b;a', '~;x y', '1;~']
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
         self.assertEqual(want, back)
@@ -1458,8 +1458,8 @@ class TabToTextTest(unittest.TestCase):
     def test_4470(self) -> None:
         text = tabtotext.tabtoCSV(table01, ["b", "a"], ["a"])
         logg.debug("%s => %s", table01, text)
-        cond = ['a', '~', 'x']
-        want = [{'a': None}, {'a': 'x'}]
+        cond = ['a', '~', 'x y']
+        want = [{'a': None}, {'a': 'x y'}]
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
         self.assertEqual(want, back)
@@ -1538,7 +1538,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4530(self) -> None:
         text = tabtotext.tabtoCSV(table01, ["a|b"])
         logg.debug("%s => %s", table01, text.splitlines())
-        cond = ['a;b', 'x;~', '~;1']
+        cond = ['a;b', 'x y;~', '~;1']
         want = table01N
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
@@ -1578,7 +1578,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4535(self) -> None:
         text = tabtotext.tabtoCSV(table01, ["b|a"])
         logg.debug("%s => %s", table01, text.splitlines())
-        cond = ['b;a', '~;x', '1;~']
+        cond = ['b;a', '~;x y', '1;~']
         self.assertEqual(cond, text.splitlines())
         want = table01N
         back = loadCSV(text)
@@ -2126,7 +2126,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@csv"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['a;b', 'x;~', '~;1']
+        cond = ['a;b', 'x y;~', '~;1']
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
         self.assertEqual(want, back)
@@ -2166,7 +2166,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@list"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['x;~', '~;1']
+        cond = ['x y;~', '~;1']
         self.assertEqual(cond, text.splitlines())
     def test_4931(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@list"])
@@ -2196,7 +2196,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@csv", "@noheaders"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['x;~', '~;1']
+        cond = ['x y;~', '~;1']
         self.assertEqual(cond, text.splitlines())
     def test_4941(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@csv", "@noheaders"])
@@ -2226,7 +2226,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@data"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['x\t~', '~\t1']
+        cond = ['x y\t~', '~\t1']
         self.assertEqual(cond, text.splitlines())
     def test_4951(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@data"])
@@ -2256,7 +2256,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@xls"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['a,b', 'x,~', '~,1']
+        cond = ['a,b', 'x y,~', '~,1']
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text, tab=",")
         self.assertEqual(want, back)
@@ -3733,8 +3733,8 @@ class TabToTextTest(unittest.TestCase):
     def test_5470(self) -> None:
         text = tabtotext.tabtoJSON(table01, ["b", "a"], ["a"])
         logg.debug("%s => %s", table01, text)
-        cond = ['[', ' {},', ' {"a": "x"}', ']']
-        want = [{}, {'a': 'x'}]
+        cond = ['[', ' {},', ' {"a": "x y"}', ']']
+        want = [{}, {'a': 'x y'}]
         self.assertEqual(cond, text.splitlines())
         back = loadJSON(text)
         self.assertEqual(want, back)
@@ -3813,7 +3813,7 @@ class TabToTextTest(unittest.TestCase):
     def test_5530(self) -> None:
         text = tabtotext.tabtoJSON(table01, ["a|b"])
         logg.debug("%s => %s", table01, text.splitlines())
-        cond = ['[', ' {"a": "x"},', ' {"b": 1}', ']']
+        cond = ['[', ' {"a": "x y"},', ' {"b": 1}', ']']
         self.assertEqual(cond, text.splitlines())
         want = table01
         back = loadJSON(text)
@@ -3858,7 +3858,7 @@ class TabToTextTest(unittest.TestCase):
     def test_5535(self) -> None:
         text = tabtotext.tabtoJSON(table01, ["b|a"])
         logg.debug("%s => %s", table01, text.splitlines())
-        cond = ['[', ' {"a": "x"},', ' {"b": 1}', ']']
+        cond = ['[', ' {"a": "x y"},', ' {"b": 1}', ']']
         self.assertEqual(cond, text.splitlines())
         want = table01
         back = loadJSON(text)
@@ -4645,7 +4645,7 @@ class TabToTextTest(unittest.TestCase):
         tablist = {"table01": table01, "table02": table02}
         text = tabtotext.tablistmakeFMT("json", tabtotext.tablistfor(tablist))
         logg.debug("%s => %s", tablist, text.splitlines())
-        cond = ['{"table01": [', ' {"a": "x"},', ' {"b": 1}',
+        cond = ['{"table01": [', ' {"a": "x y"},', ' {"b": 1}',
                 '],"table02": [', ' {"a": "x", "b": 0},', ' {"b": 2}', ']}']
         self.assertEqual(cond, text.splitlines())
         want = tablist
@@ -4670,7 +4670,7 @@ class TabToTextTest(unittest.TestCase):
         tablist = {"table01": table01, "table02": table02}
         text = tabtotext.tablistmakeFMT("yaml", tabtotext.tablistfor(tablist))
         logg.debug("%s => %s", tablist, text.splitlines())
-        cond = ['table01:', '- a: "x"', '- b: 1', 'table02:', '- a: "x"', '  b: 0', '- b: 2']
+        cond = ['table01:', '- a: "x y"', '- b: 1', 'table02:', '- a: "x"', '  b: 0', '- b: 2']
         self.assertEqual(cond, text.splitlines())
         want = tablist
         scan = tabtotext.tablistscanYAML(text)
@@ -4692,7 +4692,7 @@ class TabToTextTest(unittest.TestCase):
         tablist = {"table01": table01, "table02": table02}
         text = tabtotext.tablistmakeFMT("toml", tabtotext.tablistfor(tablist))
         logg.debug("%s => %s", tablist, text.splitlines())
-        cond = ['[[table01]]', 'a = "x"',
+        cond = ['[[table01]]', 'a = "x y"',
                 '[[table01]]', 'b = 1',
                 '[[table02]]', 'a = "x"', 'b = 0',
                 '[[table02]]', 'b = 2']
@@ -4951,7 +4951,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabToGFM(table01)
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | 1']
+        cond = ['| a     | b', '| ----- | -----', '| x y   | ~', '| ~     | 1']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
         self.assertEqual(want, back)
@@ -5188,7 +5188,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabToGFM(table01, ["b", "a"])
         logg.debug("%s => %s", table01, text)
         want = rev(table01N)
-        cond = ['| b     | a', '| ----- | -----', '| 1     | ~', '| ~     | x']
+        cond = ['| b     | a', '| ----- | -----', '| 1     | ~', '| ~     | x y']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
         self.assertEqual(want, back)
@@ -6216,7 +6216,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtoGFM(table01)
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | 1']
+        cond = ['| a     | b', '| ----- | -----', '| x y   | ~', '| ~     | 1']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
         self.assertEqual(want, back)
@@ -6355,7 +6355,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtoGFM(table01, ["b", "a"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['| b     | a', '| ----- | -----', '| ~     | x', '| 1     | ~']
+        cond = ['| b     | a', '| ----- | -----', '| ~     | x y', '| 1     | ~']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
         self.assertEqual(want, back)
@@ -6439,7 +6439,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtoGFM(table01, ["a|b"])
         logg.debug("%s => %s", table01, text.splitlines())
         want = table01N
-        cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | 1']
+        cond = ['| a     | b', '| ----- | -----', '| x y   | ~', '| ~     | 1']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
         self.assertEqual(want, back)
@@ -6483,7 +6483,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtoGFM(table01, ["b|a"])
         logg.debug("%s => %s", table01, text.splitlines())
         want = table01N
-        cond = ['| b     | a', '| ----- | -----', '| ~     | x', '| 1     | ~']
+        cond = ['| b     | a', '| ----- | -----', '| ~     | x y', '| 1     | ~']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
         self.assertEqual(want, back)
@@ -7257,7 +7257,7 @@ class TabToTextTest(unittest.TestCase):
                 '## table01',
                 '| a     | b',
                 '| ----- | -----',
-                '| x     | ~',
+                '| x y   | ~',
                 '| ~     | 1',
                 '',
                 '## table02',
@@ -7358,7 +7358,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@md"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | 1']
+        cond = ['| a     | b', '| ----- | -----', '| x y   | ~', '| ~     | 1']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
         self.assertEqual(want, back)
@@ -7404,7 +7404,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@md3"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['| a   | b', '| --- | ---', '| x   | ~', '| ~   | 1']
+        cond = ['| a   | b', '| --- | ---', '| x y | ~', '| ~   | 1']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
         self.assertEqual(want, back)
@@ -7451,7 +7451,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@md6"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['| a      | b', '| ------ | ------', '| x      | ~', '| ~      | 1']
+        cond = ['| a      | b', '| ------ | ------', '| x y    | ~', '| ~      | 1']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
         self.assertEqual(want, back)
@@ -7500,7 +7500,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@tabs"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['\ta    \tb', '\tx    \t~', '\t~    \t1']
+        cond = ['\ta    \tb', '\tx y  \t~', '\t~    \t1']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text, tab="\t")
         self.assertEqual(want, back)
@@ -7545,7 +7545,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@tabs", "@delim=:"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = [':a    :b', ':x    :~', ':~    :1']
+        cond = [':a    :b', ':x y  :~', ':~    :1']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text, tab=":")
         self.assertEqual(want, back)
@@ -7569,7 +7569,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@wide"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['a     b', 'x     ~', '~     1']
+        cond = ['a     b', 'x y   ~', '~     1']
         self.assertEqual(cond, text.splitlines())
     def test_6971(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@wide"])
@@ -7605,7 +7605,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@text"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['|x    |~', '|~    |1']
+        cond = ['|x y  |~', '|~    |1']
         self.assertEqual(cond, text.splitlines())
     def test_6981(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@text"])
@@ -7639,7 +7639,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@txt"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['|a    |b', '|x    |~', '|~    |1']
+        cond = ['|a    |b', '|x y  |~', '|~    |1']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
         self.assertEqual(want, back)
@@ -7790,7 +7790,8 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['<table border="1" cellpadding="8">',
                 '<tr><th>a</th><th>b</th></tr>',
-                '<tr><td>x</td><td></td></tr>', '<tr><td></td><td>1</td></tr>', '</table>']
+                '<tr><td>x y</td><td></td></tr>', 
+                '<tr><td></td><td>1</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = loadHTML(text)
         self.assertEqual(want, back)
@@ -7985,7 +7986,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(table01N)
         cond = ['<table border="1" cellpadding="8">',
                 '<tr><th>b</th><th>a</th></tr>', '<tr><td>1</td><td></td></tr>',
-                '<tr><td></td><td>x</td></tr>', '</table>']
+                '<tr><td></td><td>x y</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = loadHTML(text)
         self.assertEqual(want, back)
@@ -8771,7 +8772,8 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['<table border="1" cellpadding="8">',
                 '<tr><th>a</th><th>b</th></tr>',
-                '<tr><td>x</td><td></td></tr>', '<tr><td></td><td>1</td></tr>', '</table>']
+                '<tr><td>x y</td><td></td></tr>', 
+                '<tr><td></td><td>1</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = loadHTML(text)
         self.assertEqual(want, back)
@@ -8913,7 +8915,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table01, text)
         want = table01N
         cond = ['<table border="1" cellpadding="8">',
-                '<tr><th>b</th><th>a</th></tr>', '<tr><td></td><td>x</td></tr>',
+                '<tr><th>b</th><th>a</th></tr>', '<tr><td></td><td>x y</td></tr>',
                 '<tr><td>1</td><td></td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = loadHTML(text)
@@ -9206,7 +9208,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table01, text.splitlines())
         want = table01N2
         cond = ['<table border="1" cellpadding="8">', '<tr><th>a<br />b</th></tr>',
-                '<tr><td>x<br /></td></tr>', '<tr><td><br />1</td></tr>', '</table>']
+                '<tr><td>x y<br /></td></tr>', '<tr><td><br />1</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = loadHTML(text)
         self.assertEqual(want, back)
@@ -9259,7 +9261,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table01, text.splitlines())
         want = table01N1
         cond = ['<table border="1" cellpadding="8">', '<tr><th>b<br />a</th></tr>',
-                '<tr><td><br />x</td></tr>', '<tr><td>1<br /></td></tr>', '</table>']
+                '<tr><td><br />x y</td></tr>', '<tr><td>1<br /></td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = loadHTML(text)
         self.assertEqual(want, back)
@@ -10814,7 +10816,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", tablist, text.splitlines())
         cond = ['<table border="1" cellpadding="8"><caption>table01</caption>',
                 '<tr><th>a</th><th>b</th></tr>',
-                '<tr><td>x</td><td></td></tr>',
+                '<tr><td>x y</td><td></td></tr>',
                 '<tr><td></td><td>1</td></tr>',
                 '</table>',
                 '<table border="1" cellpadding="8"><caption>table02</caption>',
@@ -11355,7 +11357,8 @@ class TabToTextTest(unittest.TestCase):
                 logg.info("xmldata = %s", xmldata)
         #
         want: JSONList
-        want = [{'a': None}, {'a': 'x'}]
+        want = list(reversed(table01))
+        want = [{'a': None}, {'a': 'x y'}]  # FIXME
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), _none(_date(back)))
         self.rm_testdir()
@@ -11624,8 +11627,8 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
         text = sh(F"{TABTO} -^ {filename} @csv")
-        cond = ['a;b', 'x;~', '~;1']
-        cond = ['a;b', 'x;', ';1']
+        cond = ['a;b', 'x y;~', '~;1']
+        cond = ['a;b', 'x y;', ';1']
         want = table01N
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
