@@ -4680,10 +4680,39 @@ class TabToTextTest(unittest.TestCase):
         tablist = {"table22": table22, "table33": table33}
         text = tabtotext.tablistmakeFMT("yaml", tabtotext.tablistfor(tablist))
         logg.debug("%s => %s", tablist, text.splitlines())
-        cond = ['table22:', '- a: "x"', '  b: 3', '- a: "y"', '  b: 2', 'table33:', '- a: "x"', '  b: 3', '  c: 2021-12-31', '- a: "y"', '  b: 2', '  c: 2021-12-30', '- a: null', '  c: 2021-12-31']
+        cond = ['table22:', '- a: "x"', '  b: 3', '- a: "y"', '  b: 2', 'table33:', '- a: "x"', '  b: 3',
+                '  c: 2021-12-31', '- a: "y"', '  b: 2', '  c: 2021-12-30', '- a: null', '  c: 2021-12-31']
         self.assertEqual(cond, text.splitlines())
         want = {"table22": table22, "table33": _date(table33)}
         scan = tabtotext.tablistscanYAML(text)
+        back = dict(tabtotext.tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_5817(self) -> None:
+        tablist = {"table01": table01, "table02": table02}
+        text = tabtotext.tablistmakeFMT("toml", tabtotext.tablistfor(tablist))
+        logg.debug("%s => %s", tablist, text.splitlines())
+        cond = ['[[table01]]', 'a = "x"',
+                '[[table01]]', 'b = 1',
+                '[[table02]]', 'a = "x"', 'b = 0',
+                '[[table02]]', 'b = 2']
+        self.assertEqual(cond, text.splitlines())
+        want = tablist
+        scan = tabtotext.tablistscanTOML(text)
+        back = dict(tabtotext.tablistmap(scan))
+        self.assertEqual(want, back)
+    def test_5818(self) -> None:
+        tablist = {"table22": table22, "table33": table33}
+        text = tabtotext.tablistmakeFMT("toml", tabtotext.tablistfor(tablist))
+        logg.debug("%s => %s", tablist, text.splitlines())
+        cond = ['[[table22]]', 'a = "x"', 'b = 3',
+                '[[table22]]', 'a = "y"', 'b = 2',
+                '[[table33]]', 'a = "x"', 'b = 3', 'c = 2021-12-31',
+                '[[table33]]', 'a = "y"', 'b = 2', 'c = 2021-12-30',
+                '[[table33]]', 'c = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        want = {"table22": table22, "table33": _no_none(_date(table33))}
+        scan = tabtotext.tablistscanTOML(text)
         back = dict(tabtotext.tablistmap(scan))
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
@@ -4735,6 +4764,32 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         self.assertGreater(600, sz)
         want = {"table22": table22, "table33": _date(table33)}
+        scan = tabtotext.tablistfile(filename)
+        back = dict(tabtotext.tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_5827(self) -> None:
+        tmp = self.testdir()
+        tablist = {"table01": table01, "table02": table02}
+        filename = path.join(tmp, "output.toml")
+        text = tabtotext.print_tablist(filename, tabtotext.tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 10)
+        self.assertGreater(100, sz)
+        want = {"table01": table01, "table02": _date(table02)}
+        scan = tabtotext.tablistfile(filename)
+        back = dict(tabtotext.tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_5828(self) -> None:
+        tmp = self.testdir()
+        tablist = {"table22": table22, "table33": table33}
+        filename = path.join(tmp, "output.toml")
+        text = tabtotext.print_tablist(filename, tabtotext.tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        self.assertGreater(600, sz)
+        want = {"table22": table22, "table33": _no_none(_date(table33))}
         scan = tabtotext.tablistfile(filename)
         back = dict(tabtotext.tablistmap(scan))
         logg.debug("\n>> %s\n<< %s", want, back)
