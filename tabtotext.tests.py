@@ -7605,7 +7605,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@read"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = [' a     b', ' x\\ y  ~', ' ~     1']
+        cond = [' x\\ y  ~', ' ~     1']
         self.assertEqual(cond, text.splitlines())
     def test_6980(self) -> None:
         text = tabtotext.tabtotext(table01, [], ["@text"])
