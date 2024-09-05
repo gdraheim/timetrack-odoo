@@ -87,7 +87,14 @@ The original implementation in tabtoxlsx was based on openpyx1. The resulting xl
 files were inspected how to write them with just Python's internal `zipfile`. The
 xlsx reader is using `zipfile` and Python's internal `xml.etree`. This should be
 portable to JPython and IronPython as well. And tests showed tabxlsx to be 10x
-faster than openpyx1 for small datasets.
+faster than openpyx1 for small datasets. For large datasets it is 3-4x faster.
+
+| test_9888 (--bigfile=1000000) | time
+| ----------------------------- | ----
+| 100000 numbers tabxlsx write xlsx time | 00'02.548209
+| 100000 numbers openpyxl write xlsx time | 00'09.300701
+| 1.000.000 numbers tabxlsx write xlsx time  | 00'27.265536
+| 1.000.000 numbers openpyxl write xlsx time | 01'31.813367
 
 Have fun!
 
