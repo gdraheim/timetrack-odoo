@@ -7249,6 +7249,60 @@ class TabToTextTest(unittest.TestCase):
                 '| 0.30  | y     | 2',
                 '| 0.40  | x     | 3']
         self.assertEqual(cond, text.splitlines())
+    def test_6801(self) -> None:
+        data: JSONList = [{"a": "a b", "c": "c d|e"}, {"a": "g\nh", "c": "s\\t"}]
+        text = tabtotext.tabtotext(data, defaultformat="md")
+        logg.debug("%s => %s", data, text.splitlines())
+        cond = ['| a     | c', '| ----- | ------', '| a b   | c d\\|e', '| g\\', 'h  | s\\\\t']
+        self.assertEqual(cond, text.splitlines())
+        # scan = tabtotext.tablistscanGFM(text)
+        # back = dict(tabtotext.tablistmap(scan))
+        back = tabtotext.loadGFM(text)
+        want = data
+        logg.debug("\n>> %s\n<< %s", data, back)
+        self.assertEqual(want, back)
+    def test_6802(self) -> None:
+        data: JSONList = [{"a": "a b", "c": "c d|e"}, {"a": "g\nh", "c": "s\\t"}]
+        tabs: Dict[str, JSONList] = {"data": data}
+        text = tabtotext.tablistmakeFMT("md", tabtotext.tablistfor(tabs))
+        logg.debug("%s => %s", data, text.splitlines())
+        cond = ['| a     | c', '| ----- | ------', '| a b   | c d\\|e', '| g\\', 'h  | s\\\\t']
+        self.assertEqual(cond, text.splitlines())
+        scan = tabtotext.tablistscanGFM(text)
+        back = dict(tabtotext.tablistmap(scan))
+        want = {"-1": data}
+        logg.debug("\n>> %s\n<< %s", data, back)
+        self.assertEqual(want, back)
+    def test_6803(self) -> None:
+        data: JSONList = [{"a": "a b", "c": "c d|e"}, {"a": "g\nh", "c": "s\\t"}]
+        tabs: Dict[str, JSONList] = {"data": data}
+        buff = StringIO()
+        done = print_tablist(buff, tabtotext.tablistfor(tabs), defaultformat="md")
+        text = buff.getvalue()
+        logg.debug("%s => %s", data, text.splitlines())
+        cond = ['| a     | c', '| ----- | ------', '| a b   | c d\\|e', '| g\\', 'h  | s\\\\t']
+        self.assertEqual(cond, text.splitlines())
+        scan = tabtotext.tablistscanGFM(text)
+        back = dict(tablistmap(scan))
+        want = {"-1": data}
+        logg.debug("\n>> %s\n<< %s", data, back)
+        self.assertEqual(want, back)
+    def test_6804(self) -> None:
+        test = self.testdir()
+        data: JSONList = [{"a": "a b", "c": "c d|e"}, {"a": "g\nh", "c": "s\\t"}]
+        tabs: Dict[str, JSONList] = {"data": data}
+        filename = F"{test}/tabs.md"
+        done = print_tablist(filename, tabtotext.tablistfor(tabs), defaultformat="md")
+        text = open(filename).read()
+        logg.debug("%s => %s", data, text.splitlines())
+        cond = ['| a     | c', '| ----- | ------', '| a b   | c d\\|e', '| g\\', 'h  | s\\\\t']
+        self.assertEqual(cond, text.splitlines())
+        scan = tabtotext.tablistfile(filename)
+        back = dict(tablistmap(scan))
+        want = {"-1": data}
+        logg.debug("\n>> %s\n<< %s", data, back)
+        self.assertEqual(want, back)
+        self.rm_testdir()
     def test_6811(self) -> None:
         tablist = {"table01": table01, "table02": table02}
         text = tabtotext.tablistmakeFMT("md", tabtotext.tablistfor(tablist))
@@ -7609,7 +7663,7 @@ class TabToTextTest(unittest.TestCase):
         cond = [' x\\ y  ~', ' ~     1']
         self.assertEqual(cond, text.splitlines())
     def test_6976(self) -> None:
-        data: JSONList = [{"a": "a b", "c": "c d e"}, {"a":"g\nh", "c":"s\\t"}]
+        data: JSONList = [{"a": "a b", "c": "c d e"}, {"a": "g\nh", "c": "s\\t"}]
         text = tabtotext.tabtotext(data, [], ["@read"])
         logg.debug("%s => %s", data, text)
         cond = [' a\\ b  c\\ d\\ e', ' g\\', 'h  s\\\\t']
