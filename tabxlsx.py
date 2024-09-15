@@ -6,7 +6,7 @@ of output format options are available but less than the tabtotext.py module.
 If the input contains only one table then it is used, otherwise specify which should be printed."""
 
 __copyright__ = "(C) 2023-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.3361"
+__version__ = "1.6.3365"
 
 from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Mapping, TypeVar, Generic, Iterator
 from collections import OrderedDict

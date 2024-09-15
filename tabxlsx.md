@@ -95,6 +95,9 @@ faster than openpyx1 for small datasets. For large datasets it is 3-4x faster.
 | 100000 numbers openpyxl write xlsx time | 00'09.300701
 | 1.000.000 numbers tabxlsx write xlsx time  | 00'27.265536
 | 1.000.000 numbers openpyxl write xlsx time | 01'31.813367
+| 1.000.000 numbers read xls and write json | 00'41.019995
+| 1.000.000 numbers read xlsx and write json | 00'55.683582
+
 
 Have fun!
 
