@@ -130,7 +130,9 @@ def odoo_sheet() -> List[Dict[str, Any]]:
     url = odoo_url() + "/jsonrpc"
     db = odoo_db()
     username, password = get_username_password(url)
-    info = call(url, "object", "execute", db, uid, password, "account.analytic.line", "search_read", [["employee_id","=",user],['is_timesheet','=',True]],['duration_unit_amount','project_id','task_id','unit_amount','date','name'])
+    offset, limit = 0, 1000
+    info = call(url, "object", "execute", db, uid, password, "account.analytic.line", "search_read", [["employee_id","=",user],['is_timesheet','=',True]],
+        ['duration_unit_amount','project_id','task_id','unit_amount','date','name'], offset, limit)
     logg.info("fields %s", info)
     return info
 
