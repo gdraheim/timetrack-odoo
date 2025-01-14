@@ -162,7 +162,7 @@ def run(arg: str) -> None:
     elif arg in ["user", "me"]:
         print(odoo_user())
     else:
-        log.error("unknown command '%s'", arg)
+        logg.error("unknown command '%s'", arg)
 
 if __name__ == "__main__":
     from optparse import OptionParser
