@@ -9,8 +9,8 @@ or Jira via their Rest APIs. See zeit2odoo.py and zeit2jira.py.
 older optins)
 """
 
-__copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.6.3361"
+__copyright__ = "(C) 2017-2025 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "0.6.4023"
 
 from typing import List, Dict, Union, Optional, Sequence, TextIO, Iterator, cast
 

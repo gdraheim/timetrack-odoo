@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
-__copyright__ = "(C) 2021-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.7.3361"
+__copyright__ = "(C) 2021-2025 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "0.7.4023"
 
 # pylint: disable=unused-import,missing-function-docstring
 import logging
