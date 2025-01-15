@@ -28,6 +28,7 @@ def json_rpc(url: str, method: str, params: Any) -> Any:
         "params": params,
         "id": random.randint(0, 1000000000),
     }
+    logg.debug("json data = %s", data)
     req = urllib.request.Request(url=url, data=json.dumps(data).encode(), headers={
         "Content-Type":"application/json",
     })
@@ -36,11 +37,10 @@ def json_rpc(url: str, method: str, params: Any) -> Any:
         raise Exception(reply["error"])
     return reply["result"]
 
-def call(url: str, service: str, method: str, *args: Any):
+def call(url: str, service: str, method: str, *args: Any) -> Any:
     return json_rpc(url, "call", {"service": service, "method": method, "args": args})
 
 def odoo_username() -> str:
-    """ see https://o2sheet.com/docs/retrieve-odoo-database-name/ """
     if ODOO_USERNAME:
         return ODOO_USERNAME
     value = git_config_value("user.name")
@@ -48,6 +48,8 @@ def odoo_username() -> str:
         return value
     return "Max Mustermann"
 
+def odoo_url_jsonrpc() -> str:
+    return odoo_url() + "/jsonrpc"
 def odoo_url() -> str:
     if ODOO_URL:
         return ODOO_URL
@@ -85,17 +87,26 @@ def odoo_version() -> str:
     info = call(url, "common", "version")
     return info.get("server_version")
 
-def odoo_schema() -> Dict[str, str]:
+def odoo_modelschema() -> Dict[str, str]:
     uid = odoo_login()
-    url = odoo_url() + "/jsonrpc"
+    url = odoo_url_jsonrpc()
     db = odoo_db()
     username, password = get_username_password(url)
     info = call(url, "object", "execute", db, uid, password, "ir.model", "fields_get", [], ['string', 'help', 'type'])
     return info
 
+def odoo_model() -> List[Dict[str, Any]]:
+    uid = odoo_login()
+    url = odoo_url_jsonrpc()
+    db = odoo_db()
+    username, password = get_username_password(url)
+    name = odoo_username()
+    info = call(url, "object", "execute", db, uid, password, "ir.model", "search_read", [["name","=",name]], ['id', 'name', 'model','info'])
+    return info
+
 def odoo_userschema() -> List[str]:
     uid = odoo_login()
-    url = odoo_url() + "/jsonrpc"
+    url = odoo_url_jsonrpc()
     db = odoo_db()
     username, password = get_username_password(url)
     info = call(url, "object", "execute", db, uid, password, "hr.employee.public", "fields_get", [], ['string', 'type'])
@@ -104,7 +115,7 @@ def odoo_userschema() -> List[str]:
 
 def odoo_user() -> List[Dict[str, Any]]:
     uid = odoo_login()
-    url = odoo_url() + "/jsonrpc"
+    url = odoo_url_jsonrpc()
     db = odoo_db()
     username, password = get_username_password(url)
     name = odoo_username()
@@ -116,7 +127,7 @@ def odoo_user_id() -> int:
 
 def odoo_sheetschema() -> List[str]:
     uid = odoo_login()
-    url = odoo_url() + "/jsonrpc"
+    url = odoo_url_jsonrpc()
     db = odoo_db()
     username, password = get_username_password(url)
     info = call(url, "object", "execute", db, uid, password, "account.analytic.line", "fields_get", [], ['string', 'type'])
@@ -127,7 +138,7 @@ def odoo_sheet() -> List[Dict[str, Any]]:
     user = odoo_user_id()
     logg.info("user %s", user)
     uid = odoo_login()
-    url = odoo_url() + "/jsonrpc"
+    url = odoo_url_jsonrpc()
     db = odoo_db()
     username, password = get_username_password(url)
     offset, limit = 0, 1000
@@ -135,6 +146,15 @@ def odoo_sheet() -> List[Dict[str, Any]]:
         ['duration_unit_amount','project_id','task_id','unit_amount','date','name'], offset, limit)
     logg.info("fields %s", info)
     return info
+
+def odoo_projectschema() -> List[str]:
+    uid = odoo_login()
+    url = odoo_url_jsonrpc()
+    db = odoo_db()
+    username, password = get_username_password(url)
+    info = call(url, "object", "execute", db, uid, password, "project.project", "fields_get", [], ['string', 'type'])
+    view = [ "%s:%s" % (name, info[name]['type']) for name in sorted(info)]
+    return view
 
 def run(arg: str) -> None:
     if arg in ["help"]:
@@ -154,7 +174,9 @@ def run(arg: str) -> None:
     elif arg in ["version"]:
         print(odoo_version())
     elif arg in ["scheme", "schema", "irxx"]:
-        print(odoo_schema())
+        print(odoo_modelschema())
+    elif arg in ["model", "ir"]:
+        print(odoo_model())
     elif arg in ["sheetschema", "shxx"]:
         print(odoo_sheetschema())
     elif arg in ["sheet", "sh"]:
@@ -163,6 +185,8 @@ def run(arg: str) -> None:
         print(odoo_userschema())
     elif arg in ["user", "me"]:
         print(odoo_user())
+    elif arg in ["projectschema", "opxx"]:
+        print(odoo_projectschema())
     else:
         logg.error("unknown command '%s'", arg)
 
