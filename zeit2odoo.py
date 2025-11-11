@@ -193,6 +193,7 @@ def update_per_days(data: JSONList) -> JSONList:
     return __update_per_days(data, daydata)
 def __update_per_days(data: JSONList, daydata: Dict[Day, JSONList]) -> JSONList:
     changes: JSONList = []
+    billing = odoo_api.odoo_billing()
     odoo = odoo_api.Odoo()
     for day in sorted(daydata.keys()):
         items = daydata[day]
@@ -204,9 +205,13 @@ def __update_per_days(data: JSONList, daydata: Dict[Day, JSONList]) -> JSONList:
             pref_id: str = cast_str_get_Topic(item)
             proj_id: str = cast(str, item["Project"])
             task_id: str = cast(str, item["Task"])
+            bill_at: str = cast(str, item["At"])
             new_desc: str = cast(str, item["Description"])
             new_date: Day = cast(Day, item["Date"])
             new_size: Num = cast(Num, item["Quantity"])
+            if bill_at and billing and bill_at not in billing:
+                logg.debug("NB: (%s) [%s] %s {%s:%s}", new_date, strHours(new_size), strDesc(new_desc), bill_at, "/".join(billing))
+                continue
             matching = []
             for old in found:
                 old_entry_desc = cast(str, old["entry_desc"])
@@ -615,10 +620,10 @@ if __name__ == "__main__":
                        help="pattern:price per hour [%default]")
     cmdline.add_option("--projskip", metavar="TEXT", default=ZEIT_PROJSKIP,
                        help="filter for odoo project [%default]")
-    cmdline.add_option("-B", "--billonly", metavar="TEXT", default=ZEIT_BILLONLY,
-                       help="filter for billing agent [%default]")
     cmdline.add_option("-P", "--projonly", metavar="TEXT", default=ZEIT_PROJONLY,
                        help="filter for odoo project [%default]")
+    cmdline.add_option("-B", "--billonly", metavar="TEXT", default=ZEIT_BILLONLY,
+                       help="filter for billing agent [%default]")
     cmdline.add_option("-U", "--user-name", metavar="TEXT", default=ZEIT_USER_NAME,
                        help="user name for the output report (not for login)")
     cmdline.add_option("--mockup", action="count", default=0, help="with dummy Odoo API")

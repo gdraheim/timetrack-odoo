@@ -80,6 +80,15 @@ def odoo_username() -> str:
         return value
     return "Max Mustermann"
 
+def odoo_billing() -> List[str]:
+    value = git_config_value("odoo.billing")
+    if value:
+        return [val.strip() for val in value.split(" ") if val.strip()]
+    value = git_config_value("odoo.bill")
+    if value:
+        return [val.strip() for val in value.split(" ") if val.strip()]
+    return []
+
 def odoo_url_jsonrpc() -> str:
     return odoo_url() + "/jsonrpc"
 def odoo_url() -> str:
