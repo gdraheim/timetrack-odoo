@@ -69,6 +69,7 @@ TitleProj = "Project"  # "Projekt"
 TitleTask = "Task"  # "Aufgabe"
 TitleTime = "Quantity"  # "Anzahl"
 TitleTicket = "Ticket"
+TitleBill = "At"
 
 # format to map a topic to the proj/task
 _zeit_topics_mapping = """
@@ -385,6 +386,7 @@ def scanlines(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, o
                 itemPref = odoo.pref
                 itemProj = odoo.proj
                 itemTask = odoo.task
+                itemBill = odoo.bill
                 itemUser = username
                 if ZEIT_SHORT:
                     if "(onsite)" in desc:
@@ -402,6 +404,7 @@ def scanlines(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, o
                 item[TitleProj] = itemProj
                 item[TitleTask] = itemTask
                 item[TitleUser] = itemUser
+                item[TitleBill] = "/".join(itemBill)
                 item[TitleTicket] = odoo.ticket  # new
                 #
                 if itemID in idvalues:

@@ -41,6 +41,7 @@ ZEIT_USER_NAME = ""  # get_user_name() in zeit
 ZEIT_SUMMARY = "stundenzettel"
 ZEIT_PROJSKIP = ""
 ZEIT_PROJONLY = ""
+ZEIT_BILLONLY = ""
 ZEIT_FUTURE = False
 # [end zeit2json]
 
@@ -381,15 +382,20 @@ def _summary_per_project_task(data: JSONList, odoodata: JSONList) -> JSONList:
     for item in data:
         proj_id: str = cast(str, item["Project"])
         task_id: str = cast(str, item["Task"])
+        bill_at: str = cast(str, item["At"])
         new_date: Day = cast(Day, item["Date"])
         new_size: Num = cast(Num, item["Quantity"])
         new_key = (proj_id, task_id)
+        if ZEIT_BILLONLY:
+            if not fnmatches(bill_at, ZEIT_BILLONLY): continue
         if ZEIT_PROJONLY:
             if not fnmatches(proj_id, ZEIT_PROJONLY): continue
         if ZEIT_PROJSKIP:
             if fnmatches(proj_id, ZEIT_PROJSKIP): continue
         if new_key not in sumdata:
             sumdata[new_key] = {"at proj": proj_id, "at task": task_id, "odoo": 0, "zeit": 0}
+            if bill_at:
+                sumdata[new_key]["at"] = bill_at
         sumdata[new_key]["zeit"] += new_size  # type: ignore
     dayodoo: Dict[Day, JSONList] = {}
     for item in odoodata:
@@ -450,12 +456,18 @@ def summary_per_topic(data: JSONList, odoodata: Optional[JSONList] = None) -> JS
 def _summary_per_topic(data: JSONList, odoodata: JSONList) -> JSONList:
     sumdata: Dict[str, JSONDict] = {}
     for item in data:
+        print(F"item {item}")
         new_desc: str = cast(str, item["Description"])
         new_date: Day = cast(Day, item["Date"])
         new_size: Num = cast(Num, item["Quantity"])
+        new_bill: str = cast(str, item["At"])
         new_pref = pref_desc(new_desc)
+        if ZEIT_BILLONLY:
+            if not fnmatches(new_bill, ZEIT_BILLONLY): continue
         if new_pref not in sumdata:
             sumdata[new_pref] = {"at topic": new_pref, "odoo": 0, "zeit": 0}
+            if new_bill:
+                sumdata[new_pref]["at"] = new_bill
         sumdata[new_pref]["zeit"] += new_size  # type: ignore
     dayodoo: Dict[Day, JSONList] = {}
     for item in odoodata:
@@ -560,6 +572,7 @@ def report(arg: str) -> Optional[Report]:
 HEADERS = ["date", "act", "at proj", "at task", "zeit:4.2f", "odoo:4.2f", "summe:4.2f"]
 
 def run(arg: str) -> None:
+    tabtotext.MINWIDTH = 3
     reportresults = report(arg)
     if reportresults:
         results, summary = reportresults
@@ -602,6 +615,8 @@ if __name__ == "__main__":
                        help="pattern:price per hour [%default]")
     cmdline.add_option("--projskip", metavar="TEXT", default=ZEIT_PROJSKIP,
                        help="filter for odoo project [%default]")
+    cmdline.add_option("-B", "--billonly", metavar="TEXT", default=ZEIT_BILLONLY,
+                       help="filter for billing agent [%default]")
     cmdline.add_option("-P", "--projonly", metavar="TEXT", default=ZEIT_PROJONLY,
                        help="filter for odoo project [%default]")
     cmdline.add_option("-U", "--user-name", metavar="TEXT", default=ZEIT_USER_NAME,
@@ -662,6 +677,7 @@ if __name__ == "__main__":
         SHORTDESC = opt.onlyzeit
     # zeit2json
     ZEIT_USER_NAME = opt.user_name
+    ZEIT_BILLONLY = opt.billonly
     ZEIT_PROJONLY = opt.projonly
     ZEIT_PROJSKIP = opt.projskip
     ZEIT_SUMMARY = opt.summary

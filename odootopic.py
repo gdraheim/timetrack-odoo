@@ -17,7 +17,7 @@ from tabtotext import JSONList, JSONDict, JSONItem
 from timerange import get_date, Day
 from collections import namedtuple
 
-OdooValues = namedtuple("OdooValues", ["proj", "task", "pref", "ticket"])
+OdooValues = namedtuple("OdooValues", ["proj", "task", "pref", "ticket", "bill"])
 
 logg = logging.getLogger("odootopics")
 
@@ -27,7 +27,14 @@ _zeit_topics_mapping = """
 >> odoo "Odoo Automation",
 """
 
+def shortbill(line: str) -> Tuple[str, List[str]]:
+    if "@" in line:
+        shorthand, billing = line.split("@", 1)
+        return (shorthand.strip(), [bill.strip() for bill in billing.split("@")])
+    return (line.strip(), [])
+
 class OdooValuesForTopic:
+    billing4: Dict[str, List[str]]
     prefixed: Dict[str, str]
     customer: Dict[str, str]
     projects: Dict[str, str]
@@ -38,6 +45,7 @@ class OdooValuesForTopic:
     shortnames: bool
     def __init__(self, shortnames: bool = False) -> None:
         self.shortnames = shortnames
+        self.billing4 = {}  # different billing groups (agents and brokers)
         self.prefixed = {}  # zeit-topic to odoo description-prefix
         self.customer = {}  # called "Project" in Odoo
         self.projects = {}  # called "Task" in Odoo
@@ -69,36 +77,44 @@ class OdooValuesForTopic:
             self.customer[m.group(1).upper()] = m.group(2)
             self.projects[m.group(1)] = ""  # empty is always allowed (as of 2021)
             self.projects[m.group(1).upper()] = ""
-            shorthand = m.group(3).strip().replace("#", ":")
+            shorthand, billing = shortbill(m.group(3).strip().replace("#", ":"))
             if shorthand:
                 self.custname[m.group(2)] = shorthand
+            if billing:
+                self.billing4[m.group(1)] = billing
             return
         m = self.as_project0.match(line[2:].strip())
         if m:
             if check: logg.error("project0 %s", line)
             self.projects[m.group(1)] = m.group(2)
             self.proj_ids[m.group(1)] = m.group(3)  # obsolete
-            shorthand = m.group(4).strip().replace("#", ":")
+            shorthand, billing = shortbill(m.group(4).strip().replace("#", ":"))
             if not shorthand: shorthand = m.group(2)
             self.projname[m.group(1)] = shorthand
+            if billing:
+                self.billing4[m.group(1)] = billing
             return
         m = self.as_project1.match(line[2:].strip())
         if m:
             if check: logg.error("project1 %s", line)
             self.projects[m.group(1)] = m.group(2)
-            shorthand = m.group(3).strip().replace("#", ":")
+            shorthand, billing = shortbill(m.group(3).strip().replace("#", ":"))
             if not shorthand: shorthand = m.group(2)
             self.projname[m.group(1)] = shorthand
+            if billing:
+                self.billing4[m.group(1)] = billing
             return
         m = self.as_project2.match(line[2:].strip())
         if m:
             if check: logg.error("project2 %s", line)
             self.projects[m.group(1)] = m.group(3)
             self.proj_ids[m.group(1)] = m.group(2)  # obsolete
-            shorthand = m.group(4).strip().replace("#", ":")
+            shorthand, billing = shortbill(m.group(4).strip().replace("#", ":"))
             if not shorthand: shorthand = m.group(3)
             self.projname[m.group(1)] = shorthand
             self.ticket4[m.group(1)] = [m.group(2)]  # repurpose
+            if billing:
+                self.billing4[m.group(1)] = billing
             return
         m = self.as_ticket1.match(line[2:].strip())
         if m:
@@ -114,7 +130,9 @@ class OdooValuesForTopic:
         m = self.as_ticket3.match(line[2:].strip())
         if m:
             if check: logg.error("ticket3 %s", line)
-            self.ticket4[m.group(1)] = [m.group(2)] + m.group(3).split(" ")
+            tickets = [m.group(2)] + m.group(3).split(" ")
+            self.ticket4[m.group(1)] = [ticket for ticket in tickets if not ticket.startswith("@")]
+            self.billing4[m.group(1)] = [ticket for ticket in tickets if ticket.startswith("@")]
             return
         if check:
             raise Exception("can not parse %s", line.strip())
@@ -169,7 +187,8 @@ class OdooValuesForTopic:
                 itemProj = self.custname[self.customer[proj]]
             if proj in self.projname:
                 itemTask = self.projname[proj]
-        return OdooValues(itemProj, itemTask, itemPref, ticket)
+        billing = self.billing4.get(proj, [])
+        return OdooValues(itemProj, itemTask, itemPref, ticket, billing)
     def values(self, issue: str) -> List[OdooValues]:
         data: Dict[Tuple[str, str], OdooValues] = {}
         for proj, tickets in self.ticket4.items():
