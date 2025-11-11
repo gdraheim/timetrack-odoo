@@ -4,7 +4,7 @@ Interface to Jira as a method to read and store worklog entries
 """
 
 __copyright__ = "(C) 2022-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.4.4023"
+__version__ = "0.4.4452"
 
 from typing import Union, Dict, List, Any, Optional, Tuple, Iterable, Iterator, cast
 from requests import Session, Response, HTTPError

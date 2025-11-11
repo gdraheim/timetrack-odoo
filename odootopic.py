@@ -2,7 +2,7 @@
 """ associates topics with Odoo project+task coordinates """
 
 __copyright__ = "(C) 2022-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.8.4023"
+__version__ = "0.8.4452"
 
 from typing import List, Dict, Union, Optional, Tuple, Iterator, Iterable, cast
 
