@@ -22,6 +22,7 @@ from timerange import get_date, first_of_month, last_of_month, last_sunday, next
 import odoo2data_api as odoo_api
 
 # from math import round
+from collections import OrderedDict
 from fnmatch import fnmatchcase as fnmatch
 from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, viewFMT, str27, str40
 from odoo2data_api import EntryID, ProjID, TaskID
@@ -428,7 +429,7 @@ def summary_per_project(data: JSONList, odoodata: Optional[JSONList] = None) -> 
     return _summary_per_project(data, odoodata)
 def _summary_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
     sumdata = _summary_per_project_task(data, odoodata)
-    sumproj: Dict[str, JSONDict] = {}
+    sumproj: Dict[str, JSONDict] = OrderedDict()
     for item in sumdata:
         proj_name = cast(str, item["at proj"])
         task_name = cast(str, item["at task"])
@@ -436,7 +437,15 @@ def _summary_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
             sumproj[proj_name] = {"at proj": proj_name, "odoo": 0, "zeit": 0}
         sumproj[proj_name]["odoo"] += item["odoo"]  # type: ignore
         sumproj[proj_name]["zeit"] += item["zeit"]  # type: ignore
-    return list(sumproj.values())
+    result = list(sumproj.values())
+    if ONLYZEIT > 1:
+        zeit = 0.0
+        odoo = 0.0
+        for res in result:
+            zeit += float(res.get("zeit", 0))
+            odoo += float(res.get("odoo", 0))
+        result.append({"zeit": zeit, "odoo": odoo, "at": chr(931)})
+    return result
 
 def fnmatches(text: str, pattern: str) -> bool:
     for pat in pattern.split("|"):
@@ -459,9 +468,8 @@ def summary_per_topic(data: JSONList, odoodata: Optional[JSONList] = None) -> JS
             odoodata = odoo.timesheet(DAYS.after, DAYS.before)
     return _summary_per_topic(data, odoodata)
 def _summary_per_topic(data: JSONList, odoodata: JSONList) -> JSONList:
-    sumdata: Dict[str, JSONDict] = {}
+    sumdata: Dict[str, JSONDict] = OrderedDict()
     for item in data:
-        print(F"item {item}")
         new_desc: str = cast(str, item["Description"])
         new_date: Day = cast(Day, item["Date"])
         new_size: Num = cast(Num, item["Quantity"])
@@ -483,7 +491,15 @@ def _summary_per_topic(data: JSONList, odoodata: JSONList) -> JSONList:
         if old_pref not in sumdata:
             sumdata[old_pref] = {"at topic": old_pref, "odoo": 0, "zeit": 0}
         sumdata[old_pref]["odoo"] += old_size  # type: ignore
-    return list(sumdata.values())
+    result = list(sumdata.values())
+    if ONLYZEIT > 1:
+        zeit = 0.0
+        odoo = 0.0
+        for res in result:
+            zeit += float(res.get("zeit", 0))
+            odoo += float(res.get("odoo", 0))
+        result.append({"zeit": zeit, "odoo": odoo, "at": chr(931)})
+    return result
 
 class Report(NamedTuple):
     data: JSONList
