@@ -2,7 +2,7 @@
 # pylint: disable=missing-function-docstring,missing-class-docstring
 
 __copyright__ = "(C) 2019-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.2.4452"
+__version__ = "0.2.4454"
 
 import timetrack as track
 from typing import Optional

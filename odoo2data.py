@@ -7,7 +7,7 @@ Read and format Odoo timesheet entries. Provides extra reports.
 """
 
 __copyright__ = "(C) 2021-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.1.4452"
+__version__ = "1.1.4454"
 
 from typing import Optional, Dict, List, Tuple, cast, Iterable, Iterator, NamedTuple
 

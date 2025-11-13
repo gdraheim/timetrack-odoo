@@ -2,7 +2,7 @@
 # pylint: disable=missing-function-docstring,missing-class-docstring
 
 __copyright__ = "(C) 2022-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.8.4452"
+__version__ = "0.8.4454"
 
 import odootopic as topics
 from typing import Optional, Tuple, cast

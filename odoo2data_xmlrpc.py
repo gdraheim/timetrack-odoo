@@ -2,7 +2,7 @@
 # pylint: disable=missing-function-docstring,missing-class-docstring
 
 __copyright__ = "(C) 2021-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.4.4452"
+__version__ = "0.4.4454"
 
 from xmlrpc import client as odoo
 from dotnetrc import set_password_filename, get_username_password, str_get_username_password

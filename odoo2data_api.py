@@ -5,7 +5,7 @@
 """ push and pull records to Odoo's Timesheet API """
 
 __copyright__ = "(C) 2021-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.0.4452"
+__version__ = "1.0.4454"
 
 # pylint: disable=unused-import,missing-function-docstring
 import logging

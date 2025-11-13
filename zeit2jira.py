@@ -7,7 +7,7 @@ Synchronize odoo-import data (from zeit.txt) with Jira worklog entries.
 """
 
 __copyright__ = "(C) 2022-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "0.4.4452"
+__version__ = "0.4.4454"
 
 from typing import Optional, Dict, List, Iterable, Iterator, cast, NamedTuple
 
