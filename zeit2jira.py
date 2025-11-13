@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
+
 """
 Synchronize odoo-import data (from zeit.txt) with Jira worklog entries.
 """

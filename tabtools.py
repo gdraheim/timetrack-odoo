@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
+
 """
 Implements frac formatting, for example three-quarter of an hour.
 It can also read time-like number like 12:30 into simple floats.

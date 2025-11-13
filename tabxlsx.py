@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
+
 """ 
 TabXLSX reads and writes Excel xlsx files. It does not depend on other libraries.
 The output can be piped as a markdown table or csv-like data as well. A number

@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
+
 """
 Read and format Jira worklog entries. Provides additional reports.
 """

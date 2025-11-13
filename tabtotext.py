@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
+
 """
 This script allows to format table-like data (list of dicts).
 The various output formats can be read back. The file extension will

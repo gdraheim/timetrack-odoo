@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
+
 """ frontend to run other modules in the system """
 
 __copyright__ = "(C) 2019-2025 Guido Draheim, licensed under the Apache License 2.0"""

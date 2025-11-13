@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
+
 """
 Cut out from zeit2excel for after/before time ranges in days.
 Added a number of symbolic names for nearby months and weeks.
@@ -34,6 +36,7 @@ symbolic_dayrange = [
     "M00", "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12",
     "M01-M02", "M02-M03", "M03-M04", "M04-M05", "M05-M06", "M06-M07", "M07-M08", "M08-M09", "M09-M10", "M10-M11", "M11-M12",
     "M01-M03", "M02-M04", "M03-M05", "M04-M06", "M05-M07", "M06-M08", "M07-M09", "M08-M10", "M09-M11", "M10-M12",
+    "M01-M04", "M02-M05", "M03-M06", "M04-M07", "M05-M08", "M06-M09", "M07-M10", "M08-M11", "M09-M12",
     "year", "thisyear", "lastyear", "oldyear", "blastyear", "beforelastyear",
     "lastyearM00", "lastyearM01", "lastyearM02", "lastyearM03", "lastyearM04", "lastyearM05",
     "lastyearM06", "lastyearM07", "lastyearM08", "lastyearM09", "lastyearM10", "lastyearM11", "lastyearM12"]
@@ -97,6 +100,12 @@ def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
             before = date_dotformat("99.%02i.%04i" % (before.month, after.year))
         return (after, before)
     if arg in ["M01-M03", "M02-M04", "M03-M05", "M04-M06", "M05-M07", "M06-M08", "M07-M09", "M08-M10", "M09-M11", "M10-M12"]:
+        after = firstday_of_month_name(arg.split("-")[0])
+        before = lastday_of_month_name(arg.split("-")[1])
+        if before.year < after.year:
+            before = date_dotformat("99.%02i.%04i" % (before.month, after.year))
+        return (after, before)
+    if arg in ["M01-M04", "M02-M05", "M03-M06", "M04-M07", "M05-M08", "M06-M09", "M07-M10", "M08-M11", "M09-M12"]:
         after = firstday_of_month_name(arg.split("-")[0])
         before = lastday_of_month_name(arg.split("-")[1])
         if before.year < after.year:

@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
 
 from datetime import datetime as Time
 from datetime import date as Date

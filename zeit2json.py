@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=invalid-name,global-variable-not-assigned,import-outside-toplevel
 """
 Read zeit.txt files and format as odoo-import data. The resulting csv or xlsx
 can imported via the Odoo web UI. Here it is a helper module generating json
@@ -16,15 +18,14 @@ from typing import List, Dict, Union, Optional, Sequence, TextIO, Iterator, cast
 
 import logging
 import re
-import os
-import csv
 import datetime
 import os.path as path
 
 import tabtotext
-from tabtotext import JSONList, JSONDict, JSONItem, viewFMT
+from tabtotext import JSONList, JSONDict, viewFMT
 from timerange import get_date, Day, is_dayrange, dayrange
 from odootopic import OdooValuesForTopic
+from workbilling import WorkRecordForBilling
 
 logg = logging.getLogger("zeit2json")
 DONE = (logging.WARNING + logging.ERROR) // 2
@@ -306,6 +307,7 @@ def each_scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: D
 
 def scanlines(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> Iterator[JSONDict]:
     odoomap = OdooValuesForTopic(ZEIT_SHORT)
+    billmap = WorkRecordForBilling()
     weekmap = DateFromWeekday()
     idvalues: Dict[str, str] = {}
     cols0 = re.compile(r"^(\S+)\s+(\S+)+\s+(\S+)(\s*)$")
@@ -317,6 +319,9 @@ def scanlines(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, o
             if not line:
                 continue
             if line.startswith("#"):
+                continue
+            if line.startswith("@"):
+                billmap.scanline(line)
                 continue
             if line.startswith(">>"):
                 odoomap.scanline(line)

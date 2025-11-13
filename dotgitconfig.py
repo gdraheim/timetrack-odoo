@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
+
 import dotnetrc
 """ This is a wrapper around dotnetrc.py which can read the git-credentials store,
     adding functions to read the the gitconfig settings alternativly. """
