@@ -1,23 +1,21 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,multiple-statements,line-too-long
+# pylint: disable=unused-variable,unused-argument,deprecated-module
 
 """ associates topics with Odoo project+task coordinates """
 
 __copyright__ = "(C) 2022-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "0.8.4452"
 
-from typing import List, Dict, Union, Optional, Tuple, Iterator, Iterable, cast
+from typing import List, Dict, Optional, Tuple, Iterator, Iterable
 
 import logging
 import re
-import csv
-import datetime
-import os.path as path
+from collections import namedtuple
 
 import tabtotext
-from tabtotext import JSONList, JSONDict, JSONItem
+from tabtotext import JSONDict
 from timerange import get_date, Day, dayrange
-from collections import namedtuple
 
 OdooValues = namedtuple("OdooValues", ["proj", "task", "pref", "ticket", "bill"])
 
