@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 # pylint: disable=missing-function-docstring,missing-class-docstring,line-too-long,multiple-statements
+# pylint: disable=unused-variable,unused-argument
 
 """ push and pull records to Odoo's Timesheet API """
 

@@ -1,18 +1,20 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,line-too-long,global-statement
+# pylint: disable=unused-variable,unused-argument
+
+""" mockup for interface to Odoo's Timesheet API """
+
 
 __copyright__ = "(C) 2021-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.1.4452"
 
-from typing import Dict, List, Optional, Generator, cast
-from odoo2data_api import Cookies, UserID, ProjID, ProjREF, TaskID, TaskREF, EntryID, OdooException
-
-from tabtotext import JSONList, JSONDict, JSONItem, Date, Time
-
+from typing import List, Optional, Generator, cast
 import sys
 import os.path as path
 import datetime
+from odoo2data_api import  UserID, ProjREF, TaskREF, EntryID, OdooException
 
+from tabtotext import JSONList, JSONDict, Date
 import logging
 logg = logging.getLogger(__name__ == "__main__" and path.basename(sys.argv[0]) or __name__)
 
