@@ -35,6 +35,9 @@ db_projlist = [mock_proj_1, mock_proj_2]
 db_tasklist = {mock_proj_1: [mock_task_1], mock_proj_2: [mock_task_2]}
 db_records: List[Optional[JSONDict]] = []
 
+def odoo_billing() -> List[str]:
+    return []
+
 def reset() -> None:
     global DB, URL
     DB = mock_db

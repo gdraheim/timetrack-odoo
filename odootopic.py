@@ -204,7 +204,7 @@ class OdooValuesForTopic:
                             proj = proj[:-1]
                     itemProj = self.customer[proj]
                     itemTask = self.projects[proj]
-                    value = OdooValues(itemProj, itemTask, prefix, ticket)
+                    value = OdooValues(itemProj, itemTask, prefix, ticket, [])
                     key = (itemProj, itemTask)
                     data[key] = value
         return list(data.values())
