@@ -284,7 +284,7 @@ if __name__ == "__main__":
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     #
     import zeit2json
-    zeit2json.ZEIT_FILENAME = opt.filename
+    zeit2json.set_zeit_filename(opt.filename)
     zeit2json.ZEIT_AFTER = opt.after
     zeit2json.ZEIT_BEFORE = opt.before
     if not args:

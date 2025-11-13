@@ -26,6 +26,7 @@ from tabtotext import JSONList, JSONDict, viewFMT
 from timerange import get_date, Day, is_dayrange, dayrange
 from odootopic import OdooValuesForTopic
 from workbilling import WorkRecordForBilling
+from zeitdata import ZeitConfig, zeit_user_name, zeit_filename
 
 logg = logging.getLogger("zeit2json")
 DONE = (logging.WARNING + logging.ERROR) // 2
@@ -35,7 +36,7 @@ logging.addLevelName(DONE, "DONE")
 logging.addLevelName(NOTE, "NOTE")
 logging.addLevelName(HINT, "HINT")
 
-
+NIX = ""
 ZEIT_AFTER = ""
 ZEIT_BEFORE = ""
 ZEIT_SUMMARY = "stundenzettel"
@@ -45,11 +46,7 @@ ZEIT_TEXTFILTER = ""
 ZEIT_DESCFILTER = ""
 ZEIT_EXTRATIME = False
 ZEIT_SHORT = False
-ZEIT_FILENAME = ""
-ZEIT_USER_NAME = ""
 ZEIT_FUTURE = False
-
-DEFAULT_FILENAME = "~/zeit{YEAR}.txt"
 
 WRITEXLSX = False
 WRITEJSON = True
@@ -216,59 +213,18 @@ def get_zeit_before() -> Day:
     today = datetime.date.today()
     return Day(today.year, 12, 31)
 
-def get_user_name() -> Optional[str]:  # obsolete
-    zeit = ZeitConfig()
-    return zeit.user_name()
+def get_user_name() -> Optional[str]:
+    return zeit_user_name()
 def get_zeit_filename(on_or_after: Optional[Day] = None) -> str:  # obsolete
     after = on_or_after or get_zeit_after()
-    return zeit_filename(after)
-def zeit_filename(after: Day) -> str:  # obsolete
+    return str(zeit_filename("", after))
+def set_zeit_filename(newdefault: str = NIX) -> str:
     zeit = ZeitConfig()
-    return zeit.filename(after)
+    return zeit.default_filename(newdefault)
+def set_zeit_user_name(newdefault: str = NIX) -> str:
+    zeit = ZeitConfig()
+    return zeit.default_user_name(newdefault)
 
-class ZeitConfig:
-    pathspec: str
-    username: Optional[str]
-    site: Optional[str]
-    def __init__(self, pathspec: Optional[str] = None, username: Optional[str] = None):
-        self.pathspec = pathspec or ""
-        self.username = username
-    def for_user(self, user: str) -> "ZeitConfig":
-        self.username = user
-        return self
-    def from_file(self, spec: str) -> "ZeitConfig":
-        self.pathspec = spec
-        return self
-    def on_site(self, site: str) -> "ZeitConfig":
-        self.site = site
-        return self
-    def name(self) -> str:
-        if self.site:
-            return self.site
-        return path.basename(path.dirname(self.pathspec))
-    def user_name(self) -> Optional[str]:
-        global ZEIT_USER_NAME
-        if ZEIT_USER_NAME:
-            return ZEIT_USER_NAME
-        import dotgitconfig
-        return dotgitconfig.git_config_value("user.name")
-    def filespec(self) -> str:
-        if self.pathspec:
-            return self.pathspec
-        global ZEIT_FILENAME
-        if ZEIT_FILENAME:
-            return ZEIT_FILENAME
-        import dotgitconfig
-        found = dotgitconfig.git_config_value("zeit.filename")
-        if found:
-            return found
-        return DEFAULT_FILENAME
-    def filename(self, after: Day) -> str:
-        filename = self.filespec()
-        return self.expand(filename, after)
-    def expand(self, filename: str, after: Day) -> str:
-        YEAR = after.year
-        return path.expanduser(filename.format(**locals()))
 
 class Zeit:
     def __init__(self, config: Optional[ZeitConfig] = None):
@@ -531,8 +487,8 @@ if __name__ == "__main__":
                        help="only evaluate entrys on and before [last of year]")
     cmdline.add_option("-s", "--summary", metavar="TEXT", default=ZEIT_SUMMARY,
                        help="suffix for summary report [%default]")
-    cmdline.add_option("-f", "--filename", metavar="TEXT", default=ZEIT_FILENAME,
-                       help="choose input filename [%s]" % (ZEIT_FILENAME or DEFAULT_FILENAME))
+    cmdline.add_option("-f", "--filename", metavar="TEXT", default="",
+                       help="choose input filename")
     cmdline.add_option("-L", "--labels", metavar="LIST", action="append", default=[],
                        help="select and format columns (new=col:h)")
     cmdline.add_option("-o", "--output", metavar="-", help="json|yaml|html|wide|md|htm|tab|csv|dat", default=OUTPUT)
@@ -551,7 +507,7 @@ if __name__ == "__main__":
                        help="allow for the extra times [%default]")
     cmdline.add_option("-z", "--short", action="store_true", default=ZEIT_SHORT,
                        help="present the shorthand names for projects and tasks [%default]")
-    cmdline.add_option("-U", "--user-name", metavar="TEXT", default=ZEIT_USER_NAME,
+    cmdline.add_option("-U", "--user-name", metavar="TEXT", default="",
                        help="user name for the output report (not for login)")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
@@ -566,14 +522,15 @@ if __name__ == "__main__":
         NEWFORMAT = True
     elif opt.oldformat:
         NEWFORMAT = False
-    ZEIT_USER_NAME = opt.user_name
+    _zeitconfig = ZeitConfig()
+    _zeitconfig.default_filename(opt.filename)
+    _zeitconfig.default_user_name(opt.user_name)
     ZEIT_SHORT = opt.short
     ZEIT_EXTRATIME = opt.extra
     ZEIT_PROJFILTER = opt.projfilter
     ZEIT_TASKFILTER = opt.taskfilter
     ZEIT_TEXTFILTER = opt.textfilter
     ZEIT_DESCFILTER = opt.descfilter
-    ZEIT_FILENAME = opt.filename
     ZEIT_SUMMARY = opt.summary
     ZEIT_FUTURE = opt.future
     ZEIT_AFTER = opt.after

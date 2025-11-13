@@ -37,8 +37,7 @@ logging.addLevelName(DONE, "DONE")
 
 DAYS = dayrange()
 # [for zeit2json]
-ZEIT_FILENAME = ""  # get_zeit_filename()
-ZEIT_USER_NAME = ""  # get_user_name() in zeit
+USER_NAME = ""
 ZEIT_SUMMARY = "stundenzettel"
 ZEIT_PROJSKIP = ""
 ZEIT_PROJONLY = ""
@@ -526,12 +525,12 @@ def report(arg: str) -> Optional[Report]:
     ###########################################################
     headers = HEADERS
     ###########################################################
+    zeit_api.set_zeit_user_name(USER_NAME)
     zeit_api.ZEIT_AFTER = DAYS.after.isoformat()
     zeit_api.ZEIT_BEFORE = DAYS.before.isoformat()
-    zeit_api.ZEIT_USER_NAME = ZEIT_USER_NAME
     zeit_api.ZEIT_SUMMARY = ZEIT_SUMMARY
     zeit_api.ZEIT_FUTURE = ZEIT_FUTURE
-    conf = zeit_api.ZeitConfig(ZEITDATA, username=ZEIT_USER_NAME)
+    conf = zeit_api.ZeitConfig(ZEITDATA, username=USER_NAME)
     zeit = zeit_api.Zeit(conf)
     if CSVDATA:
         data = tabtotext.readFromCSV(CSVDATA)
@@ -640,7 +639,7 @@ if __name__ == "__main__":
                        help="filter for odoo project [%default]")
     cmdline.add_option("-B", "--billonly", metavar="TEXT", default=ZEIT_BILLONLY,
                        help="filter for billing agent [%default]")
-    cmdline.add_option("-U", "--user-name", metavar="TEXT", default=ZEIT_USER_NAME,
+    cmdline.add_option("-U", "--user-name", metavar="TEXT", default=USER_NAME,
                        help="user name for the output report (not for login)")
     cmdline.add_option("--mockup", action="count", default=0, help="with dummy Odoo API")
     cmdline.add_option("-q", "--shortname", action="count", default=SHORTNAME,
@@ -697,7 +696,7 @@ if __name__ == "__main__":
     if opt.onlyzeit > 2:
         SHORTDESC = opt.onlyzeit
     # zeit2json
-    ZEIT_USER_NAME = opt.user_name
+    USER_NAME = opt.user_name
     ZEIT_BILLONLY = opt.billonly
     ZEIT_PROJONLY = opt.projonly
     ZEIT_PROJSKIP = opt.projskip

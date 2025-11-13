@@ -41,8 +41,7 @@ REMOTE = ""
 
 DAYS = dayrange()
 # [for zeit2json]
-ZEIT_FILENAME = ""  # get_zeit_filename()
-ZEIT_USER_NAME = ""  # get_user_name() in zeit
+USER_NAME = ""
 ZEIT_SUMMARY = "stundenzettel"
 # [end zeit2json]
 
@@ -295,11 +294,11 @@ def report(arg: str) -> Optional[Report]:
     ###########################################################
     headers = HEADERS
     ###########################################################
+    zeit_api.set_zeit_user_name(USER_NAME)
     zeit_api.ZEIT_AFTER = DAYS.after.isoformat()
     zeit_api.ZEIT_BEFORE = DAYS.before.isoformat()
-    zeit_api.ZEIT_USER_NAME = ZEIT_USER_NAME
     zeit_api.ZEIT_SUMMARY = ZEIT_SUMMARY
-    conf = zeit_api.ZeitConfig(ZEITDATA, username=ZEIT_USER_NAME)
+    conf = zeit_api.ZeitConfig(ZEITDATA, username=USER_NAME)
     zeit = zeit_api.Zeit(conf)
     if CSVDATA:
         data = tabtotext.readFromCSV(CSVDATA)
@@ -328,18 +327,18 @@ def report(arg: str) -> Optional[Report]:
     if arg in ["zz", "zeit"]:
         results = list(withNoTask(data))   # list existing Odoo entries and associated Zeit metadata
     elif arg in ["uu", "update"]:
-        results = update_per_days(data, ZEIT_USER_NAME)  # looks for prefix on the day, perhaps updating time and description
+        results = update_per_days(data, USER_NAME)  # looks for prefix on the day, perhaps updating time and description
     elif arg in ["cc", "compare", "days"]:
-        results = summary_per_day(data, ZEIT_USER_NAME)   # group by day across all Odoo projects
+        results = summary_per_day(data, USER_NAME)   # group by day across all Odoo projects
     elif arg in ["ee", "summarize", "tasks"]:
-        results = summary_per_project_ticket(data, ZEIT_USER_NAME)  # group by Odoo project-and-task
+        results = summary_per_project_ticket(data, USER_NAME)  # group by Odoo project-and-task
     elif arg in ["ss", "summary"]:
-        results = summary_per_project(data, ZEIT_USER_NAME)  # group by Odoo project
+        results = summary_per_project(data, USER_NAME)  # group by Odoo project
         sum_zeit = sum([float(cast(JSONBase, item["zeit"])) for item in results if item["zeit"]])
         sum_jira = sum([float(cast(JSONBase, item["jira"])) for item in results if item["jira"]])
         summary = [f"{sum_zeit} hours zeit", f"{sum_jira} hours jira"]
     elif arg in ["tt", "topics"]:
-        results = summary_per_topic(data, ZEIT_USER_NAME)  # group by topic prefix in description
+        results = summary_per_topic(data, USER_NAME)  # group by topic prefix in description
     else:
         logg.error("unknown report '%s'", arg)
         import sys
@@ -388,7 +387,7 @@ if __name__ == "__main__":
                        help="only evaluate entrys on and before date")
     cmdline.add_option("-s", "--summary", metavar="TEXT", default=ZEIT_SUMMARY,
                        help="suffix for summary report [%default]")
-    cmdline.add_option("-U", "--user-name", metavar="TEXT", default=ZEIT_USER_NAME,
+    cmdline.add_option("-U", "--user-name", metavar="TEXT", default=USER_NAME,
                        help="user name for the output report (not for login)")
     # ..............
     cmdline.add_option("-q", "--shortname", action="count", default=SHORTNAME,
@@ -442,8 +441,8 @@ if __name__ == "__main__":
         SHORTNAME = opt.onlyzeit
     if opt.onlyzeit > 2:
         SHORTDESC = opt.onlyzeit
+    USER_NAME = opt.user_name
     # zeit2json
-    ZEIT_USER_NAME = opt.user_name
     ZEIT_SUMMARY = opt.summary
     DAYS = dayrange(opt.after, opt.before)
     if not args:
