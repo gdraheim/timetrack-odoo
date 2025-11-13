@@ -537,7 +537,7 @@ def report(arg: str) -> Optional[Report]:
         import tabtoxlsx
         data = tabtoxlsx.readFromXLSX(XLSXDATA)
     else:
-        data = zeit.read_entries(DAYS.after, DAYS.before)
+        data = zeit.read_entries(DAYS)
     if arg in ["json", "make"]:
         json_text = tabtotext.tabtoJSON(data, headers)
         json_file = conf.filename(DAYS.after) + ".json"

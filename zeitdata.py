@@ -50,7 +50,7 @@ class ZeitConfig:
         if found:
             return found
         return DEFAULT_FILENAME
-    def filename(self, after: Optional[Day] = None) -> str():
+    def filename(self, after: Optional[Day] = None) -> str:
         filename = self.filespec()
         return str(self.expand(filename, after))
     def expand(self, filename: str, after: Optional[Day] = None) -> Path:
@@ -82,7 +82,7 @@ def zeit_user_name(newdefault: str = NIX) -> Optional[str]: # obsolete
     zeit.default_user_name(newdefault)
     return zeit.user_name()
 
-def zeit_filename(newdefault: str = NIX, after: Optional[Day] = None) -> Path: # obsolete
+def zeit_filename(newdefault: str = NIX, after: Optional[Day] = None) -> str: # obsolete
     zeit = ZeitConfig()
     zeit.default_filename(newdefault)
     return zeit.filename(after)

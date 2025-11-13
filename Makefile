@@ -253,6 +253,23 @@ AUTOPEP8_INPLACE= --in-place
 	$(AUTOPEP8) $(AUTOPEP8_INPLACE) $(AUTOPEP8_OPTIONS) $(@:.pep8=)
 	$(GIT) --no-pager diff $(@:.pep8=)
 
+
+types: 
+	$(MAKE) $(PARALLEL) -B \
+	                 $(ODOOTOPIC).type\
+	                 $(MAIN_PROG).type \
+	                 $(ZEIT_PROG).type  \
+	                 $(DATA_PROG).type  \
+	                 $(TAB_TOOLS).type  \
+	                 $(TAB_UTILS).type  \
+	                 $(TAB_2XLSX).type $(GIT_UTILS).type \
+	                 $(TAB_4XLSX).type  \
+	                 $(NET_UTILS).type  \
+	                 $(DAY_UTILS).type  \
+	                 $(JIRA_PROG).type $(JIRA_APIS).type $(JIRA_MOCK).type \
+	                 $(JIRA_ZEIT).type  \
+	                 $(TRACKPROG).type 
+
 type: 
 	$(MAKE) $(PARALLEL) \
 	                 $(ODOO_APIS).type $(ODOO_MOCK).type \

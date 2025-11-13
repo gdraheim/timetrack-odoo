@@ -644,7 +644,7 @@ def report(arg: str) -> Optional[Report]:
     results: JSONList = []
     if ONLYZEIT:
         import zeit2json
-        data = json2odoo(zeit2json.read_zeit(DAYS.after, DAYS.before))
+        data = json2odoo(zeit2json.read_zeit(DAYS))
     if arg in ["ou", "odoo-users", "users"]:
         results = odoo_users()  # list all Odoo users
     elif arg in ["op", "odoo-projects", "projects"]:

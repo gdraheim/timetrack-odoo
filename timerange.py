@@ -141,9 +141,16 @@ def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
 class Dayrange:
     after: Day
     before: Day
-    def __init__(self, after: Day, before: Day):
+    def __init__(self, after: Day, before: Optional[Day] = None):
         self.after = after
-        self.before = before
+        if before:
+           self.before = before
+        else:
+            today = Day.today()
+            if today > after:
+                self.before = today
+            else:
+                self.before = after
     @property
     def daysbefore(self) -> int:
         diff = self.before - Day.today()
