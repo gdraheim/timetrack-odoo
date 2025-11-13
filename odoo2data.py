@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,multiple-statements,line-too-long
+# pylint: disable=unused-variable,unused-argument,consider-using-f-string,import-outside-toplevel
 
 """
 Read and format Odoo timesheet entries. Provides extra reports.
@@ -8,25 +9,22 @@ Read and format Odoo timesheet entries. Provides extra reports.
 __copyright__ = "(C) 2021-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.1.4452"
 
-from typing import Optional, Union, Dict, List, Tuple, cast, Iterable, Iterator, NamedTuple
+from typing import Optional, Dict, List, Tuple, cast, Iterable, Iterator, NamedTuple
 
 import logging
 import re
 import os
-import csv
 import datetime
+from fnmatch import fnmatchcase as fnmatch
 
 import tabtotext
-import zeit2json
-from timerange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
+from timerange import get_date, last_sunday, next_sunday, dayrange, is_dayrange
 from dotgitconfig import git_config_value, git_config_override
 import odoo2data_api as odoo_api
 import dotnetrc
 
 # from math import round
-from fnmatch import fnmatchcase as fnmatch
 from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, viewFMT
-from odoo2data_api import EntryID, ProjID, TaskID
 
 Day = datetime.date
 Num = float
@@ -175,9 +173,9 @@ def _guess_mapping(projectdata: JSONList) -> Iterator[JSONDict]:
 
 def guess_project_mapping(projectdata: JSONList) -> JSONList:
     found: Dict[str, List[JSONDict]] = {}
-    namecuts = re.compile("([A-Za-z]+) ?[:-].*")
-    namename = re.compile("([A-Za-z]+\d* [A-Za-z]+).*")
-    nameonly = re.compile("([A-Za-z]+) *$")
+    namecuts = re.compile(r"([A-Za-z]+) ?[:-].*")
+    namename = re.compile(r"([A-Za-z]+\d* [A-Za-z]+).*")
+    nameonly = re.compile(r"([A-Za-z]+) *$")
     for item in projectdata:
         proj_name = umlaute(cast(str, item["proj_name"]))
         m1 = namecuts.match(proj_name)
