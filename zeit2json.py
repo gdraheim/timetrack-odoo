@@ -14,7 +14,7 @@ older optins)
 __copyright__ = "(C) 2017-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "0.6.4452"
 
-from typing import List, Dict, Union, Optional, Sequence, TextIO, Iterator, cast
+from typing import List, Dict, Union, Optional, Sequence, TextIO, Iterator, Iterable, cast
 
 import logging
 import re
@@ -225,40 +225,32 @@ def set_zeit_user_name(newdefault: str = NIX) -> str:
 
 class Zeit:
     def __init__(self, config: Optional[ZeitConfig] = None):
-        self.config = config or ZeitConfig()
+        self.data = config or ZeitConfig()
     def read_entries(self, on_or_after: Day, on_or_before: Day) -> JSONList:
-        filename = self.config.filename(on_or_after)
-        return read_data(filename, on_or_after, on_or_before)
+        return scan_data(self.data.lines(on_or_after), on_or_after, on_or_before)
     def read_entries2(self, on_or_after: Day, on_or_before: Day) -> JSONList:
-        filename = self.config.filename(on_or_after)
-        return read_data2(filename, on_or_after, on_or_before)
+        return scan_data2(self.data.lines(on_or_after), on_or_after, on_or_before)
 
 def read_zeit(on_or_after: Day, on_or_before: Day) -> JSONList:
     zeit = Zeit()
     return zeit.read_entries(on_or_after, on_or_before)
-def read_data(filename: str, on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None) -> JSONList:
-    logg.info("reading %s", filename)
-    return scan_data(open(filename), on_or_after, on_or_before)
-def read_data2(filename: str, on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None) -> JSONList:
-    logg.info("reading %s", filename)
-    return scan_data2(open(filename), on_or_after, on_or_before)
 
-def scan_data2(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None, username: Optional[str] = None) -> JSONList:
+def scan_data2(lines_from_file: Iterable[str], on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None, username: Optional[str] = None) -> JSONList:
     return list(each_scan_data2(lines_from_file, on_or_after or get_zeit_after(), on_or_before or get_zeit_before(), username))
-def each_scan_data2(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> Iterator[JSONDict]:
+def each_scan_data2(lines_from_file: Iterable[str], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> Iterator[JSONDict]:
     for item in scanlines(lines_from_file, on_or_after, on_or_before, username):
         if TitleID in item:
             del item[TitleID]  # new
         yield item
-def scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None, username: Optional[str] = None) -> JSONList:
+def scan_data(lines_from_file: Iterable[str], on_or_after: Optional[Day] = None, on_or_before: Optional[Day] = None, username: Optional[str] = None) -> JSONList:
     return list(each_scan_data(lines_from_file, on_or_after or get_zeit_after(), on_or_before or get_zeit_before(), username))
-def each_scan_data(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> Iterator[JSONDict]:
+def each_scan_data(lines_from_file: Iterable[str], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> Iterator[JSONDict]:
     for item in scanlines(lines_from_file, on_or_after, on_or_before, username):
         if TitleTicket in item:
             del item[TitleTicket]  # new
         yield item
 
-def scanlines(lines_from_file: Union[Sequence[str], TextIO], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> Iterator[JSONDict]:
+def scanlines(lines_from_file: Iterable[str], on_or_after: Day, on_or_before: Day, username: Optional[str] = None) -> Iterator[JSONDict]:
     odoomap = OdooValuesForTopic(ZEIT_SHORT)
     billmap = WorkRecordForBilling()
     weekmap = DateFromWeekday()
@@ -418,16 +410,17 @@ def each_filter_data(data: JSONList = []) -> Iterator[JSONDict]:
             yield item
 
 def get_data(filename: str) -> JSONList:
-    filename = arg
     on_or_before = get_zeit_before()
     on_or_after = get_zeit_after()
     if on_or_after.year != on_or_before.year:
         logg.error("--after / --before must be the same year (-a ... to -b ...)")
     logg.error("read %s", filename)
+    zeit = ZeitConfig().from_file(filename)
+    logg.info("reading %s", zeit.filename(on_or_after))
     if NEWFORMAT:
-        zeitdata = read_data2(filename, on_or_after, on_or_before)
+        zeitdata = scan_data2(zeit.lines(on_or_after), on_or_after, on_or_before)
     else:
-        zeitdata = read_data(filename, on_or_after, on_or_before)
+        zeitdata = scan_data(zeit.lines(on_or_after), on_or_after, on_or_before)
     return filter_data(zeitdata)
 
 def run(arg: str) -> None:

@@ -50,12 +50,12 @@ class ZeitConfig:
         if found:
             return found
         return DEFAULT_FILENAME
-    def filename(self, after: Optional[Day] = None) -> Path:
+    def filename(self, after: Optional[Day] = None) -> str():
         filename = self.filespec()
-        return self.expand(filename, after)
+        return str(self.expand(filename, after))
     def expand(self, filename: str, after: Optional[Day] = None) -> Path:
-        YEAR = after.year if after else Day.today().year
-        return Path(filename.format(**locals())).expanduser()
+        year = after.year if after else Day.today().year
+        return Path(filename.format(YEAR = year)).expanduser()
     def default_user_name(self, newdefault: str = NIX) -> str:
         return default_user_name(newdefault)
     def default_filename(self, newdefault: str = NIX) -> str:
