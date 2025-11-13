@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,line-too-long
+# pylint: disable=consider-using-f-string,logging-fstring-interpolation,deprecated-module
 
 """
 Cut out from zeit2excel for after/before time ranges in days.
@@ -144,7 +145,7 @@ class Dayrange:
     def __init__(self, after: Day, before: Optional[Day] = None):
         self.after = after
         if before:
-           self.before = before
+            self.before = before
         else:
             today = Day.today()
             if today > after:
@@ -370,20 +371,20 @@ if __name__ == "__main__":
                        help="only evaluate on and after [first of month]")
     cmdline.add_option("-b", "--before", metavar="DATE", default=None,
                        help="only evaluate on and before [last of month]")
-    opt, args = cmdline.parse_args()
+    opt, cmdline_args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     # logg.addHandler(logging.StreamHandler())
-    ref = None
-    days = dayrange(opt.after, opt.before)
-    if args and is_dayrange(args[0]):
-        ref = args[0]
-        args = args[1:]
-        days = dayrange(ref)
-    if not args:
-        args = ["check"]
-    for arg in args:
-        if arg in ["help"]:
+    day_ref = None
+    opt_days = dayrange(opt.after, opt.before)
+    if cmdline_args and is_dayrange(cmdline_args[0]):
+        day_ref = cmdline_args[0]
+        cmdline_args = cmdline_args[1:]
+        opt_days = dayrange(day_ref)
+    if not cmdline_args:
+        cmdline_args = ["check"]
+    for cmdline_arg in cmdline_args:
+        if cmdline_arg in ["help"]:
             cmdline.print_help()
             print("\nCommands:")
             previous = ""
@@ -395,5 +396,7 @@ if __name__ == "__main__":
                         print(previous.strip().split(" arg in")[1], line.strip())
                 previous = line
             raise SystemExit()
-        if arg in ["check"]:
-            print(check_days(days, ref))
+        if cmdline_arg in ["check"]:
+            print(check_days(opt_days, day_ref))
+
+
