@@ -1,4 +1,8 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring,line-too-long,multiple-statements,global-statement
+# pylint: disable=unused-variable,unused-argument
+# mypy: disable-error-code=unused-ignore
+
 """
 Synchronize odoo-import data (from zeit.txt) with Odoo timesheet records.
 """
@@ -6,26 +10,24 @@ Synchronize odoo-import data (from zeit.txt) with Odoo timesheet records.
 __copyright__ = "(C) 2021-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.1.4452"
 
-from typing import Optional, Union, Dict, List, Tuple, cast, NamedTuple
+from typing import Optional, Dict, List, Tuple, cast, NamedTuple
 
 import logging
-import re
-import os
-import csv
 import datetime
+from collections import OrderedDict
+from fnmatch import fnmatchcase as fnmatch
+from optparse import OptionParser # type: ignore[deprecated-module] # pylint: disable=deprecated-module
 
 import dotnetrc
-from dotgitconfig import git_config_value, git_config_override
+from dotgitconfig import git_config_override
 import tabtotext
 import zeit2json as zeit_api
-from timerange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
+from timerange import get_date, dayrange, is_dayrange
 import odoo2data_api as odoo_api
 
 # from math import round
-from collections import OrderedDict
-from fnmatch import fnmatchcase as fnmatch
 from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, viewFMT, str27, str40
-from odoo2data_api import EntryID, ProjID, TaskID
+from odoo2data_api import EntryID
 from tabtools import strHours
 
 Day = datetime.date
@@ -510,6 +512,7 @@ def report(arg: str) -> Optional[Report]:
         logg.log(DONE, "%s -> %s %s", arg, DAYS.after, DAYS.before)
         return None
     if arg in ["help"]:
+        cmdline().print_help()
         report_name = None
         for line in open(__file__):
             if line.strip().replace("elif", "if").startswith("if arg in"):
@@ -616,54 +619,43 @@ def run(arg: str) -> None:
             tabtoxlsx.tabtoXLSX(XLSXFILE, results, headers)
             logg.log(DONE, " %s written   %s '%s'", FMT, viewFMT(FMT), XLSXFILE)
 
-if __name__ == "__main__":
-    from optparse import OptionParser
-    cmdline = OptionParser("%prog [-opt] [help|commmand...]", epilog=__doc__, version=__version__)
-    cmdline.formatter.max_help_position = 30
-    cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
-    cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("-8", "--future", action="store_true", default=ZEIT_FUTURE,
-                       help="allow future entries from zeit timesheet")
-    cmdline.add_option("-a", "--after", metavar="DATE", default=None,
-                       help="only evaluate entrys on and after date")
-    cmdline.add_option("-b", "--before", metavar="DATE", default=None,
-                       help="only evaluate entrys on and before date")
-    cmdline.add_option("-s", "--summary", metavar="TEXT", default=ZEIT_SUMMARY,
-                       help="suffix for summary report [%default]")
-    cmdline.add_option("-p", "--price", metavar="TEXT", action="append", default=PRICES,
-                       help="pattern:price per hour [%default]")
-    cmdline.add_option("--projskip", metavar="TEXT", default=ZEIT_PROJSKIP,
-                       help="filter for odoo project [%default]")
-    cmdline.add_option("-P", "--projonly", metavar="TEXT", default=ZEIT_PROJONLY,
-                       help="filter for odoo project [%default]")
-    cmdline.add_option("-B", "--billonly", metavar="TEXT", default=ZEIT_BILLONLY,
-                       help="filter for billing agent [%default]")
-    cmdline.add_option("-U", "--user-name", metavar="TEXT", default=USER_NAME,
-                       help="user name for the output report (not for login)")
-    cmdline.add_option("--mockup", action="count", default=0, help="with dummy Odoo API")
-    cmdline.add_option("-q", "--shortname", action="count", default=SHORTNAME,
-                       help="present short names for proj+task [%default]")
-    cmdline.add_option("-Q", "--shortdesc", action="count", default=SHORTDESC,
-                       help="present short lines for description [%default]")
-    cmdline.add_option("-z", "--onlyzeit", action="count", default=ONLYZEIT,
-                       help="present only local zeit data [%default]")
-    cmdline.add_option("-L", "--labels", metavar="LIST", action="append",
-                       default=[], help="select and format columns (new=col:h)")
-    cmdline.add_option("-o", "-O", "--output", metavar="TO", default=OUTPUT,
-                       help="(filename.)json|yaml|html|wide|md|htm|csv|dat")
-    cmdline.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
-    cmdline.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also json data file")
-    cmdline.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE, help="write also sCSV data file")
-    cmdline.add_option("-d", "--csvdata", metavar="FILE", default=CSVDATA, help="use data from semicolonCSV file")
-    cmdline.add_option("-x", "--xlsxdata", metavar="FILE", default=XLSXDATA, help="use data from xlsx data file")
-    cmdline.add_option("-f", "--zeitdata", metavar="FILE", default=ZEITDATA, help="use data from this zeit.txt")
-    cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default=dotnetrc.GIT_CREDENTIALS)
-    cmdline.add_option("-G", "--netcredentials", metavar="FILE", default=dotnetrc.NET_CREDENTIALS)
-    cmdline.add_option("-E", "--extracredentials", metavar="FILE", default=dotnetrc.NETRC_FILENAME)
-    cmdline.add_option("-c", "--config", metavar="NAME=VALUE", action="append", default=[])
-    cmdline.add_option("-y", "--update", action="store_true", default=UPDATE,
+
+def cmdline() -> OptionParser:
+    cmd = OptionParser("%prog [-opt] [help|commmand...]", epilog=__doc__, version=__version__)
+    cmd.formatter.max_help_position = 30
+    cmd.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
+    cmd.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
+    cmd.add_option("-8", "--future", action="store_true", default=ZEIT_FUTURE, help="allow future entries from zeit timesheet")
+    cmd.add_option("-a", "--after", metavar="DATE", default=None, help="only evaluate entrys on and after date")
+    cmd.add_option("-b", "--before", metavar="DATE", default=None, help="only evaluate entrys on and before date")
+    cmd.add_option("-s", "--summary", metavar="TEXT", default=ZEIT_SUMMARY, help="suffix for summary report [%default]")
+    cmd.add_option("-p", "--price", metavar="TEXT", action="append", default=PRICES, help="pattern:price per hour [%default]")
+    cmd.add_option("--projskip", metavar="TEXT", default=ZEIT_PROJSKIP, help="filter for odoo project [%default]")
+    cmd.add_option("-P", "--projonly", metavar="TEXT", default=ZEIT_PROJONLY, help="filter for odoo project [%default]")
+    cmd.add_option("-B", "--billonly", metavar="TEXT", default=ZEIT_BILLONLY, help="filter for billing agent [%default]")
+    cmd.add_option("-U", "--user-name", metavar="TEXT", default=USER_NAME, help="user name for the output report (not for login)")
+    cmd.add_option("--mockup", action="count", default=0, help="with dummy Odoo API")
+    cmd.add_option("-q", "--shortname", action="count", default=SHORTNAME, help="present short names for proj+task [%default]")
+    cmd.add_option("-Q", "--shortdesc", action="count", default=SHORTDESC, help="present short lines for description [%default]")
+    cmd.add_option("-z", "--onlyzeit", action="count", default=ONLYZEIT, help="present only local zeit data [%default]")
+    cmd.add_option("-L", "--labels", metavar="LIST", action="append", default=[], help="select and format columns (new=col:h)")
+    cmd.add_option("-o", "-O", "--output", metavar="TO", default=OUTPUT, help="(filename.)json|yaml|html|wide|md|htm|csv|dat")
+    cmd.add_option("-J", "--jsonfile", metavar="FILE", default=JSONFILE, help="write also json data file")
+    cmd.add_option("-X", "--xlsxfile", metavar="FILE", default=XLSXFILE, help="write also json data file")
+    cmd.add_option("-D", "--csvfile", metavar="FILE", default=CSVFILE, help="write also sCSV data file")
+    cmd.add_option("-d", "--csvdata", metavar="FILE", default=CSVDATA, help="use data from semicolonCSV file")
+    cmd.add_option("-x", "--xlsxdata", metavar="FILE", default=XLSXDATA, help="use data from xlsx data file")
+    cmd.add_option("-f", "--zeitdata", metavar="FILE", default=ZEITDATA, help="use data from this zeit.txt")
+    cmd.add_option("-g", "--gitcredentials", metavar="FILE", default=dotnetrc.GIT_CREDENTIALS)
+    cmd.add_option("-G", "--netcredentials", metavar="FILE", default=dotnetrc.NET_CREDENTIALS)
+    cmd.add_option("-E", "--extracredentials", metavar="FILE", default=dotnetrc.NETRC_FILENAME)
+    cmd.add_option("-c", "--config", metavar="NAME=VALUE", action="append", default=[])
+    cmd.add_option("-y", "--update", action="store_true", default=UPDATE,
                        help="actually update odoo")
-    opt, args = cmdline.parse_args()
+    return cmd
+
+if __name__ == "__main__":
+    opt, args = cmdline().parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     # logg.addHandler(logging.StreamHandler())

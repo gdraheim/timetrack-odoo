@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
-# pylint: disable=invalid-name,global-statement,global-variable-not-assigned,import-outside-toplevel
+# pylint: disable=missing-function-docstring,missing-class-docstring,line-too-long,global-statement
+# pylint: disable=invalid-name,global-statement,global-variable-not-assigned,import-outside-toplevel,consider-using-f-string
 """
 Read zeit.txt files and format as odoo-import data. The resulting csv or xlsx
 can imported via the Odoo web UI. Here it is a helper module generating json
@@ -14,12 +14,11 @@ older optins)
 __copyright__ = "(C) 2017-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "0.6.4452"
 
-from typing import List, Dict, Union, Optional, Sequence, TextIO, Iterator, Iterable, cast
+from typing import List, Dict, Optional, Iterator, Iterable, cast
 
 import logging
 import re
 import datetime
-import os.path as path
 
 import tabtotext
 from tabtotext import JSONList, JSONDict, viewFMT
@@ -103,7 +102,6 @@ class DateFromWeekday:
             self.ignore = False
         # checking if given date1 matches with day-name of the weekstart
         logg.debug("start of week %s", date1)
-        offset = 0
         plus2 = date1 + datetime.timedelta(days=2)
         if "sa" in weekdays and plus2.weekday() == 0:  # 0(monday)
             self.sa = date1 + datetime.timedelta(days=0)
@@ -275,10 +273,10 @@ def scanlines(lines_from_file: Iterable[str], days: Dayrange, username: Optional
             m1 = cols1.match(line)
             m = m1 or m0
             if not m:
-                if re.match("^\S+ [(].*", line):
+                if re.match(r"^\S+ [(].*", line):
                     logg.debug("?? %s", line)
                     continue
-                if re.match("^\S+ \d+-\d+.*", line):
+                if re.match(r"^\S+ \d+-\d+.*", line):
                     logg.debug("?? %s", line)
                     continue
                 logg.error("?? %s", line)
@@ -367,7 +365,6 @@ def scanlines(lines_from_file: Iterable[str], days: Dayrange, username: Optional
 def filter_data(data: JSONList = []) -> JSONList:
     return list(each_filter_data(data))
 def each_filter_data(data: JSONList = []) -> Iterator[JSONDict]:
-    r: JSONList = []
     for item in data:
         # itemDate = cast(str, item[TitleDate])
         itemDesc = cast(str, item[TitleDesc])
@@ -456,7 +453,7 @@ def run(arg: str) -> None:
         logg.log(DONE, " %s written   %s '%s'  (%s entries)", FMT, viewFMT(FMT), xlsx_file, len(data))
 
 if __name__ == "__main__":
-    from optparse import OptionParser
+    from optparse import OptionParser # pylint: disable=deprecated-module
     cmdline = OptionParser("%prog [-opt] files...", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")

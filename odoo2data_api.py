@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,line-too-long,multiple-statements
+
+""" push and pull records to Odoo's Timesheet API """
 
 __copyright__ = "(C) 2021-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.0.4452"
@@ -12,15 +14,15 @@ import sys
 import re
 import os.path as path
 import json
-import requests
 import datetime
-import dotnetrc
-import urllib.request
 import random
+import urllib.request
+from fnmatch import fnmatchcase as fnmatch
+from optparse import OptionParser # type: ignore[deprecated-module] # pylint: disable=deprecated-module
+import requests
+import dotnetrc
 from dotnetrc import set_password_filename, get_username_password, str_get_username_password, str_username_password
 from dotgitconfig import git_config_value
-from fnmatch import fnmatchcase as fnmatch
-from optparse import OptionParser
 
 import tabtotext
 from tabtotext import JSONList, JSONDict
@@ -225,7 +227,7 @@ def odoo_set_timesheet_record(url: str, db:str, usr: UserID, pwd: str, uid: User
 
 def odoo_write_timesheet_record(url: str, db:str, usr: UserID, pwd: str, uid: UserID, entry_id: EntryID, proj_id: ProjID, task_id: TaskID, entry_date: Day, entry_desc: str, entry_size: Num) -> bool:
     args = [ entry_id]
-    vals = { 
+    vals = {
                 "unit_amount": entry_size,
                 "name": entry_desc,
                 "date": strDate(entry_date),
@@ -480,9 +482,9 @@ class Odoo:
         return records
 
 ###########################################################################################
-def run(arg: str) -> None: 
+def run(arg: str) -> None:
     if arg in ["help"]:
-        cmdline().print_help() 
+        cmdline().print_help()
         print("\nCommands:")
         previous = ""
         for line in open(__file__):
@@ -520,21 +522,21 @@ def reset() -> None:
     pass  # only defined in the mockup
 
 def cmdline() -> OptionParser:
-    cmdline = OptionParser("%prog [-options] [help|commands...]", version=__version__)
-    cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
-    cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default="~/.netrc")
-    cmdline.add_option("-d", "--db", metavar="name", default=ODOO_DB)
-    cmdline.add_option("-e", "--url", metavar="url", default=ODOO_URL)
-    return cmdline
+    cmd = OptionParser("%prog [-options] [help|commands...]", version=__version__)
+    cmd.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
+    cmd.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
+    cmd.add_option("-g", "--gitcredentials", metavar="FILE", default="~/.netrc")
+    cmd.add_option("-d", "--db", metavar="name", default=ODOO_DB)
+    cmd.add_option("-e", "--url", metavar="url", default=ODOO_URL)
+    return cmd
 
 if __name__ == "__main__":
-    opt, args = cmdline().parse_args()
+    opt, cmdline_args = cmdline().parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     dotnetrc.set_password_filename(opt.gitcredentials)
     ODOO_URL = opt.url
     ODOO_DB = opt.db
-    if not args:
-        args = ["projects"]
-    for arg in args:
-        run(arg)
+    if not cmdline_args:
+        cmdline_args = ["projects"]
+    for cmdline_arg in cmdline_args:
+        run(cmdline_arg)
