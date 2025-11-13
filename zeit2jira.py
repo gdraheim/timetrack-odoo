@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,line-too-long,global-statement
+# pylint: disable=unused-variable,deprecated-module
 
 """
 Synchronize odoo-import data (from zeit.txt) with Jira worklog entries.
@@ -8,26 +9,23 @@ Synchronize odoo-import data (from zeit.txt) with Jira worklog entries.
 __copyright__ = "(C) 2022-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "0.4.4452"
 
-from typing import Optional, Union, Dict, List, Tuple, Iterable, Iterator, cast, NamedTuple
+from typing import Optional, Dict, List, Iterable, Iterator, cast, NamedTuple
 
 import logging
-import re
-import os
-import csv
 import datetime
+from fnmatch import fnmatchcase as fnmatch
 
 import dotnetrc
-from dotgitconfig import git_config_value, git_config_override
+from dotgitconfig import git_config_override
 import tabtotext
 import zeit2json as zeit_api
 from tabtotext import viewFMT, str18, str27, str40
+from tabtotext import JSONList, JSONDict, JSONBase, JSONItem
 from tabtools import strHours
-from timerange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
+from timerange import get_date, dayrange, is_dayrange
 import jira2data_api as jira_api
 
 # from math import round
-from fnmatch import fnmatchcase as fnmatch
-from tabtotext import JSONList, JSONDict, JSONBase, JSONItem
 from odoo2data_api import EntryID, ProjID, TaskID
 
 Day = datetime.date
@@ -410,7 +408,7 @@ if __name__ == "__main__":
     cmdline.add_option("-c", "--config", metavar="NAME=VALUE", action="append", default=[])
     cmdline.add_option("-y", "--update", action="store_true", default=UPDATE,
                        help="actually update odoo")
-    opt, args = cmdline.parse_args()
+    opt, cmdline_args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     logg.setLevel(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     # logg.addHandler(logging.StreamHandler())
@@ -444,12 +442,12 @@ if __name__ == "__main__":
     # zeit2json
     ZEIT_SUMMARY = opt.summary
     DAYS = dayrange(opt.after, opt.before)
-    if not args:
-        args = ["make"]
-    elif len(args) == 1 and is_dayrange(args[0]):
-        args += ["compare"]
-    elif len(args) >= 2 and is_dayrange(args[1]):
-        logg.warning("a dayrange should come first: '%s' (reordering now)", args[1])
-        args = [args[1], args[0]] + args[2:]
-    for arg in args:
-        run(arg)
+    if not cmdline_args:
+        cmdline_args = ["make"]
+    elif len(cmdline_args) == 1 and is_dayrange(cmdline_args[0]):
+        cmdline_args += ["compare"]
+    elif len(cmdline_args) >= 2 and is_dayrange(cmdline_args[1]):
+        logg.warning("a dayrange should come first: '%s' (reordering now)", cmdline_args[1])
+        cmdline_args = [cmdline_args[1], cmdline_args[0]] + cmdline_args[2:]
+    for cmdline_arg in cmdline_args:
+        run(cmdline_arg)
