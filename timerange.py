@@ -37,7 +37,7 @@ symbolic_dayrange = [
     "M01-M02", "M02-M03", "M03-M04", "M04-M05", "M05-M06", "M06-M07", "M07-M08", "M08-M09", "M09-M10", "M10-M11", "M11-M12",
     "M01-M03", "M02-M04", "M03-M05", "M04-M06", "M05-M07", "M06-M08", "M07-M09", "M08-M10", "M09-M11", "M10-M12",
     "M01-M04", "M02-M05", "M03-M06", "M04-M07", "M05-M08", "M06-M09", "M07-M10", "M08-M11", "M09-M12",
-    "year", "thisyear", "lastyear", "oldyear", "blastyear", "beforelastyear",
+    "current", "year", "current-year", "this-year", "thisyear", "lastyear", "oldyear", "blastyear", "beforelastyear",
     "lastyearM00", "lastyearM01", "lastyearM02", "lastyearM03", "lastyearM04", "lastyearM05",
     "lastyearM06", "lastyearM07", "lastyearM08", "lastyearM09", "lastyearM10", "lastyearM11", "lastyearM12"]
 
@@ -111,9 +111,14 @@ def days_for_symbolic_dayrange(arg: str) -> Tuple[Day, Day]:
         if before.year < after.year:
             before = date_dotformat("99.%02i.%04i" % (before.month, after.year))
         return (after, before)
-    if arg in ["year", "thisyear"]:
+    if arg in ["year", "current", "current-year"]:
         after = firstday_of_month_name("M01")
         before = lastday_of_month(0)
+        return (after, before)
+    if arg in ["thisyear", "this-year"]:
+        thisyear = Day.today()
+        after = firstday_of_month_name("M01", thisyear)
+        before = lastday_of_month_name("M12", thisyear)
         return (after, before)
     if arg in ["oldyear", "lastyear"]:
         lastyear = Day.today() - datetime.timedelta(days=364)

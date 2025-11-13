@@ -295,9 +295,8 @@ def report(arg: str) -> Optional[Report]:
     headers = HEADERS
     ###########################################################
     zeit_api.set_zeit_user_name(USER_NAME)
-    zeit_api.ZEIT_AFTER = DAYS.after.isoformat()
-    zeit_api.ZEIT_BEFORE = DAYS.before.isoformat()
-    zeit_api.ZEIT_SUMMARY = ZEIT_SUMMARY
+    zeit_api.set_dayrange(DAYS)
+    zeit_api.set_summary(ZEIT_SUMMARY)
     conf = zeit_api.ZeitConfig(ZEITDATA, username=USER_NAME)
     zeit = zeit_api.Zeit(conf)
     if CSVDATA:

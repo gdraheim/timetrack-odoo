@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 # pylint: disable=missing-function-docstring,missing-class-docstring
-# pylint: disable=invalid-name,global-variable-not-assigned,import-outside-toplevel
+# pylint: disable=invalid-name,global-statement,global-variable-not-assigned,import-outside-toplevel
 """
 Read zeit.txt files and format as odoo-import data. The resulting csv or xlsx
 can imported via the Odoo web UI. Here it is a helper module generating json
@@ -23,7 +23,7 @@ import os.path as path
 
 import tabtotext
 from tabtotext import JSONList, JSONDict, viewFMT
-from timerange import get_date, Day, is_dayrange, dayrange
+from timerange import get_date, Day, is_dayrange, dayrange, Dayrange
 from odootopic import OdooValuesForTopic
 from workbilling import WorkRecordForBilling
 from zeitdata import ZeitConfig, zeit_user_name, zeit_filename
@@ -37,8 +37,7 @@ logging.addLevelName(NOTE, "NOTE")
 logging.addLevelName(HINT, "HINT")
 
 NIX = ""
-ZEIT_AFTER = ""
-ZEIT_BEFORE = ""
+ZEIT_DAYS: Dayrange = dayrange("thisyear")
 ZEIT_SUMMARY = "stundenzettel"
 ZEIT_PROJFILTER = ""
 ZEIT_TASKFILTER = ""
@@ -197,21 +196,19 @@ def cleandesc(desc: str) -> str:
         return m.group(1)
     return d
 
+def set_summary(summary: str) -> None:
+    global ZEIT_SUMMARY
+    ZEIT_SUMMARY = summary
+def set_future(allow: bool) -> None:
+    global ZEIT_FUTURE
+    ZEIT_FUTURE = allow
+def set_dayrange(days: Dayrange) -> None:
+    global ZEIT_DAYS
+    ZEIT_DAYS = days
 def get_zeit_after() -> Day:
-    global ZEIT_AFTER
-    if ZEIT_AFTER:
-        return get_date(ZEIT_AFTER)
-    today = datetime.date.today()
-    return Day(today.year, 1, 1)
+    return ZEIT_DAYS.after
 def get_zeit_before() -> Day:
-    global ZEIT_BEFORE, ZEIT_AFTER
-    if ZEIT_BEFORE:
-        return get_date(ZEIT_BEFORE)
-    if ZEIT_AFTER:
-        after = get_date(ZEIT_AFTER)
-        return Day(after.year, 12, 31)
-    today = datetime.date.today()
-    return Day(today.year, 12, 31)
+    return ZEIT_DAYS.before
 
 def get_user_name() -> Optional[str]:
     return zeit_user_name()
@@ -437,9 +434,7 @@ def run(arg: str) -> None:
     if is_dayrange(arg):
         days = dayrange(arg)
         logg.log(DONE, "%s -> %s %s", arg, days.after, days.before)
-        global ZEIT_AFTER, ZEIT_BEFORE
-        ZEIT_AFTER = days.after.isoformat()
-        ZEIT_BEFORE = days.before.isoformat()
+        ZEIT_DAYS = days
         return
     filename = arg
     data = get_data(filename)
@@ -481,9 +476,9 @@ if __name__ == "__main__":
                        help="generate Ticket column (can be used to import to jira)")
     cmdline.add_option("-8", "--future", action="store_true", default=ZEIT_FUTURE,
                        help="allow future entries from zeit timesheet")
-    cmdline.add_option("-a", "--after", metavar="DATE", default=ZEIT_AFTER,
+    cmdline.add_option("-a", "--after", metavar="DATE", default=NIX,
                        help="only evaluate entrys on and after [first of year]")
-    cmdline.add_option("-b", "--before", metavar="DATE", default=ZEIT_BEFORE,
+    cmdline.add_option("-b", "--before", metavar="DATE", default=NIX,
                        help="only evaluate entrys on and before [last of year]")
     cmdline.add_option("-s", "--summary", metavar="TEXT", default=ZEIT_SUMMARY,
                        help="suffix for summary report [%default]")
@@ -533,8 +528,7 @@ if __name__ == "__main__":
     ZEIT_DESCFILTER = opt.descfilter
     ZEIT_SUMMARY = opt.summary
     ZEIT_FUTURE = opt.future
-    ZEIT_AFTER = opt.after
-    ZEIT_BEFORE = opt.before
+    ZEIT_DAYS = dayrange(opt.after or "thisyear", opt.before)
     if not args or is_dayrange(args[0]):
         args += [get_zeit_filename()]
         logg.info(" %s ", args)

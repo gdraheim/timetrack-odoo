@@ -16,7 +16,7 @@ import os.path as path
 
 import tabtotext
 from tabtotext import JSONList, JSONDict, JSONItem
-from timerange import get_date, Day
+from timerange import get_date, Day, dayrange
 from collections import namedtuple
 
 OdooValues = namedtuple("OdooValues", ["proj", "task", "pref", "ticket", "bill"])
@@ -285,8 +285,7 @@ if __name__ == "__main__":
     #
     import zeit2json
     zeit2json.set_zeit_filename(opt.filename)
-    zeit2json.ZEIT_AFTER = opt.after
-    zeit2json.ZEIT_BEFORE = opt.before
+    zeit2json.set_dayrange(dayrange(opt.after, opt.before))
     if not args:
         args = [zeit2json.get_zeit_filename()]
         logg.info(" %s ", args)

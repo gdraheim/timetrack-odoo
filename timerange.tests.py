@@ -341,54 +341,75 @@ class timerangeTest(unittest.TestCase):
         self.assertEqual(days.after, Day(2020, 10, 1))
         self.assertEqual(days.before, Day(2020, 12, 31))
     def test_555(self) -> None:
-        for month in ["thisyear", "year"]:
+        days = zeit.dayrange("M01-M04")
+        logg.info("days = %s", days)
+        self.assertEqual(days.after, Day(2020, 1, 1))
+        self.assertEqual(days.before, Day(2020, 4, 30))
+    def test_556(self) -> None:
+        days = zeit.dayrange("M04-M07")
+        logg.info("days = %s", days)
+        self.assertEqual(days.after, Day(2020, 4, 1))
+        self.assertEqual(days.before, Day(2020, 7, 31))
+    def test_557(self) -> None:
+        days = zeit.dayrange("M07-M10")
+        logg.info("days = %s", days)
+        self.assertEqual(days.after, Day(2020, 7, 1))
+        self.assertEqual(days.before, Day(2020, 10, 31))
+    def test_560(self) -> None:
+        for month in ["year", "current", "current-year"]:
             days = zeit.dayrange(month)
             logg.info("days = %s", days)
             self.assertEqual(days.after, Day(2020, 1, 1))
             self.assertEqual(days.before, Day(2020, 8, 31))
-    def test_556(self) -> None:
+    def test_561(self) -> None:
+        for month in ["thisyear", "this-year"]:
+            days = zeit.dayrange(month)
+            logg.info("days = %s", days)
+            self.assertEqual(days.after, Day(2020, 1, 1))
+            self.assertEqual(days.before, Day(2020, 12, 31))
+    def test_562(self) -> None:
         for month in ["thismonth", "this-month", "this"]:
             days = zeit.dayrange(month)
             logg.info("days = %s", days)
             self.assertEqual(days.after, Day(2020, 8, 1))
             self.assertEqual(days.before, Day(2020, 8, 31))
-    def test_557(self) -> None:
+    def test_563(self) -> None:
         for month in ["lastmonth", "last-month", "last"]:
             days = zeit.dayrange(month)
             logg.info("days = %s", days)
             self.assertEqual(days.after, Day(2020, 7, 1))
             self.assertEqual(days.before, Day(2020, 7, 31))
-    def test_558(self) -> None:
+    def test_564(self) -> None:
         for month in ["beforelastmonth", "blast-month", "blast", "before-last-month"]:
             days = zeit.dayrange(month)
             logg.info("days = %s", days)
             self.assertEqual(days.after, Day(2020, 6, 1))
             self.assertEqual(days.before, Day(2020, 6, 30))
-    def test_559(self) -> None:
+    def test_565(self) -> None:
         for month in ["lastmonths", "last-months", "months"]:
             days = zeit.dayrange(month)
             logg.info("days = %s", days)
             self.assertEqual(days.after, Day(2020, 7, 1))
             self.assertEqual(days.before, Day(2020, 8, 31))
-    def test_560(self) -> None:
+    def test_566(self) -> None:
         for month in ["lastweek", "last-week", "latest"]:
             days = zeit.dayrange(month)
             logg.info("days = %s", days)
             self.assertEqual(days.after, Day(2020, 8, 2))
             self.assertEqual(days.before, Day(2020, 8, 9))
-    def test_561(self) -> None:
+    def test_567(self) -> None:
         for month in ["lastweeks", "last-weeks", "late"]:
             days = zeit.dayrange(month)
             logg.info("days = %s", days)
             self.assertEqual(days.after, Day(2020, 7, 26))
             self.assertEqual(days.before, Day(2020, 8, 9))
-    def test_562(self) -> None:
+    def test_568(self) -> None:
         for month in ["thisweek", "this-week", "week"]:
             days = zeit.dayrange(month)
             logg.info("days = %s", days)
             self.assertEqual(days.after, Day(2020, 8, 2))
             self.assertEqual(days.before, Day(2020, 8, 9))
-    def test_563(self) -> None:
+    def test_569(self) -> None:
         for month in ["nextweek", "next-week"]:  # "next"
             days = zeit.dayrange(month)
             logg.info("days = %s", days)
