@@ -441,8 +441,8 @@ def _summary_per_project(data: JSONList, odoodata: JSONList) -> JSONList:
         zeit = 0.0
         odoo = 0.0
         for res in result:
-            zeit += float(res.get("zeit", 0))
-            odoo += float(res.get("odoo", 0))
+            zeit += float(cast(Num, res.get("zeit", 0)))
+            odoo += float(cast(Num, res.get("odoo", 0)))
         result.append({"zeit": zeit, "odoo": odoo, "at": chr(931)})
     return result
 
@@ -495,8 +495,8 @@ def _summary_per_topic(data: JSONList, odoodata: JSONList) -> JSONList:
         zeit = 0.0
         odoo = 0.0
         for res in result:
-            zeit += float(res.get("zeit", 0))
-            odoo += float(res.get("odoo", 0))
+            zeit += float(cast(Num, res.get("zeit", 0)))
+            odoo += float(cast(Num, res.get("odoo", 0)))
         result.append({"zeit": zeit, "odoo": odoo, "at": chr(931)})
     return result
 

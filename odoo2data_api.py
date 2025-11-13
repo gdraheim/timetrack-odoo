@@ -20,6 +20,7 @@ import random
 from dotnetrc import set_password_filename, get_username_password, str_get_username_password, str_username_password
 from dotgitconfig import git_config_value
 from fnmatch import fnmatchcase as fnmatch
+from optparse import OptionParser
 
 import tabtotext
 from tabtotext import JSONList, JSONDict
@@ -88,6 +89,12 @@ def odoo_billing() -> List[str]:
     value = git_config_value("odoo.bill")
     if value:
         return [val.strip() for val in value.split(" ") if val.strip()]
+    return []
+
+def odoo_databases() -> List[str]:
+    value = git_config_value("odoo.db")
+    if value:
+        return [value]
     return []
 
 def odoo_url_jsonrpc() -> str:
@@ -166,7 +173,7 @@ def odoo_get_timesheet_records(url: str, db:str, usr: UserID, pwd: str, uid: Use
         ]
 
     info = odoo_call(F"{url}{JSONRPC}", "object", "execute", db, usr, pwd, "account.analytic.line", "search_read", searching, [])
-    return info
+    return cast(JSONList, info)
 
 def odoo_get_timesheet_record(url: str, db:str, usr: UserID, pwd: str, uid: UserID, proj_id: ProjREF, task_id: TaskREF, entry_date: Optional[Day] = None) -> JSONList:
     dateref = datetime.date.today().strftime("%Y-%m-%d")
@@ -188,7 +195,7 @@ def odoo_get_timesheet_record(url: str, db:str, usr: UserID, pwd: str, uid: User
         ]
 
     info = odoo_call(F"{url}{JSONRPC}", "object", "execute", db, usr, pwd, "account.analytic.line", "search_read", searching, [])
-    return info
+    return cast(JSONList, info)
 
 
 # otter/odoo/rest.py#post_record
@@ -202,19 +209,19 @@ def odoo_add_timesheet_record(url: str, db:str, usr: UserID, pwd: str, uid: User
                     "user_id": uid
                 }]
     info = odoo_call(F"{url}{JSONRPC}", "object", "execute", db, usr, pwd, "account.analytic.line", "create", args)
-    return info
+    return cast(bool, info)
 
 def odoo_set_timesheet_record(url: str, db:str, usr: UserID, pwd: str, uid: UserID, proj_id: ProjID, task_id: TaskID, entry_date: Day, entry_desc: str, entry_size: Num) -> bool:
-    existing = odoo_get_timesheet_record(url, cookies, uid, proj_id, task_id, entry_date)
+    existing = odoo_get_timesheet_record(url, db, usr, pwd, uid, proj_id, task_id, entry_date)
     if not existing:
-        return odoo_add_timesheet_record(url, cookies, uid, proj_id, task_id, entry_date, entry_desc, entry_size)
+        return odoo_add_timesheet_record(url, db, usr, pwd, uid, proj_id, task_id, entry_date, entry_desc, entry_size)
     if len(existing) > 1:
         logg.error("existing %sx\n%s", len(existing), existing[0])
         raise OdooException("found multiple records for account&date")
     logg.debug("existing %s", existing)
     entry_id = cast(EntryID, existing[0]["id"])
     logg.info("update existing record [%s]", entry_id)
-    return odoo_write_timesheet_record(url, cookies, uid, entry_id, proj_id, task_id, entry_date, entry_desc, entry_size)
+    return odoo_write_timesheet_record(url, db, usr, pwd, uid, entry_id, proj_id, task_id, entry_date, entry_desc, entry_size)
 
 def odoo_write_timesheet_record(url: str, db:str, usr: UserID, pwd: str, uid: UserID, entry_id: EntryID, proj_id: ProjID, task_id: TaskID, entry_date: Day, entry_desc: str, entry_size: Num) -> bool:
     args = [ entry_id]
@@ -227,12 +234,12 @@ def odoo_write_timesheet_record(url: str, db:str, usr: UserID, pwd: str, uid: Us
                 "user_id": uid
             }
     info = odoo_call(F"{url}{JSONRPC}", "object", "execute", db, usr, pwd, "account.analytic.line", "write", args, vals)
-    return info
+    return cast(bool, info)
 
 def odoo_delete_timesheet_record(url: str, db:str, usr: UserID, pwd: str, uid: UserID, entry_id: EntryID) -> bool:
     args = [entry_id]
     info = odoo_call(F"{url}{JSONRPC}", "object", "execute", db, usr, pwd, "account.analytic.line", "unlink", args)
-    return info
+    return cast(bool, info)
 
 
 
@@ -282,6 +289,8 @@ class Odoo:
         if self.user_name:
             return self.user_name
         return self.config.user or ""
+    def databases(self) -> List[str]:
+        return [ self.db ]
     def setup(self) -> UserID:
         username, password = get_username_password(self.url)
         self.usr = odoo_login(self.url, self.db, username, password)
@@ -471,9 +480,9 @@ class Odoo:
         return records
 
 ###########################################################################################
-def run(arg: str) -> None:
+def run(arg: str) -> None: 
     if arg in ["help"]:
-        cmdline.print_help()
+        cmdline().print_help() 
         print("\nCommands:")
         previous = ""
         for line in open(__file__):
@@ -510,15 +519,17 @@ def run(arg: str) -> None:
 def reset() -> None:
     pass  # only defined in the mockup
 
-if __name__ == "__main__":
-    from optparse import OptionParser
+def cmdline() -> OptionParser:
     cmdline = OptionParser("%prog [-options] [help|commands...]", version=__version__)
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     cmdline.add_option("-g", "--gitcredentials", metavar="FILE", default="~/.netrc")
     cmdline.add_option("-d", "--db", metavar="name", default=ODOO_DB)
     cmdline.add_option("-e", "--url", metavar="url", default=ODOO_URL)
-    opt, args = cmdline.parse_args()
+    return cmdline
+
+if __name__ == "__main__":
+    opt, args = cmdline().parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     dotnetrc.set_password_filename(opt.gitcredentials)
     ODOO_URL = opt.url
