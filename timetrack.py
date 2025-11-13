@@ -1,34 +1,31 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,multiple-statements,line-too-long,global-statement
+# pylint: disable=unused-variable,unused-argument,deprecated-module
 
 """ frontend to run other modules in the system """
 
 __copyright__ = "(C) 2019-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "0.2.4452"
 
-from typing import Optional, Union, Dict, List, Tuple, Iterable, cast
+from typing import Optional, List, Iterable, cast
 
 import logging
-import re
-import os
-import csv
 import datetime
 import sqlite3
 import os.path as path
+from fnmatch import fnmatchcase as fnmatch
 from contextlib import closing
 from configparser import ConfigParser
 
 import dotnetrc
 import tabtotext
 import zeit2json as zeit_api
-from timerange import get_date, first_of_month, last_of_month, last_sunday, next_sunday, dayrange, is_dayrange
+from timerange import get_date, dayrange, is_dayrange, Dayrange
 from dotgitconfig import git_config_value, git_config_override
 import odoo2data_api as odoo_api
 
 # from math import round
-from fnmatch import fnmatchcase as fnmatch
-from tabtotext import JSONList, JSONDict, JSONBase, JSONItem, viewFMT
-from odoo2data_api import EntryID, ProjID, TaskID
+from tabtotext import JSONList, JSONDict, JSONItem, viewFMT
 
 Day = datetime.date
 Num = float
@@ -271,7 +268,7 @@ def pull_zeit(after: Day, before: Day, conf: Optional[zeit_api.ZeitConfig] = Non
     uses = TimeConfig()
     pull = TimeDB(uses)
     pull.tables(after)
-    for item in zeit.read_entries(after, before):
+    for item in zeit.read_entries(Dayrange(after, before)):
         proj: str = cast(str, item["Project"])
         task: str = cast(str, item["Task"])
         pref: str = cast(str, item["Topic"])  # explicit here
@@ -519,8 +516,8 @@ if __name__ == "__main__":
         git_config_override(value)
     dotnetrc.set_password_filename(opt.gitcredentials)
     dotnetrc.add_password_filename(opt.netcredentials, opt.extracredentials)
-    config = ConfigParser()
-    config.read_string(default_config(False))
+    run_config = ConfigParser()
+    run_config.read_string(default_config(False))
     UPDATE = opt.update
     LABELS = opt.labels
     OUTPUT = opt.output
@@ -551,4 +548,4 @@ if __name__ == "__main__":
     elif len(args) >= 2 and is_dayrange(args[1]):
         logg.warning("a dayrange should come first: '%s' (reordering now)", args[1])
         args = [args[1], args[0]] + args[2:]
-    run(config, args)
+    run(run_config, args)
