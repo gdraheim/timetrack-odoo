@@ -431,6 +431,7 @@ def get_data(filename: str) -> JSONList:
     return filter_data(zeitdata)
 
 def run(arg: str) -> None:
+    global ZEIT_DAYS
     if is_dayrange(arg):
         days = dayrange(arg)
         logg.log(DONE, "%s -> %s %s", arg, days.after, days.before)

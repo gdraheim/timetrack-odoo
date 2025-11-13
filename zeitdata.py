@@ -2,7 +2,7 @@
 # pylint: disable=missing-function-docstring,missing-class-docstring
 # pylint: disable=global-statement,global-variable-not-assigned,import-outside-toplevel
 
-from typing import Optional
+from typing import Optional, Iterator
 from pathlib import Path
 from timerange import Day
 import os.path as path
@@ -10,6 +10,7 @@ import os.path as path
 DEFAULT_FILENAME = "~/zeit{YEAR}.txt"
 ZEIT_FILENAME = ""
 ZEIT_USER_NAME = ""
+ZEIT_ENCODING = "utf-8"
 NIX = ""
 
 class ZeitConfig:
@@ -49,16 +50,20 @@ class ZeitConfig:
         if found:
             return found
         return DEFAULT_FILENAME
-    def filename(self, after: Optional[Day]) -> Path:
+    def filename(self, after: Optional[Day] = None) -> Path:
         filename = self.filespec()
         return self.expand(filename, after)
-    def expand(self, filename: str, after: Optional[Day]) -> Path:
+    def expand(self, filename: str, after: Optional[Day] = None) -> Path:
         YEAR = after.year if after else Day.today().year
         return Path(filename.format(**locals())).expanduser()
     def default_user_name(self, newdefault: str = NIX) -> str:
         return default_user_name(newdefault)
     def default_filename(self, newdefault: str = NIX) -> str:
         return default_filename(newdefault)
+    def lines(self, after: Optional[Day] = None) -> Iterator[str]:
+        with open(self.filename(after), encoding=ZEIT_ENCODING) as inputfile:
+            for line in inputfile:
+                yield line
 
 def default_user_name(newdefault: str = NIX) -> str:
     global ZEIT_USER_NAME
